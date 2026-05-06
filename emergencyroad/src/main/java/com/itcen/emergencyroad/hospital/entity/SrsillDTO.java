@@ -30,5 +30,4 @@ public class SrsillDTO {
     private String MKioskTy15; // 저체중 출산아
     private String MKioskTy27; // 영상의학혈관중재_영유아
 
-
 }
