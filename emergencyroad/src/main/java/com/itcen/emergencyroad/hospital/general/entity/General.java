@@ -10,6 +10,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class General {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // JPA 필수 식별자
