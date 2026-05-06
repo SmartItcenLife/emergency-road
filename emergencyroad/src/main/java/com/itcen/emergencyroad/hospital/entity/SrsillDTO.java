@@ -1,6 +1,7 @@
 package com.itcen.emergencyroad.hospital.entity;
 
 public class SrsillDTO {
+
     // 일반
     private String mkioskty1; // 심근경색
     private String mkioskty2; // 뇌경색
