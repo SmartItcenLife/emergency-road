@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.general.entity;
+package com.itcen.emergencyroad.general.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
