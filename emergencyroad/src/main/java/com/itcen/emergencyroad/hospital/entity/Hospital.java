@@ -15,8 +15,9 @@ public class Hospital {
 //
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;
-    @Id
+
     // 공공데이터 기준 병원 고유 ID (비즈니스 키, 유니크)
+    @Id
     @Column(name="hpid" ,unique = true, nullable = false, length = 20)
     private String hpid;
 

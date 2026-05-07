@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.entity;
+package com.itcen.emergencyroad.pediatric.entity;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
