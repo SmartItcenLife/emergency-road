@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.entity;
+package com.itcen.emergencyroad.hospital.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

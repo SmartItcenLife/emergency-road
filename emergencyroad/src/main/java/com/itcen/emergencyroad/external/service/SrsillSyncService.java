@@ -1,6 +1,5 @@
 package com.itcen.emergencyroad.external.service;
 
-import com.itcen.emergencyroad.external.api.EmrApiClient;
 import com.itcen.emergencyroad.external.api.SrsIllApiClient;
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import lombok.RequiredArgsConstructor;
