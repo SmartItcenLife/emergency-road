@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.entity;
+package com.itcen.emergencyroad.general.dot;
 
 import lombok.Getter;
 
