@@ -42,7 +42,6 @@ public class PregnantSyncService {
                 pregnantRepository.save(newEntity);
 
             } else {
-
                 emrMapper.updateEntity(entity, dto);
             }
         }

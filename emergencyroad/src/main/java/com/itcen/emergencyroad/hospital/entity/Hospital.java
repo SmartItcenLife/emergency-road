@@ -12,10 +12,10 @@ import lombok.*;
 public class Hospital {
 
     // PK (DB 내부 식별용, 외부 API와 무관)
+//
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     // 공공데이터 기준 병원 고유 ID (비즈니스 키, 유니크)
     @Column(name="hpid" ,unique = true, nullable = false, length = 20)
     private String hpid;

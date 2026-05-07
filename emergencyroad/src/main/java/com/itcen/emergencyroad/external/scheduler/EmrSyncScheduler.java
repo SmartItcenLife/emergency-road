@@ -3,6 +3,9 @@ package com.itcen.emergencyroad.external.scheduler;
 import com.itcen.emergencyroad.external.RegionCode;
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.external.service.EmrSyncService;
+import com.itcen.emergencyroad.external.service.SrsillSyncService;
+import com.itcen.emergencyroad.general.service.GeneralService;
+import com.itcen.emergencyroad.general.service.SrsIllService;
 import com.itcen.emergencyroad.pregnant.service.PregnantSyncService;
 import com.itcen.emergencyroad.hospital.service.HospitalSyncService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ public class EmrSyncScheduler {
     private final EmrSyncService emrSyncService;
     private final HospitalSyncService hospitalSyncService;
     private final PregnantSyncService pregnantSyncService;
+    private  final GeneralService generalService;
 
     @Scheduled(fixedDelay = 3000000)
     public void sync() {
@@ -40,7 +44,12 @@ public class EmrSyncScheduler {
                     hospitalSyncService.saveOrUpdate(list);
 
                     pregnantSyncService.saveOrUpdate(list);
-                    log.info("{} 동기화 완료 size={}", sido, list.size());
+                    generalService.saveOrUpdate(list);
+
+
+                    log.info("{} emrSyncService 동기화 완료 size={}", sido, list.size());
+
+                    log.info("{} generalService 동기화 완료 size={}", sido, list.size());
 
                     if (!list.isEmpty()) {
                         log.info("sample hpId={}", list.get(0).getHpid());
