@@ -3,10 +3,12 @@ package com.itcen.emergencyroad.hospital.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "srsill_available_yn")
 @Getter
+@Setter
 @NoArgsConstructor
 
 public class Srsill {
@@ -14,12 +16,12 @@ public class Srsill {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 병원 이름을 외래키(연관관계 기준)로 설정
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    // name: 현재 테이블(Srsill)에 생성될 컬럼 이름
-    // referencedColumnName: 대상 테이블(Hospital)에서 참조할 컬럼 이름
-    @JoinColumn(name = "hospital_name", referencedColumnName = "hospital_name", nullable = false)
-    private Hospital hospital;
+//    // 병원 이름을 외래키(연관관계 기준)로 설정
+//    @OneToOne(fetch = FetchType.LAZY, optional = false)
+//    // name: 현재 테이블(Srsill)에 생성될 컬럼 이름
+//    // referencedColumnName: 대상 테이블(Hospital)에서 참조할 컬럼 이름
+//    @JoinColumn(name = "hospital_name", referencedColumnName = "hospital_name", nullable = false)
+//    private Hospital hospital;
 
     // 일반
     @Column(name = "MKioskTy1")

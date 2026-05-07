@@ -1,5 +1,9 @@
 package com.itcen.emergencyroad.hospital.entity;
 
+import lombok.Getter;
+
+@Getter
+
 public class SrsillDTO {
 
     // 일반
