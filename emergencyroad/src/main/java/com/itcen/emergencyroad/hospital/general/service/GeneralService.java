@@ -33,10 +33,10 @@ public class GeneralService {
             //String stage2 = URLEncoder.encode("송파구", "UTF-8");
 
             // 1. 병상 정보 API URL
-            String bedInfoUrl = "https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=" + serviceKey + "&STAGE1=" + stage1 + "&STAGE2=" + "&pageNo=1&numOfRows=10";
+            String bedInfoUrl = "https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=" + serviceKey + "&STAGE1=" + stage1  + "&pageNo=1&numOfRows=300";
 
             // 2. 중증 질환 수용 정보 API URL
-            String diseaseInfoUrl = "https://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire?serviceKey=" + serviceKey + "&STAGE1=" + stage1 + "&STAGE2=" + "&pageNo=1&numOfRows=10";
+            String diseaseInfoUrl = "https://apis.data.go.kr/B552657/ErmctInfoInqireService/getSrsillDissAceptncPosblInfoInqire?serviceKey=" + serviceKey + "&STAGE1=" + stage1 +  "&pageNo=1&numOfRows=300";
 
             // =================================================================
             // 첫 번째 API: 병상 정보 파싱 및 저장[cite: 1]
@@ -97,18 +97,18 @@ public class GeneralService {
                     general.setHpid(hpid);
 
                     // 중증 질환 정보 추가 셋팅
-                    general.setMiAvailable(getTagValue("mkioskty1", eElement));
-                    general.setCerebralInfarctionAvailable(getTagValue("mkioskty2", eElement));
-                    general.setSahSurgeryAvailable(getTagValue("mkioskty3", eElement));
-                    general.setNonSahSurgeryAvailable(getTagValue("mkioskty4", eElement));
-                    general.setGiEndoscopyAvailable(getTagValue("mkioskty11", eElement));
-                    general.setBronchoscopyAvailable(getTagValue("mkioskty13", eElement));
-                    general.setThoracicAortaEmergencyAvailable(getTagValue("mkioskty5", eElement));
-                    general.setAbdominalAortaEmergencyAvailable(getTagValue("mkioskty6", eElement));
-                    general.setEmergencyDialysisCrrtAvailable(getTagValue("mkioskty23", eElement));
-                    general.setPsychiatricClosedWardAvailable(getTagValue("mkioskty24", eElement));
-                    general.setSevereBurnTreatmentAvailable(getTagValue("mkioskty19", eElement));
-                    general.setVascularInterventionAvailable(getTagValue("mkioskty26", eElement));
+                    general.setMiAvailable(getTagValue("MKioskTy1", eElement));
+                    general.setCerebralInfarctionAvailable(getTagValue("MKioskTy2", eElement));
+                    general.setSahSurgeryAvailable(getTagValue("MKioskTy3", eElement));
+                    general.setNonSahSurgeryAvailable(getTagValue("MKioskTy4", eElement));
+                    general.setGiEndoscopyAvailable(getTagValue("MKioskTy11", eElement));
+                    general.setBronchoscopyAvailable(getTagValue("MKioskTy13", eElement));
+                    general.setThoracicAortaEmergencyAvailable(getTagValue("MKioskTy5", eElement));
+                    general.setAbdominalAortaEmergencyAvailable(getTagValue("MKioskTy6", eElement));
+                    general.setEmergencyDialysisCrrtAvailable(getTagValue("MKioskTy23", eElement));
+                    general.setPsychiatricClosedWardAvailable(getTagValue("MKioskTy24", eElement));
+                    general.setSevereBurnTreatmentAvailable(getTagValue("MKioskTy19", eElement));
+                    general.setVascularInterventionAvailable(getTagValue("MKioskTy26", eElement));
 
                     // 최종 완성된 데이터를 다시 저장(업데이트)
                     generalRepository.save(general);
