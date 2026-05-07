@@ -2,7 +2,7 @@ package com.itcen.emergencyroad.external.mapper;
 
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import com.itcen.emergencyroad.pregnant.entity.Pregnant; // 예시 엔티티
+import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import org.springframework.stereotype.Component;
 
 
