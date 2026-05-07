@@ -1,6 +1,6 @@
-package com.itcen.emergencyroad.hospital.general.controller;
+package com.itcen.emergencyroad.general.controller;
 
-import com.itcen.emergencyroad.hospital.general.service.GeneralService;
+import com.itcen.emergencyroad.general.service.GeneralService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

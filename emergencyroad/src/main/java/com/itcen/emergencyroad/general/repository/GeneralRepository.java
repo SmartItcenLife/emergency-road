@@ -1,6 +1,6 @@
-package com.itcen.emergencyroad.hospital.general.repository;
+package com.itcen.emergencyroad.general.repository;
 
-import com.itcen.emergencyroad.hospital.general.entity.General;
+import com.itcen.emergencyroad.general.entity.General;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

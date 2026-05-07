@@ -7,6 +7,7 @@ import com.itcen.emergencyroad.pregnant.service.PregnantSyncService;
 import com.itcen.emergencyroad.hospital.service.HospitalSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Profile("prod") // 앱실행 시 자동 실행 방지.
 public class EmrSyncScheduler {
 
     private final EmrSyncService emrSyncService;

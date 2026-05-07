@@ -1,7 +1,7 @@
-package com.itcen.emergencyroad.hospital.general.service;
+package com.itcen.emergencyroad.general.service;
 
-import com.itcen.emergencyroad.hospital.general.entity.General;
-import com.itcen.emergencyroad.hospital.general.repository.GeneralRepository;
+import com.itcen.emergencyroad.general.entity.General;
+import com.itcen.emergencyroad.general.repository.GeneralRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

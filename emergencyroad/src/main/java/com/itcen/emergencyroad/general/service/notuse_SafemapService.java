@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.general.service;
+package com.itcen.emergencyroad.general.service;
 
 import org.springframework.stereotype.Service;
 import java.io.BufferedReader;

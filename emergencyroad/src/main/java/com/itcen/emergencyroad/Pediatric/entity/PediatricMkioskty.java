@@ -1,4 +1,4 @@
-package com.itcen.emergencyroad.hospital.pediatricpatient.entity;
+package com.itcen.emergencyroad.Pediatric.entity;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
@@ -16,7 +16,7 @@ public class PediatricMkioskty {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hospital_code", referencedColumnName = "hospital_code", nullable = false)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid", nullable = false)
     private Hospital hospital;
 
     @Column(name = "mkioskty10")
