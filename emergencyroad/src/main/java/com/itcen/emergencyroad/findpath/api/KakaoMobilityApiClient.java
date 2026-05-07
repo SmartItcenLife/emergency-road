@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 public class KakaoMobilityApiClient {
     private final RestTemplate restTemplate;
     private final String KAKAO_API_KEY = "1376420279e2ab8a126ecd931dfb8b1d";
-    private final String baseUrl = "https://apis-navi.kakaomobility.com/v1/destinations/directions";
+    private final String baseUrl = "https://apis-navi.kakaomobility.com/v1/destinations/directions" ;
 
     public String fetchDirections(JSONObject requestBody){
         // 1. 헤더 세팅

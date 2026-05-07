@@ -1,11 +1,11 @@
 package com.itcen.emergencyroad.findpath.dto;
 // 서버가 사용자에게 보여줄 정보들
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
+@Builder
 public class PathResponseDto {
 
     private String hospitalName; // 병원 이름
