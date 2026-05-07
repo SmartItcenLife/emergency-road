@@ -15,7 +15,7 @@ public class HospitalMessage {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "hospital_id")
+    @JoinColumn(name = "hpid")
     private Hospital hospital;
 
     @Column(name = "disease_name")

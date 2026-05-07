@@ -18,7 +18,6 @@ import java.net.URLEncoder;
 @Service
 @RequiredArgsConstructor
 public class GeneralService {
-
     private final GeneralRepository generalRepository;
 
     @Transactional

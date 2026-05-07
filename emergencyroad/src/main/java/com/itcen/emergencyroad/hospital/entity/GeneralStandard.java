@@ -17,7 +17,7 @@ public class GeneralStandard {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hospital_code", referencedColumnName = "hospital_code", nullable = false)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid", nullable = false)
     private Hospital hospital;
 
     @Column(name = "emergency_bed_standard")
