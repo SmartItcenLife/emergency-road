@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 public class Hospital {
 
-//    // PK (DB 내부 식별용, 외부 API와 무관)
+    // PK (DB 내부 식별용, 외부 API와 무관)
 //
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;

@@ -1,15 +1,16 @@
-package com.itcen.emergencyroad.hospital.entity;
+package com.itcen.emergencyroad.general.entity;
 
+import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "srsill_available_yn")
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class Srsill {
     @Id
@@ -47,28 +48,28 @@ public class Srsill {
     @Column(name = "MKioskTy26")
     private String MKioskTy26;// 영상의학혈관중재-성인
 
-    // 임산부
-    @Column(name = "MKioskTy22")
-    private String MKioskTy22; // 응급투석
-    //private String MKioskTy15; // 저체중출생아 집중치료
-    @Column(name = "MKioskTy16")
-    private String MKioskTy16; // 산부인과응급 분만
-    @Column(name = "MKioskTy17")
-    private String MKioskTy17; // 산부인과응급 산과수술
-    @Column(name = "MKioskTy18")
-    private String MKioskTy18; // 산부인과응급 부인과수술
-
-    // 소아
-    @Column(name = "MKioskTy10")
-    private String MKioskTy10; // 장충첩/폐색_영유아
-    @Column(name = "MKioskTy12")
-    private String MKioskTy12; // 응급내시경_영유아 위장관
-    @Column(name = "MKioskTy14")
-    private String MKioskTy14; // 응급내시경_영유아_기관지
-    @Column(name = "MKioskTy15")
-    private String MKioskTy15; // 저체중 출산아
-    @Column(name = "MKioskTy27")
-    private String MKioskTy27; // 영상의학혈관중재_영유아
+//    // 임산부
+//    @Column(name = "MKioskTy22")
+//    private String MKioskTy22; // 응급투석
+//    //private String MKioskTy15; // 저체중출생아 집중치료
+//    @Column(name = "MKioskTy16")
+//    private String MKioskTy16; // 산부인과응급 분만
+//    @Column(name = "MKioskTy17")
+//    private String MKioskTy17; // 산부인과응급 산과수술
+//    @Column(name = "MKioskTy18")
+//    private String MKioskTy18; // 산부인과응급 부인과수술
+//
+//    // 소아
+//    @Column(name = "MKioskTy10")
+//    private String MKioskTy10; // 장충첩/폐색_영유아
+//    @Column(name = "MKioskTy12")
+//    private String MKioskTy12; // 응급내시경_영유아 위장관
+//    @Column(name = "MKioskTy14")
+//    private String MKioskTy14; // 응급내시경_영유아_기관지
+//    @Column(name = "MKioskTy15")
+//    private String MKioskTy15; // 저체중 출산아
+//    @Column(name = "MKioskTy27")
+//    private String MKioskTy27; // 영상의학혈관중재_영유아
 
 
 }
