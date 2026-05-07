@@ -15,7 +15,7 @@ public class HospitalDepartment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "hospital_id")
+    @JoinColumn(name = "hpid")
     private Hospital hospital;
 
     @ManyToOne

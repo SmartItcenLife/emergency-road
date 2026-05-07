@@ -1,27 +1,24 @@
 package com.itcen.emergencyroad.external.service;
 
 import com.itcen.emergencyroad.external.api.EmrApiClient;
+import com.itcen.emergencyroad.external.api.SrsIllApiClient;
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// 1. 외부 API를 page 단위로 반복 호출하여 전체 데이터 수집
-// 2. JSON 응답을 파싱하여 EmrDto 리스트로 변환
-// API 호출 → JSON 수신 → parseItems() → toDto() → EmrDto 리스트 반환
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmrSyncService {
+public class SrsillSyncService {
 
-    private final EmrApiClient apiClient;
+    private final SrsIllApiClient  apiClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final int NUM_OF_ROWS = 100;
@@ -91,35 +88,33 @@ public class EmrSyncService {
     private EmrDto toDto(JsonNode item) {
 
         return EmrDto.builder()
-                // 병원 정보
                 .hpid(item.path("hpid").asText())
-                .dutyName(item.path("dutyName").asText())
-                .dutyTel3(item.path("dutyTel3").asText())
+                .MKioskTy1(item.path("MKioskTy1").asText())
+                .MKioskTy2(item.path("MKioskTy2").asText()) // 뇌경색
+                .MKioskTy3(item.path("MKioskTy3").asText()) // 거미막하 출혈
+                .MKioskTy4(item.path("MKioskTy4").asText()) // 거미막하출혈 외
+                .MKioskTy5(item.path("MKioskTy5").asText()) // 대동맥응급_흉부
+                .MKioskTy6(item.path("MKioskTy6").asText()) // 대동맥응급_복부
+                .MKioskTy23(item.path("MKioskTy23").asText()) // 응급투석
+                .MKioskTy24(item.path("MKioskTy24").asText()) // 폐쇄병동입원
+                .MKioskTy11(item.path("MKioskTy11").asText()) // 응급 내시경-성인위장관
+                .MKioskTy13(item.path("MKioskTy13").asText()) // 응급내시경-성인 기관지
+                .MKioskTy19(item.path("MKioskTy19").asText()) // 중증화상-전문치료
+                .MKioskTy26(item.path("MKioskTy26").asText()) // 영상의학혈관중재-성인
 
-                //  응급실 소아
-                .hv11(item.path("hv11").asText())
-                .hvincuayn(item.path("hvincuayn").asText())
-                .hvventisoayn(item.path("hvventisoayn").asText())
-                .hv42(item.path("hv42").asText())
-                .hvncc(parseInt(item.path("hvncc").asText()))
+                // --- 임산부 ---
+                .MKioskTy22(item.path("MKioskTy22").asText()) // 응급투석
+                // .MKioskTy15(item.path("MKioskTy15").asText()) // 저체중출생아 집중치료
+                .MKioskTy16(item.path("MKioskTy16").asText()) // 산부인과응급 분만
+                .MKioskTy17(item.path("MKioskTy17").asText()) // 산부인과응급 산과수술
+                .MKioskTy18(item.path("MKioskTy18").asText()) // 산부인과응급 부인과수술
 
-                // 응급실 일반
-                .hvec(parseInt(item.path("hvec").asText()))
-                .hvs01(parseInt(item.path("hvs01").asText()))
-                .hvicc(parseInt(item.path("hvicc").asText()))
-                .hvicc(parseInt(item.path("hvs17").asText()))
-                .hvcc(parseInt(item.path("hvcc").asText()))
-                .hvs11(item.path("hvs11").asText())
-                .hvccc(parseInt(item.path("hvccc").asText()))
-                .hvs16(parseInt(item.path("hvs16").asText()))
-
-                // 응급실 일반 장비..?
-                .hvctayn(item.path("hvctayn").asText()) // CT 촬영 가능 여부
-                .hvmariayn(item.path("hvmariayn").asText()) // MRI 촬영 가능 여부
-                .hvventiayn(item.path("hvventiayn").asText()) // 인공호흡기 사용 가능 여부
-                .hvcrrtayn(item.path("hvcrrtayn").asText()) // 지속적 신대체요법, CRRT 가능 여부
-                .hvecmoayn(item.path("hvecmoayn").asText()) // ECMO, 체외막산소공급 장비 사용 가능 여부
-                .hvangioayn(item.path("hvangioayn").asText()) // 혈관조영술 가능 여부
+                // --- 소아 ---
+                .MKioskTy10(item.path("MKioskTy10").asText()) // 장충첩/폐색_영유아
+                .MKioskTy12(item.path("MKioskTy12").asText()) // 응급내시경_영유아 위장관
+                .MKioskTy14(item.path("MKioskTy14").asText()) // 응급내시경_영유아_기관지
+                .MKioskTy15(item.path("MKioskTy15").asText()) // 저체중 출산아
+                .MKioskTy27(item.path("MKioskTy27").asText()) // 영상의학혈관중재_영유아
                 .build();
     }
 

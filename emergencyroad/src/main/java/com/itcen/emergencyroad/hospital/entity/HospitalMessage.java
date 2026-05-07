@@ -18,13 +18,9 @@ public class HospitalMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "hospital_id")
-    @Column(name="hpid", nullable = false, length=20)
-    private String hpid; // 병원 코드
-
-    @Column(name = "disease_code", length = 20)
-    private String diseaseCode; // symTypCod - 중증질환구분
+    @ManyToOne
+    @JoinColumn(name = "hpid")
+    private Hospital hospital;
 
     @Column(name = "disease_name")
     private String diseaseName; // symTypCodMag

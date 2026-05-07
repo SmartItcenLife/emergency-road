@@ -25,7 +25,7 @@ public class HospitalSyncService {
                     .orElse(null);
 
             Hospital hospital = Hospital.builder()
-                    .id(existing != null ? existing.getId() : null)
+                    .hpid(existing != null ? existing.getHpid() : null)
                     .hpid(dto.getHpid())
                     .hospitalName(dto.getDutyName())
                     .phone(dto.getDutyTel3())
