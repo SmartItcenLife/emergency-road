@@ -17,7 +17,7 @@ public class Hospital {
     private Long id;
 
     // 공공데이터 기준 병원 고유 ID (비즈니스 키, 유니크)
-    @Column(unique = true, nullable = false, length = 20)
+    @Column(name="hpid" ,unique = true, nullable = false, length = 20)
     private String hpid;
 
     // 병원 이름 (API에서 제공, 길이 변동 큼 → 넉넉하게 설정)

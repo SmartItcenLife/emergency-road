@@ -19,7 +19,7 @@ public class PregnantStandard {
 
     //병원 FK
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "hospital_code", referencedColumnName = "hospital_code", nullable = false)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid", nullable = false)
     private Hospital hospital;
 
     //분만실 기준
