@@ -9,9 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableJpaAuditing
 public class EmergencyroadApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(EmergencyroadApplication.class, args);
 	}
-
 }
