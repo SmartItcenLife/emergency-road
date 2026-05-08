@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class KakaoMobilityApiClient {
     private final RestTemplate restTemplate; // webClient는 비동기 통신이므로 여러 사람이 접속했을 때도 속도가 빠르다 -> web으로 구현해볼까라는 생각
-    private final String baseUrl = "https://apis-navi.kakaomobility.com/v1/destinations/directions" ;
+    static final String baseUrl = "https://apis-navi.kakaomobility.com/v1/destinations/directions" ;
 
     @Value("${findpath.kakao.service-key}")
     private String KAKAO_API_KEY;
