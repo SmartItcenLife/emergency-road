@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.pediatric.entity;
 
+import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "pediatric_standard")
 @Getter
 @NoArgsConstructor
-public class PediatricStandard {
+public class PediatricStandard extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

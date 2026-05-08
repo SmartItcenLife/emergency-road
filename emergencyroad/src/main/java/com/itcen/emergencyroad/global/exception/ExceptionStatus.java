@@ -20,7 +20,7 @@ public enum ExceptionStatus {
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Token not found"),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Expired token"),
     PREMATURE_TOKEN(HttpStatus.UNAUTHORIZED, "Premature token"),
-    WRONG_PASSWORD(HttpStatus.UNAUTHORIZED, "Wrong password"),
+    AUTHENTICATION_FAIL(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다."),
 
     /* 403 FORBIDDEN */
     FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden"),
@@ -31,7 +31,8 @@ public enum ExceptionStatus {
 
     /* 409 CONFLICT */
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "Duplicated email"),
-    DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "Duplicated nickname"),
+    DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
+    DUPLICATED_USERNAME(HttpStatus.CONFLICT, "이미 사용중인 아이디입니다."),
 
     /* 500 INTERNAL_SERVER_ERROR */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),
