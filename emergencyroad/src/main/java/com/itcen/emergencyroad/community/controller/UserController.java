@@ -4,6 +4,7 @@ import com.itcen.emergencyroad.community.dto.LoginRequestDto;
 import com.itcen.emergencyroad.community.dto.SignupRequestDto;
 import com.itcen.emergencyroad.community.service.KakaoService;
 import com.itcen.emergencyroad.community.service.UserService;
+import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +38,8 @@ public class UserController {
 
     try{
       userService.signUp(dto);
-    } catch (IllegalArgumentException e){
-      model.addAttribute("errorMessage", e.getMessage());
+    } catch (CustomException e){
+      model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
       return "auth/signup";
     }
 
@@ -63,8 +64,8 @@ public class UserController {
 
     try{
       userService.login(dto, session);
-    }catch (IllegalArgumentException e){
-      model.addAttribute("errorMessage", e.getMessage());
+    }catch (CustomException e){
+      model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
 
       return "auth/login";
     }
@@ -78,8 +79,8 @@ public class UserController {
 
     try {
       userService.kakaoLogin(code, session);
-    } catch (IllegalArgumentException e){
-      model.addAttribute("errorMessage", e.getMessage());
+    } catch (CustomException e){
+      model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
 
       return "auth/login";
     }
