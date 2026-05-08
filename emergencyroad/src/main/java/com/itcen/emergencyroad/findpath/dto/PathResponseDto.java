@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder // 빌더가 있어야 하는 이유는? -> PathService에 빌더 있음
 public class PathResponseDto {
 
     private String hospitalName; // 병원 이름

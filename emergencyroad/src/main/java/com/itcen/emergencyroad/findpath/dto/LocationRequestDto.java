@@ -5,10 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
+@Setter // 세터가 필요
 public class LocationRequestDto {
-    private Double originLat; // 사용자 위도
-    private Double originLng; // 사용자 경도
+    private Double userLat; // 사용자 위도
+    private Double userLng; // 사용자 경도
 
-    //private String destinationHpid; // 도착지를 지정해서 검색한다면 필요함. 이게 왜 필요하지?
+    //private String destinationHpid; // 도착지를 지정해서 검색한다면 필요함. 이게 왜 필요하지? 필요 없는 것 같아서 지움..
 }
