@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.community.controller;
 
 import com.itcen.emergencyroad.community.dto.LoginRequestDto;
 import com.itcen.emergencyroad.community.dto.SignupRequestDto;
+import com.itcen.emergencyroad.community.service.KakaoService;
 import com.itcen.emergencyroad.community.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -12,12 +13,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
 public class UserController {
 
   private final UserService userService;
+  private final KakaoService kakaoService;
 
   @GetMapping("/signup")
   public String signupForm(Model model){
@@ -45,6 +48,7 @@ public class UserController {
   @GetMapping("/login")
   public String loginForm(Model model){
     model.addAttribute("loginRequestDto", new LoginRequestDto());
+    model.addAttribute("kakaoLoginUrl", kakaoService.getKakaoLoginUrl());
 
     return "auth/login";
   }
@@ -66,6 +70,20 @@ public class UserController {
     }
 
     // 추후에 게시판 개발완료 할 때  해당 url로 변경해야 함.
+    return "redirect:/posts";
+  }
+
+  @GetMapping("/login/kakao")
+  public String kakaoLogin(@RequestParam String code, HttpSession session, Model model){
+
+    try {
+      userService.kakaoLogin(code, session);
+    } catch (IllegalArgumentException e){
+      model.addAttribute("errorMessage", e.getMessage());
+
+      return "auth/login";
+    }
+
     return "redirect:/posts";
   }
 
