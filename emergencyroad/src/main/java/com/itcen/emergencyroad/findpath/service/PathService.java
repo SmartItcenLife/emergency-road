@@ -40,8 +40,8 @@ public class PathService {
         // 2. JSON 바디에 사용자의 위도, 경도 값 넣기
         JSONObject requestBody = new JSONObject();
         JSONObject origin = new JSONObject();
-        origin.put("x", requestDto.getUserLng());
-        origin.put("y", requestDto.getUserLat());
+        origin.put("x", requestDto.getOriginLng());
+        origin.put("y", requestDto.getOriginLat());
         requestBody.put("origin", origin); // 바디에 위도, 경도 값 넣기
 
         // 3. 목적지 리스트
