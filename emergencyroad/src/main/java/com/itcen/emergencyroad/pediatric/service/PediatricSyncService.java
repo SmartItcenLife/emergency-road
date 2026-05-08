@@ -102,6 +102,9 @@ public class PediatricSyncService {
         if ("N".equalsIgnoreCase(value)) return false;
         return null;
     }
+    private String clean(String value) {
+        return value == null ? null : value.trim();
+    }
 
 
 }

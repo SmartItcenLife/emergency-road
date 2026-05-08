@@ -58,20 +58,23 @@ public class PediatricMkiosktySyncService {
                     );
 
             entity.update(
-                    dto.getMkioskty10(),        // 장중첩/폐색 영유아
-                    dto.getMkioskty12(),        // 응급내시경 영유아 위장관
-                    dto.getMkioskty14(),        // 응급내시경 영유아 기관지
-                    dto.getMkioskty15(),        // 저체중출생아
-                    dto.getMkioskty27(),        // 영상의학혈관중재 영유아
-                    dto.getMkioskty10Msg(),
-                    dto.getMkioskty12Msg(),
-                    dto.getMkioskty14Msg(),
-                    dto.getMkioskty15Msg(),
-                    dto.getMkioskty27Msg()
+                    clean(dto.getMkioskty10()),        // 장중첩/폐색 영유아
+                    clean(dto.getMkioskty12()),        // 응급내시경 영유아 위장관
+                    clean(dto.getMkioskty14()),        // 응급내시경 영유아 기관지
+                    clean(dto.getMkioskty15()),        // 저체중출생아
+                    clean(dto.getMkioskty27()),        // 영상의학혈관중재 영유아
+                    clean(dto.getMkioskty10Msg()),
+                    clean(dto.getMkioskty12Msg()),
+                    clean(dto.getMkioskty14Msg()),
+                    clean(dto.getMkioskty15Msg()),
+                    clean(dto.getMkioskty27Msg())
             );
 
             pediatricMkiosktyRepository.save(entity);
         }
 
+    }
+    private String clean(String value) {
+        return value == null ? null : value.trim();
     }
 }
