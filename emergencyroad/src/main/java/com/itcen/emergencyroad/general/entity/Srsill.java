@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "srsill_available_yn")
+@Table(name = "general_srsill_available_yn")
 @Getter
 @Setter
 @NoArgsConstructor
