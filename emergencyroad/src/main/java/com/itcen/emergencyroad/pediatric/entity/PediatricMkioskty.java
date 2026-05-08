@@ -3,6 +3,8 @@ package com.itcen.emergencyroad.pediatric.entity;
 import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "pediatric_mkioskty")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PediatricMkioskty extends BaseEntity {
 
     @Id
@@ -21,32 +25,56 @@ public class PediatricMkioskty extends BaseEntity {
     private Hospital hospital;
 
     @Column(name = "mkioskty10")
-    private Boolean mkioskty10; // 장중첩/폐색 영유아
+    private String pediatricBowelObstructionAvailable; // 장중첩/폐색 영유아
 
     @Column(name = "mkioskty12")
-    private Boolean mkioskty12; // 응급내시경 영유아 위장관
+    private String pediatricEmergencyEndoscopyGastroAvailable; // 응급내시경 영유아 위장관
 
     @Column(name = "mkioskty14")
-    private Boolean mkioskty14; // 응급내시경 영유아 기관지
+    private String pediatricEmergencyEndoscopyBronchialAvailable; // 응급내시경 영유아 기관지
 
     @Column(name = "mkioskty15")
-    private Boolean mkioskty15; // 저체중출생아
+    private String lowBirthWeightInfantAvailable; // 저체중출생아
 
     @Column(name = "mkioskty27")
-    private Boolean mkioskty27; // 영상의학혈관중재 영유아
+    private String pediatricVascularInterventionAvailable; // 영상의학혈관중재 영유아
 
     @Column(name = "mkioskty10_msg", length = 255)
-    private String mkioskty10Msg;
+    private String pediatricBowelObstructionMessage;
 
     @Column(name = "mkioskty12_msg", length = 255)
-    private String mkioskty12Msg;
+    private String pediatricEmergencyEndoscopyGastroMessage;
 
     @Column(name = "mkioskty14_msg", length = 255)
-    private String mkioskty14Msg;
+    private String pediatricEmergencyEndoscopyBronchialMessage;
 
     @Column(name = "mkioskty15_msg", length = 255)
-    private String mkioskty15Msg;
+    private String lowBirthWeightInfantMessage;
 
     @Column(name = "mkioskty27_msg", length = 255)
-    private String mkioskty27Msg;
+    private String pediatricVascularInterventionMessage;
+
+    public void update(
+            String pediatricBowelObstructionAvailable,
+            String pediatricEmergencyEndoscopyGastroAvailable,
+            String pediatricEmergencyEndoscopyBronchialAvailable,
+            String lowBirthWeightInfantAvailable,
+            String pediatricVascularInterventionAvailable,
+            String pediatricBowelObstructionMessage,
+            String pediatricEmergencyEndoscopyGastroMessage,
+            String pediatricEmergencyEndoscopyBronchialMessage,
+            String lowBirthWeightInfantMessage,
+            String pediatricVascularInterventionMessage
+    ) {
+        this.pediatricBowelObstructionAvailable = pediatricBowelObstructionAvailable;
+        this.pediatricEmergencyEndoscopyGastroAvailable = pediatricEmergencyEndoscopyGastroAvailable;
+        this.pediatricEmergencyEndoscopyBronchialAvailable = pediatricEmergencyEndoscopyBronchialAvailable;
+        this.lowBirthWeightInfantAvailable = lowBirthWeightInfantAvailable;
+        this.pediatricVascularInterventionAvailable = pediatricVascularInterventionAvailable;
+        this.pediatricBowelObstructionMessage = pediatricBowelObstructionMessage;
+        this.pediatricEmergencyEndoscopyGastroMessage = pediatricEmergencyEndoscopyGastroMessage;
+        this.pediatricEmergencyEndoscopyBronchialMessage = pediatricEmergencyEndoscopyBronchialMessage;
+        this.lowBirthWeightInfantMessage = lowBirthWeightInfantMessage;
+        this.pediatricVascularInterventionMessage = pediatricVascularInterventionMessage;
+    }
 }
