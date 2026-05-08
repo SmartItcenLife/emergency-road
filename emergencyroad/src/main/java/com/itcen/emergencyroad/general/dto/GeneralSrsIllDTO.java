@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 
-public class SrsillDTO {
+public class GeneralSrsIllDTO {
     private String hpid;
 
     // 일반
