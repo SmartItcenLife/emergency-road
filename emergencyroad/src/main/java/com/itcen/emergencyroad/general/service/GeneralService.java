@@ -2,13 +2,10 @@ package com.itcen.emergencyroad.general.service;
 
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.external.mapper.EmrMapper;
-import com.itcen.emergencyroad.general.entity.General;
-import com.itcen.emergencyroad.general.entity.Srsill;
+import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.general.repository.GeneralRepository;
-import com.itcen.emergencyroad.general.repository.SrsIllRepository;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
-import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ public class GeneralService {
     private final HospitalRepository hospitalRepository;
     private final EmrMapper emrMapper;
 
-
     @Transactional
     public void saveOrUpdate(List<EmrDto> list) {
 
@@ -36,15 +32,15 @@ public class GeneralService {
             log.info("hospital exists = {}", hospital != null);
             if (hospital == null) continue;
 
-            General entity = generalRepository.findByHospital(hospital)
+            GeneralRealTimeAndStandard entity = generalRepository.findByHospital(hospital)
                     .orElse(null);
 
             if (entity == null) {
 
-                General newEntity = emrMapper.toGeneralEntity(dto, hospital);
+                GeneralRealTimeAndStandard newEntity = emrMapper.toGeneralEntity(dto, hospital);
                 generalRepository.save(newEntity);
             } else {
-                emrMapper.updateGenralEntity(entity, dto);
+                emrMapper.updateGeneralEntity(entity, dto);
             }
         }
     }

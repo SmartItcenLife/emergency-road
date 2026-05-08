@@ -1,0 +1,6 @@
+-- -- src/main/resources/data.sql 수정
+-- INSERT INTO hospital_master (hospital_name, hpid, longitude, latitude)
+-- VALUES ('서울대학교병원', 'HP001', 127.0000, 37.5796);
+--
+-- INSERT INTO hospital_master (hospital_name, hpid, longitude, latitude)
+-- VALUES ('세브란스병원', 'HP002', 126.9411, 37.5622);
