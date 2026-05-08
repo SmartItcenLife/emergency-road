@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.external.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -26,5 +27,11 @@ public class RestTemplateConfig {
         // 3. RestTemplate에 설정 적용
         restTemplate.setUriTemplateHandler(factory);
         return restTemplate;
+    }
+
+    @Bean
+    @Qualifier("kakaoRestTemplate")
+    public RestTemplate kakaoRestTemplate() {
+        return new RestTemplate();
     }
 }

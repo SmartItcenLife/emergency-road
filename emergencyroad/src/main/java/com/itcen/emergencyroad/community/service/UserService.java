@@ -2,9 +2,11 @@ package com.itcen.emergencyroad.community.service;
 
 import com.itcen.emergencyroad.community.dto.LoginRequestDto;
 import com.itcen.emergencyroad.community.dto.SignupRequestDto;
+import com.itcen.emergencyroad.community.dto.kakao.KakaoUserInfoDto;
 import com.itcen.emergencyroad.community.entity.User;
 import com.itcen.emergencyroad.community.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,11 +20,8 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final KakaoService kakaoService;
 
-  /***
-   *
-   * @param dto
-   */
   @Transactional
   public void signUp(SignupRequestDto dto){
       if(userRepository.existsByUserName(dto.getUserName())){
@@ -36,9 +35,6 @@ public class UserService {
       if(userRepository.existsByEmail(dto.getEmail())){
         throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
       }
-
-      log.info(dto.getPassword());
-      log.info(passwordEncoder.encode(dto.getPassword()));
 
       String encodedPw = passwordEncoder.encode(dto.getPassword());
 
@@ -56,7 +52,8 @@ public class UserService {
   @Transactional(readOnly = true)
   public void login(LoginRequestDto dto, HttpSession session){
 
-    User user = userRepository.findByUserName(dto.getUserName());
+    User user = userRepository.findByUserName(dto.getUserName())
+        .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
 
     if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
       throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -66,4 +63,40 @@ public class UserService {
     session.setAttribute("loginNickname", user.getNickname());
     session.setAttribute("loginRole", user.getRole().name());
   }
+
+  @Transactional
+  public void kakaoLogin(String code, HttpSession session){
+
+    String accessToken = kakaoService.getAccessToken(code);
+    KakaoUserInfoDto kakaoUserInfo = kakaoService.getUserInfo(accessToken);
+
+    String kakaoId = String.valueOf(kakaoUserInfo.getId());
+
+    User user = userRepository.findByKakaoId(kakaoId)
+        .orElseGet(() -> {
+          String nickname = kakaoUserInfo.getNickname();
+          if(userRepository.existsByNickname(kakaoUserInfo.getNickname())){
+            // 카카오 닉네임은 최대 20자여서 _(1자)와 UUID(9자)를 합치면 딱 30자가 맞춰집니다.
+              nickname = nickname + "_" + UUID.randomUUID().toString().substring(0,9);
+          }
+          User newUser = User.createKakaoUser(
+              kakaoId,
+              nickname,
+              kakaoUserInfo.getProfileImageUrl()
+          );
+          return userRepository.save(newUser);
+
+        });
+
+    user.updateKakaoProfile(kakaoUserInfo.getNickname(), kakaoUserInfo.getProfileImageUrl());
+
+    setSession(session, user);
+  }
+
+  private void setSession(HttpSession session, User user){
+    session.setAttribute("loginUser", user.getId());
+    session.setAttribute("loginNickname", user.getNickname());
+    session.setAttribute("loginRole", user.getRole().name());
+  }
+
 }
