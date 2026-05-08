@@ -21,13 +21,13 @@ public class PediatricRealtimeStatusApiClient {
     }
 
 
-    public String getMessageRawBySido(String sido, int page, int rows) {
+    public String getPediatricRealtimeRawBySido(String sido, int page, int rows) {
         String encodedServiceKey = URLEncoder.encode(serviceKey.trim(), StandardCharsets.UTF_8);
         String encodedSido = URLEncoder.encode(sido, StandardCharsets.UTF_8);
 
         String url = BASE_URL
                 + "?serviceKey=" + encodedServiceKey
-                + "&Q0=" + encodedSido
+                + "&STAGE1=" + encodedSido
                 + "&pageNo=" + page
                 + "&numOfRows=" + rows
                 + "&_type=json";
