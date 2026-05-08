@@ -46,6 +46,7 @@ public class PathService {
 
         // 3. 목적지 리스트
         JSONArray destinations = new JSONArray(); // 배열
+        // 여기를 for 문 말고 parallelStream()으로 구현하면 병렬로 요청하기 때문에 빠르게 취합 가능
         for (Hospital hospital : targetHospitals) {
             // 좌표가 있는 것만 담기
             if (hospital.getLongitude() == null || hospital.getLatitude() == null) continue;
