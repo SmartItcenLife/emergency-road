@@ -1,7 +1,20 @@
 package com.itcen.emergencyroad.pediatric.entity;
 
+import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Column;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +24,9 @@ import java.time.LocalDateTime;
 @Table(name = "pediatric_realtime")
 @Getter
 @NoArgsConstructor
-public class PediatricRealtime {
+@AllArgsConstructor
+@Builder
+public class PediatricRealtime extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

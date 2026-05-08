@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.community.dto.SignupRequestDto;
 import com.itcen.emergencyroad.community.dto.kakao.KakaoUserInfoDto;
 import com.itcen.emergencyroad.community.entity.User;
 import com.itcen.emergencyroad.community.repository.UserRepository;
+import com.itcen.emergencyroad.global.exception.CustomException;
+import com.itcen.emergencyroad.global.exception.ExceptionStatus;
 import jakarta.servlet.http.HttpSession;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +27,15 @@ public class UserService {
   @Transactional
   public void signUp(SignupRequestDto dto){
       if(userRepository.existsByUserName(dto.getUserName())){
-        throw new IllegalArgumentException("이미 사용중인 아이디입니다.");
+        throw new CustomException(ExceptionStatus.DUPLICATED_USERNAME);
       }
 
       if(userRepository.existsByNickname(dto.getNickname())){
-        throw new IllegalArgumentException("이미 사용중인 닉네임입니다.");
+        throw new CustomException(ExceptionStatus.DUPLICATED_NICKNAME);
       }
 
       if(userRepository.existsByEmail(dto.getEmail())){
-        throw new IllegalArgumentException("이미 사용중인 이메일입니다.");
+        throw new CustomException(ExceptionStatus.DUPLICATED_EMAIL);
       }
 
       String encodedPw = passwordEncoder.encode(dto.getPassword());
@@ -53,10 +55,10 @@ public class UserService {
   public void login(LoginRequestDto dto, HttpSession session){
 
     User user = userRepository.findByUserName(dto.getUserName())
-        .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
+        .orElseThrow(() -> new CustomException(ExceptionStatus.AUTHENTICATION_FAIL));
 
     if(!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
-      throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
+      throw new CustomException(ExceptionStatus.AUTHENTICATION_FAIL);
     }
 
     session.setAttribute("loginUser", user.getId());

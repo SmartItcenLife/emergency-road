@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.pediatric.entity;
 
+import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "pediatric_mkioskty")
 @Getter
 @NoArgsConstructor
-public class PediatricMkioskty {
+public class PediatricMkioskty extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
