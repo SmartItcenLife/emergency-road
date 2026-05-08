@@ -87,42 +87,50 @@ public class EmrSyncService {
         return list;
     }
 
-    //받아온 데이터를 dto에 담기
+    // 받아온 데이터를 dto에 담기
     private EmrDto toDto(JsonNode item) {
-
         return EmrDto.builder()
-                // 병원 정보
-                .hpid(item.path("hpid").asText())
-                .dutyName(item.path("dutyName").asText())
-                .dutyTel3(item.path("dutyTel3").asText())
+                // 병원 기본 정보
+                .hpid(getText(item, "hpid"))
+                .phpid(getText(item, "phpid"))
+                .dutyName(getText(item, "dutyName"))
+                .dutyTel3(getText(item, "dutyTel3"))
 
-                //  응급실 소아
-                .hv11(item.path("hv11").asText())
-                .hvincuayn(item.path("hvincuayn").asText())
-                .hvventisoayn(item.path("hvventisoayn").asText())
-                .hv42(item.path("hv42").asText())
-                .hvncc(parseInt(item.path("hvncc").asText()))
+                // 응급실 소아 관련 정보
+                .hv11(getText(item, "hv11"))
+                .hvincuayn(getText(item, "hvincuayn"))
+                .hvventisoayn(getText(item, "hvventisoayn"))
+                .hv42(getText(item, "hv42"))
+                .hvncc(parseInt(getText(item, "hvncc")))
 
-                // 응급실 일반
-                .hvec(parseInt(item.path("hvec").asText()))
-                .hvs01(parseInt(item.path("hvs01").asText()))
-                .hvicc(parseInt(item.path("hvicc").asText()))
-                .hvicc(parseInt(item.path("hvs17").asText()))
-                .hvcc(parseInt(item.path("hvcc").asText()))
-                .hvs11(item.path("hvs11").asText())
-                .hvccc(parseInt(item.path("hvccc").asText()))
-                .hvs16(parseInt(item.path("hvs16").asText()))
+                // 응급실 일반 병상 정보
+                .hvec(parseInt(getText(item, "hvec")))
+                .hvs01(parseInt(getText(item, "hvs01")))
+                .hvicc(parseInt(getText(item, "hvicc")))
+                .hvs17(parseInt(getText(item, "hvs17"))) // hvicc 중복이었던 부분 수정!
+                .hvcc(parseInt(getText(item, "hvcc")))
+                .hvs11(getText(item, "hvs11"))
+                .hvccc(parseInt(getText(item, "hvccc")))
+                .hvs16(parseInt(getText(item, "hvs16")))
 
-                // 응급실 일반 장비..?
-                .hvctayn(item.path("hvctayn").asText()) // CT 촬영 가능 여부
-                .hvmariayn(item.path("hvmariayn").asText()) // MRI 촬영 가능 여부
-                .hvventiayn(item.path("hvventiayn").asText()) // 인공호흡기 사용 가능 여부
-                .hvcrrtayn(item.path("hvcrrtayn").asText()) // 지속적 신대체요법, CRRT 가능 여부
-                .hvecmoayn(item.path("hvecmoayn").asText()) // ECMO, 체외막산소공급 장비 사용 가능 여부
-                .hvangioayn(item.path("hvangioayn").asText()) // 혈관조영술 가능 여부
+                // 응급실 특수 장비 여부
+                .hvctayn(getText(item, "hvctayn"))     // CT
+                .hvmariayn(getText(item, "hvmariayn"))   // MRI
+                .hvventiayn(getText(item, "hvventiayn")) // 인공호흡기
+                .hvcrrtayn(getText(item, "hvcrrtayn"))   // CRRT
+                .hvecmoayn(getText(item, "hvecmoayn"))   // ECMO
+                .hvangioayn(getText(item, "hvangioayn")) // 혈관조영술
                 .build();
     }
 
+    // 문자열 추출
+    private String getText(JsonNode item, String fieldName) {
+        JsonNode node = item.get(fieldName);
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        return node.asText();
+    }
     private Integer parseInt(String v) {
         try {
             if (v == null || v.isBlank()) return null;
