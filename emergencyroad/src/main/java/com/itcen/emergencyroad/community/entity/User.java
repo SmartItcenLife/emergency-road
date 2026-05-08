@@ -28,16 +28,16 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "user_name", unique = true, nullable = false, length = 20)
+    @Column(name = "user_name", unique = true, nullable = true, length = 20)
     private String userName;
 
     @Column(name = "password", nullable = true, length = 255)
     private String password;
 
-    @Column(name = "nickname", nullable = false, length = 20, unique = true)
+    @Column(name = "nickname", nullable = false, length = 30, unique = true)
     private String nickname;
 
-    @Column(name = "email", nullable = false, length = 100, unique = true)
+    @Column(name = "email", nullable = true, length = 100, unique = true)
     private String email;
 
     @Enumerated(EnumType.STRING)
@@ -75,15 +75,20 @@ public class User {
         return user;
     }
 
-    public static User createKakaoUser(String kakaoId, String nickname, String email, String profileImageUrl){
+    public static User createKakaoUser(String kakaoId, String nickname, String profileImageUrl){
       User user = new User();
       user.kakaoId = kakaoId;
       user.nickname = nickname;
-      user.email = email;
       user.profileImageUrl = profileImageUrl;
       user.loginType = LoginType.KAKAO;
       user.role = Role.USER;
 
       return user;
+    }
+
+    public void updateKakaoProfile(String nickname, String profileImageUrl) {
+
+        this.nickname = nickname;
+        this.profileImageUrl = profileImageUrl;
     }
 }
