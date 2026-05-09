@@ -1,9 +1,8 @@
 package com.itcen.emergencyroad.external.mapper;
 
 import com.itcen.emergencyroad.external.dto.EmrDto;
-import com.itcen.emergencyroad.general.dto.SrsillDTO;
-import com.itcen.emergencyroad.general.entity.General;
-import com.itcen.emergencyroad.general.entity.Srsill;
+import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
+import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import org.springframework.stereotype.Component;
@@ -42,11 +41,11 @@ public class EmrMapper {
 
     //TODO
     //일반 Mapper
-    public General toGeneralEntity(EmrDto dto, Hospital hospital) {
+    public GeneralRealTimeAndStandard toGeneralEntity(EmrDto dto, Hospital hospital) {
 
         if (dto == null) return null;
 
-        return General.builder()
+        return GeneralRealTimeAndStandard.builder()
                 .hospital(hospital)
                 // --- 병상 정보 ---
                 .hvec(dto.getHvec())
@@ -66,7 +65,8 @@ public class EmrMapper {
                 .hvangioayn(dto.getHvangioayn())
                 .build();
     }
-    public void updateGenralEntity(General entity, EmrDto dto) {
+
+    public void updateGeneralEntity(GeneralRealTimeAndStandard entity, EmrDto dto) {
         if (dto == null) return;
 // --- 병상 정보 ---
         entity.setHvec(dto.getHvec());
@@ -89,10 +89,10 @@ public class EmrMapper {
 
     // TODO
     // 중증질환 수용 가능 여부
-    public Srsill toSrsillEntity(EmrDto dto, Hospital hospital) {
+    public GeneralSrsIll toSrsillEntity(EmrDto dto, Hospital hospital) {
         if (dto == null) return null;
 
-        return Srsill.builder()
+        return GeneralSrsIll.builder()
                 .hospital(hospital)
                 // --- 일반 ---
                 .MKioskTy1(dto.getMKioskTy1())
@@ -108,7 +108,7 @@ public class EmrMapper {
                 .MKioskTy19(dto.getMKioskTy19())
                 .MKioskTy26(dto.getMKioskTy26())
                 // --- 임산부 ---
-                .MKioskTy2(dto.getMKioskTy22())
+                //.MKioskTy2(dto.getMKioskTy22())
                 //.MKioskTy16(dto.getMKioskTy16())
                 //.MKioskTy17(dto.getMKioskTy17())
                 //.MKioskTy18(dto.getMKioskTy18())
@@ -121,7 +121,7 @@ public class EmrMapper {
                 .build();
     }
 
-    public void updateSrsillData(Srsill entity, EmrDto dto) {
+    public void updateSrsillData(GeneralSrsIll entity, EmrDto dto) {
         if(dto==null || entity == null) return;
 
         // 일반

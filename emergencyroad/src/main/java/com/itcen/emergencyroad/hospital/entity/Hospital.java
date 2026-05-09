@@ -1,5 +1,7 @@
 package com.itcen.emergencyroad.hospital.entity;
 
+import com.itcen.emergencyroad.external.dto.EgytBassDto;
+import com.itcen.emergencyroad.external.dto.EmrDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,11 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Hospital {
-
-    // PK (DB 내부 식별용, 외부 API와 무관)
-//
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
 
     // 공공데이터 기준 병원 고유 ID (비즈니스 키, 유니크)
     @Id
@@ -41,10 +38,6 @@ public class Hospital {
     @Column(name = "emergency_phone", length = 30)
     private String emergencyPhone;
 
-    // 응급실 분류 / 타입 (중증도 또는 구분값)
-    @Column(name = "emergency_type", length = 20)
-    private String emergencyType;
-
     // 위도 (좌표 데이터)
     @Column(name = "latitude")
     private Double latitude;
@@ -56,4 +49,19 @@ public class Hospital {
     // 응급실 운영 여부 (Y/N or true/false 매핑)
     @Column(name = "has_emergency")
     private Boolean hasEmergency;
+
+    // 1번 API - 더티 체크를 위한 업데이트 메서드
+    public void updateMaster(EmrDto emrDto) {
+        this.hospitalName = emrDto.getDutyName();
+        this.emergencyPhone = emrDto.getDutyTel3(); // 응급실 전화번호
+    }
+    // 5번 API - 더티 체크를 위한 업데이트 메서드
+    public void updateMasterInfo(EgytBassDto dto) {
+        this.address = dto.getDutyAddr();
+        this.phone = dto.getDutyTel1();
+        this.emergencyPhone = dto.getDutyTel3();
+        this.latitude = dto.getWgs84Lat();
+        this.longitude = dto.getWgs84Lon();
+        this.hasEmergency = dto.getDutyEryn();
+    }
 }
