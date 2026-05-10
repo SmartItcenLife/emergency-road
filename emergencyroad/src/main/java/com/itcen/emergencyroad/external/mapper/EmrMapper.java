@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
+import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
+import com.itcen.emergencyroad.pregnant.entity.PregnantStandard;
 import org.springframework.stereotype.Component;
 
 //DTO -> Entity
@@ -12,28 +14,46 @@ import org.springframework.stereotype.Component;
 public class EmrMapper {
 
     //임산부 Mapper
-    public Pregnant toEntity(EmrDto dto, Hospital hospital) {
+    public Pregnant toPregnantEntity(EmrDto dto, Hospital hospital) {
 
         if (dto == null) return null;
 
         return Pregnant.builder()
                 .hospital(hospital)
-                .hv42(dto.getHv42())
-                .hvncc(dto.getHvncc())
-                .hv11(dto.getHv11())
-                .hvincuayn(dto.getHvincuayn())
-                .hvventisoayn(dto.getHvventisoayn())
+                .mkioskty15(dto.getMKioskTy15())
+                .mkioskty16(dto.getMKioskTy16())
+                .mkioskty17(dto.getMKioskTy17())
+                .mkioskty18(dto.getMKioskTy18())
+                .mkioskty22(dto.getMKioskTy22())
                 .build();
     }
-    public void updateEntity(Pregnant entity, EmrDto dto) {
-        if (dto == null) return;
 
-        entity.setHv42(dto.getHv42());
-        entity.setHvncc(dto.getHvncc());
-        entity.setHv11(dto.getHv11());
-        entity.setHvincuayn(dto.getHvincuayn());
-        entity.setHvventisoayn(dto.getHvventisoayn());
+    public PregnantRealtime toPregnantRealTimeStatusEntity(EmrDto dto, Hospital hospital) {
+
+        if (dto == null) return null;
+
+        return PregnantRealtime.builder()
+                .hospital(hospital)
+                .incubatorExists(dto.getHv11())
+                .deliveryRoomCount(dto.getHv42())
+                .nicuBedCount(dto.getHvncc())
+                .incubatorAvailable(dto.getHvincuayn())
+                .prematureVentilatorAvailable(dto.getHvventisoayn())
+                .build();
     }
+    public PregnantStandard toPregnantStandardStatusEntity(EmrDto dto, Hospital hospital) {
+
+        if (dto == null) return null;
+
+        return PregnantStandard.builder()
+                .hospital(hospital)
+                .hvs26(dto.getHvs26())
+                .hvs08(dto.getHvs08())
+                .hvs31(dto.getHvs31())
+                .hvs32(dto.getHvs32())
+                .build();
+    }
+
 
     //TODO
     //소아 Mapper

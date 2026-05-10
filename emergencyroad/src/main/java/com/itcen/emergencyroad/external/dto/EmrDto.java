@@ -24,6 +24,13 @@ public class EmrDto {
     private String hvincuayn;   // 인큐베이터 가용
     private String hvventisoayn; // 인공호흡기
 
+    //임산부 - standard
+    private Integer hvs26;
+    private Integer hvs08;
+    private Integer hvs31;
+    private Integer hvs32;
+
+
     // 일반
     private Integer hvec; /// 응급실 일반 병상 실시간 가용 병상 수
     private Integer hvs01; // 응급실 일반 병상 전체 병상 수
@@ -58,7 +65,7 @@ public class EmrDto {
 
     // 임산부
     private String MKioskTy22; // 응급투석
-    //private String MKioskTy15; // 저체중출생아 집중치료
+    private String MKioskTy15; // 저체중출생아 집중치료
     private String MKioskTy16; // 산부인과응급 분만
     private String MKioskTy17; // 산부인과응급 산과수술
     private String MKioskTy18; // 산부인과응급 부인과수술
@@ -67,7 +74,7 @@ public class EmrDto {
     private String MKioskTy10; // 장충첩/폐색_영유아
     private String MKioskTy12; // 응급내시경_영유아 위장관
     private String MKioskTy14; // 응급내시경_영유아_기관지
-    private String MKioskTy15; // 저체중 출산아
+    //private String MKioskTy15; // 저체중 출산아
     private String MKioskTy27; // 영상의학혈관중재_영유아
 
 }

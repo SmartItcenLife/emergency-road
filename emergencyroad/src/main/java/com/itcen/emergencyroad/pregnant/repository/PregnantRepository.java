@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface PregnantRepository extends JpaRepository<Pregnant, Long> {
-
-    Optional<Pregnant> findByHospital(Hospital hospital);
+    Optional<Pregnant> findPregnantByHospital(Hospital hospital);
 }

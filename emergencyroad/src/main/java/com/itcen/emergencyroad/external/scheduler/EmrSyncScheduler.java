@@ -4,7 +4,7 @@ import com.itcen.emergencyroad.external.RegionCode;
 import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.external.service.EmrSyncService;
 import com.itcen.emergencyroad.general.service.GeneralService;
-import com.itcen.emergencyroad.pregnant.service.PregnantSyncService;
+import com.itcen.emergencyroad.pregnant.service.PregnantRealtimeSyncService;
 import com.itcen.emergencyroad.hospital.service.HospitalSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class EmrSyncScheduler {
 
     private final EmrSyncService emrSyncService;
     private final HospitalSyncService hospitalSyncService;
-    private final PregnantSyncService pregnantSyncService;
+    private final PregnantRealtimeSyncService pregnantRealtimeSyncService;
     private  final GeneralService generalService;
 
     @Scheduled(fixedDelay = 3000000)
@@ -40,8 +40,7 @@ public class EmrSyncScheduler {
                     List<EmrDto> list = emrSyncService.fetchAll(sido);
 
                     hospitalSyncService.saveOrUpdate(list);
-
-                    pregnantSyncService.saveOrUpdate(list);
+                    pregnantRealtimeSyncService.saveOrUpdate(list);
                     generalService.saveOrUpdate(list);
 
 

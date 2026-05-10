@@ -1,9 +1,11 @@
 package com.itcen.emergencyroad.pregnant.entity;
 
+import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
 import lombok.*;
 
+//예) 응급 대응 가능한 분만실 기준이
 @Entity
 @Table(name = "pregnant_standard")
 @Getter
@@ -38,4 +40,12 @@ public class PregnantStandard {
     //인큐베이터 기준
     @Column(name = "HVS32")
     private Integer hvs32;
+
+    public void update(EmrDto dto) {
+        this.hvs26= dto.getHvs26();
+        this.hvs08 = dto.getHvs08();
+        this.hvs31 = dto.getHvs31();
+        this.hvs32 = dto.getHvs32();
+    }
+
 }
