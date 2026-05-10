@@ -2,16 +2,16 @@ package com.itcen.emergencyroad.external.dto;
 
 import lombok.*;
 
-//공통 DTO for 응급실 실시간 가용병상정보 조회 오퍼레이션
+//공통 DTO for 응급실 실시간 가용병상정보 조회 오퍼레이션 1번 API
 /* 이 곳에 필요한 응답 필드 명시 */
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class EmrDto {
 
     private String hpid;
+    private String phpid; //구 코드
 
     //병원 정보
     private String dutyName; //병원 이름

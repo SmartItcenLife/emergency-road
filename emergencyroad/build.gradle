@@ -34,7 +34,6 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	// json 추가하기
 	implementation 'org.json:json:20231013'
-
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
