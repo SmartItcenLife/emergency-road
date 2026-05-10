@@ -37,16 +37,16 @@ public class PediatricRealtime extends BaseEntity {
     private Hospital hospital;
 
     @Column(name = "pediatric_venti")
-    private Boolean pediatricVentiAvailable; // hv10, 소아 인공호흡기 가능여부
+    private String pediatricVentiAvailable; // hv10, 소아 인공호흡기 가능여부
 
     @Column(name = "preemie_venti")
-    private Boolean preemieVentiAvailable; // hvventisoayn, 조산아용 인공호흡기 가용 여부
+    private String preemieVentiAvailable; // hvventisoayn, 조산아용 인공호흡기 가용 여부
 
     @Column(name = "incubator")
-    private Boolean incubatorAvailable; // hv11, 인큐베이터(보육기) 보유/상태 관련
+    private String incubatorAvailable; // hv11, 인큐베이터(보육기) 보유/상태 관련
 
     @Column(name = "incubator_available")
-    private Boolean incubatorResourceAvailable; // hvincuayn, 인큐베이터 가용 여부
+    private String incubatorResourceAvailable; // hvincuayn, 인큐베이터 가용 여부
 
     @Column(name = "pediatric_hotline", length = 20)
     private String pediatricHotline; // hv12, 소아당직의 직통연락처
@@ -71,4 +71,32 @@ public class PediatricRealtime extends BaseEntity {
 
     @Column(name = "recorded_at")
     private LocalDateTime recordedAt; // hvidate 변환값
+
+    public void updateRealtimeData(
+            String pediatricVentiAvailable,
+            String preemieVentiAvailable,
+            String incubatorAvailable,
+            String incubatorResourceAvailable,
+            Integer pediatricNegativeIsolationCount,
+            Integer pediatricGeneralIsolationCount,
+            Integer pediatricBedCount,
+            Integer pediatricIcuCount,
+            Integer pediatricEmergencyIcuCount,
+            Integer pediatricEmergencyAdmissionCount,
+            String pediatricHotline,
+            LocalDateTime recordedAt
+    ) {
+        this.pediatricVentiAvailable = pediatricVentiAvailable;
+        this.preemieVentiAvailable = preemieVentiAvailable;
+        this.incubatorAvailable = incubatorAvailable;
+        this.incubatorResourceAvailable = incubatorResourceAvailable;
+        this.pediatricNegativeIsolationCount = pediatricNegativeIsolationCount;
+        this.pediatricGeneralIsolationCount = pediatricGeneralIsolationCount;
+        this.pediatricBedCount = pediatricBedCount;
+        this.pediatricIcuCount = pediatricIcuCount;
+        this.pediatricEmergencyIcuCount = pediatricEmergencyIcuCount;
+        this.pediatricEmergencyAdmissionCount = pediatricEmergencyAdmissionCount;
+        this.pediatricHotline = pediatricHotline;
+        this.recordedAt = recordedAt;
+    }
 }

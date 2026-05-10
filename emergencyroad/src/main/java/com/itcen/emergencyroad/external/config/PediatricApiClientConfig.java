@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.external.config;
 
+import com.itcen.emergencyroad.external.api.PediatricMkiosktyApiClient;
 import com.itcen.emergencyroad.external.api.PediatricRealtimeStatusApiClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -14,5 +15,12 @@ public class PediatricApiClientConfig {
             @Value("${external.message.service-key}") String serviceKey
     ) {
         return new PediatricRealtimeStatusApiClient(restClient, serviceKey.trim());
+    }
+    @Bean
+    public PediatricMkiosktyApiClient pediatricMkiosktyApiClient(
+            RestClient restClient,
+            @Value("${external.message.service-key}") String serviceKey
+    ) {
+        return new PediatricMkiosktyApiClient(restClient, serviceKey.trim());
     }
 }

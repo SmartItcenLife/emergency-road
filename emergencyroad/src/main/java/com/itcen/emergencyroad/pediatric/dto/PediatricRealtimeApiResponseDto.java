@@ -10,15 +10,15 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PediatricRealtimeApiResponseDto {
-    private Response response;
+public class PediatricRealtimeApiResponseDto<T> {
+    private Response<T> response;
 
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class Response {
+    public static class Response<T> {
         private Header header;
-        private Body body;
+        private Body<T> body;
     }
 
     @Getter
@@ -32,8 +32,8 @@ public class PediatricRealtimeApiResponseDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class Body {
-        private Items items;
+    public static class Body<T> {
+        private Items<T> items;
         private Integer numOfRows;
         private Integer pageNo;
         private Integer totalCount;
@@ -42,8 +42,8 @@ public class PediatricRealtimeApiResponseDto {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class Items {
+    public static class Items<T> {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
-        private List<PediatricRealtimeDto> item;
+        private List<T> item;
     }
 }
