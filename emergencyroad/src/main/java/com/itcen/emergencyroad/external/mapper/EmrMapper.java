@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
+import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeMkiosktyDto;
+import com.itcen.emergencyroad.pediatric.entity.PediatricMkioskty;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import org.springframework.stereotype.Component;
@@ -79,6 +81,41 @@ public class EmrMapper {
                 parseInt(dto.getHv37()),
                 clean(dto.getHv12()),
                 parseDateTime(dto.getHvidate())
+        );
+    }
+    // 소아 mkioskty Mapper
+    public PediatricMkioskty toPediatricMkiosktyEntity(PediatricRealtimeMkiosktyDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricMkioskty.builder()
+                .hospital(hospital)
+                .pediatricBowelObstructionAvailable(clean(dto.getMkioskty10()))                // 장중첩/폐색 영유아
+                .pediatricEmergencyEndoscopyGastroAvailable(clean(dto.getMkioskty12()))        // 응급내시경 영유아 위장관
+                .pediatricEmergencyEndoscopyBronchialAvailable(clean(dto.getMkioskty14()))     // 응급내시경 영유아 기관지
+                .lowBirthWeightInfantAvailable(clean(dto.getMkioskty15()))                     // 저체중출생아
+                .pediatricVascularInterventionAvailable(clean(dto.getMkioskty27()))            // 영상의학혈관중재 영유아
+                .pediatricBowelObstructionMessage(clean(dto.getMkioskty10Msg()))
+                .pediatricEmergencyEndoscopyGastroMessage(clean(dto.getMkioskty12Msg()))
+                .pediatricEmergencyEndoscopyBronchialMessage(clean(dto.getMkioskty14Msg()))
+                .lowBirthWeightInfantMessage(clean(dto.getMkioskty15Msg()))
+                .pediatricVascularInterventionMessage(clean(dto.getMkioskty27Msg()))
+                .build();
+    }
+
+    public void updatePediatricMkiosktyEntity(PediatricMkioskty entity, PediatricRealtimeMkiosktyDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.update(
+                clean(dto.getMkioskty10()),
+                clean(dto.getMkioskty12()),
+                clean(dto.getMkioskty14()),
+                clean(dto.getMkioskty15()),
+                clean(dto.getMkioskty27()),
+                clean(dto.getMkioskty10Msg()),
+                clean(dto.getMkioskty12Msg()),
+                clean(dto.getMkioskty14Msg()),
+                clean(dto.getMkioskty15Msg()),
+                clean(dto.getMkioskty27Msg())
         );
     }
     private Integer parseInt(String value) {
