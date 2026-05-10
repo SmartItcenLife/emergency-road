@@ -20,11 +20,11 @@ public class EmrMapper {
 
         return Pregnant.builder()
                 .hospital(hospital)
-                .mkioskty15(dto.getMKioskTy15())
-                .mkioskty16(dto.getMKioskTy16())
-                .mkioskty17(dto.getMKioskTy17())
-                .mkioskty18(dto.getMKioskTy18())
-                .mkioskty22(dto.getMKioskTy22())
+                .nicuAvailable(dto.getMKioskTy15())
+                .deliveryAvailable(dto.getMKioskTy16())
+                .obstetricSurgeryAvailable(dto.getMKioskTy17())
+                .gynecologySurgeryAvailable(dto.getMKioskTy18())
+                .emergencyDialysisAvailable(dto.getMKioskTy22())
                 .build();
     }
 
@@ -47,10 +47,10 @@ public class EmrMapper {
 
         return PregnantStandard.builder()
                 .hospital(hospital)
-                .hvs26(dto.getHvs26())
-                .hvs08(dto.getHvs08())
-                .hvs31(dto.getHvs31())
-                .hvs32(dto.getHvs32())
+                .deliveryRoomStandard(dto.getHvs26())
+                .nicuStandard(dto.getHvs08())
+                .ventilatorStandard(dto.getHvs31())
+                .incubatorStandard(dto.getHvs32())
                 .build();
     }
 
