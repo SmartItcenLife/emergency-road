@@ -4,8 +4,13 @@ import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
+import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
+import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 //DTO -> Entity
 @Component
@@ -37,6 +42,67 @@ public class EmrMapper {
 
     //TODO
     //소아 Mapper
+    // 소아 realtime Mapper
+    public PediatricRealtime toPediatricEntity(PediatricRealtimeDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricRealtime.builder()
+                .hospital(hospital)
+                .pediatricVentiAvailable(dto.getHv10())                         // 소아 인공 호흡기 가능 여부
+                .preemieVentiAvailable(dto.getHvventisoayn())                   // 조산아용 인공호흡기 가능 여부
+                .incubatorAvailable(dto.getHv11())                          // 인큐베이터(보육기) 가능 여부
+                .incubatorResourceAvailable(dto.getHvincuayn())              // 인큐베이터 가용 여부
+                .pediatricNegativeIsolationCount(parseInt(dto.getHv15()))     // 소아 음압격리
+                .pediatricGeneralIsolationCount(parseInt(dto.getHv16()))     // 소아 일반 격리
+                .pediatricBedCount(parseInt(dto.getHv28()))                  // 소아 현황
+                .pediatricIcuCount(parseInt(dto.getHv32()))                  // [중환자실] 소아
+                .pediatricEmergencyIcuCount(parseInt(dto.getHv33()))         // [응급]소아 중환자실
+                .pediatricEmergencyAdmissionCount(parseInt(dto.getHv37()))  // [응급] 소아 입원실
+                .pediatricHotline(clean(dto.getHv12()))                      // 소아당직의 직통 연락처
+                .recordedAt(parseDateTime(dto.getHvidate()))                    // 입력일시
+                .build();
+    }
+
+    public void updatePediatricEntity(PediatricRealtime entity, PediatricRealtimeDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.updateRealtimeData(
+                dto.getHv10(),
+                dto.getHvventisoayn(),
+                dto.getHv11(),
+                dto.getHvincuayn(),
+                parseInt(dto.getHv15()),
+                parseInt(dto.getHv16()),
+                parseInt(dto.getHv28()),
+                parseInt(dto.getHv32()),
+                parseInt(dto.getHv33()),
+                parseInt(dto.getHv37()),
+                clean(dto.getHv12()),
+                parseDateTime(dto.getHvidate())
+        );
+    }
+    private Integer parseInt(String value) {
+        try {
+            if (value == null || value.isBlank()) return null;
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        try {
+            if (value == null || value.isBlank()) return null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            return LocalDateTime.parse(value.trim(), formatter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String clean(String value) {
+        return value == null ? null : value.trim();
+    }
 
 
     //TODO
