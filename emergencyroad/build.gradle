@@ -18,11 +18,6 @@ repositories {
 }
 
 dependencies {
-	// 관리자 설정
-	// build.gradle
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-// 타임리프에서 시큐리티 권한에 따라 화면을 다르게 보여주고 싶을 때 필요
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	// 웹소켓
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	// JPA
