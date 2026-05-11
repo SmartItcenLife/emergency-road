@@ -5,6 +5,7 @@ import com.itcen.emergencyroad.community.dto.comment.CommentResponseDto;
 import com.itcen.emergencyroad.community.entity.Comment;
 import com.itcen.emergencyroad.community.entity.Post;
 import com.itcen.emergencyroad.community.entity.User;
+import com.itcen.emergencyroad.community.repository.CommentLikeRepository;
 import com.itcen.emergencyroad.community.repository.CommentRepository;
 import com.itcen.emergencyroad.community.repository.PostRepository;
 import com.itcen.emergencyroad.community.repository.UserRepository;
@@ -22,13 +23,18 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final PostRepository postRepository;
   private final UserRepository userRepository;
+  private final CommentLikeRepository commentLikeRepository;
 
   @Transactional(readOnly = true)
-  public List<CommentResponseDto> getComments(Long postId) {
+  public List<CommentResponseDto> getComments(Long postId, Long loginUserId) {
     return commentRepository.findByPostIdAndIsDeletedFalseOrderByCreatedAtAsc(postId)
         .stream()
-        .map(CommentResponseDto::from)
-        .toList();
+        .map(comment -> {
+          long likeCount = commentLikeRepository.countByComment_Id(comment.getId());
+          boolean isLiked = loginUserId != null &&
+              commentLikeRepository.existsByComment_IdAndUser_Id(comment.getId(), loginUserId);
+          return CommentResponseDto.from(comment, likeCount, isLiked);
+        }).toList();
   }
 
   @Transactional

@@ -15,10 +15,22 @@
 <p th:text="${post.content}"></p>
 
 <!-- 이미지 표시 -->
-<div th:if="${!post.imageUrls.isEmpty()}">
+<div th:if="${!post.imageUrls.isEmpty() && post.imageUrls != null}">
   <div th:each="imageUrl : ${post.imageUrls}">
     <img th:src="${imageUrl}" style="max-width: 400px;">
   </div>
+</div>
+
+<!-- 게시글 좋아요 -->
+<div>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/like(hpid=${hpid}, postId=${post.id})}"
+        method="post">
+    <button type="submit"
+            th:text="${isLiked} ? '❤️ ' + ${likeCount} : '🤍 ' + ${likeCount}"
+            th:disabled="${session.loginUser == null}">
+    </button>
+  </form>
+  <span th:if="${session.loginUser == null}">로그인 후 좋아요를 누를 수 있습니다.</span>
 </div>
 
 <!-- 수정/삭제 버튼 (작성자 본인만) -->
@@ -31,6 +43,14 @@
   </form>
 </div>
 
+<!-- 관리자 삭제 버튼 -->
+<div th:if="${session.loginRole == 'ADMIN'}">
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
+    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
+  </form>
+</div>
+
+<!-- 댓글 목록 -->
 <h4>댓글 <span th:text="${#lists.size(comments)}"></span>개</h4>
 
 <div th:if="${comments.isEmpty()}">
@@ -45,6 +65,15 @@
   </p>
   <p th:text="${comment.content}"></p>
 
+  <!-- 댓글 좋아요 -->
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/like(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+        method="post">
+    <button type="submit"
+            th:text="${comment.liked} ? '❤️ ' + ${comment.likeCount} : '🤍 ' + ${comment.likeCount}"
+            th:disabled="${session.loginUser == null}">
+    </button>
+  </form>
+
   <!-- 댓글 수정 폼 (작성자 본인만) -->
   <div th:if="${session.loginUser != null && session.loginUser == comment.userId}">
     <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/edit(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
@@ -58,11 +87,14 @@
     </form>
   </div>
 
-<!-- 관리자 삭제 버튼 -->
-<div th:if="${session.loginRole == 'ADMIN'}">
-  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
-    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
-  </form>
+  <!-- 관리자 댓글 삭제 -->
+  <div th:if="${session.loginRole == 'ADMIN'}">
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
+    </form>
+  </div>
+  <hr>
 </div>
 
 <!-- 댓글 작성 폼 (로그인한 경우만) -->

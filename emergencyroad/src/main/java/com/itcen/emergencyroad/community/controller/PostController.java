@@ -1,10 +1,12 @@
 package com.itcen.emergencyroad.community.controller;
 
+import com.itcen.emergencyroad.community.dto.comment.CommentRequestDto;
 import com.itcen.emergencyroad.community.dto.comment.CommentResponseDto;
 import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
 import com.itcen.emergencyroad.community.entity.Comment;
 import com.itcen.emergencyroad.community.service.CommentService;
+import com.itcen.emergencyroad.community.service.LikeService;
 import com.itcen.emergencyroad.community.service.PostService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
@@ -30,6 +32,7 @@ public class PostController {
 
   private final PostService postService;
   private final CommentService commentService;
+  private final LikeService likeService;
 
   @GetMapping
   public String getPosts(@PathVariable String hpid,
@@ -52,12 +55,19 @@ public class PostController {
       Model model,
       HttpSession session) {
     PostResponseDto post = postService.getPost(postId);
-    List<CommentResponseDto> comments = commentService.getComments(postId);
+    Long loginUserId = (Long) session.getAttribute("loginUser");
+    List<CommentResponseDto> comments = commentService.getComments(postId, loginUserId);
+
+    long likeCount = likeService.getPostLikeCount(postId);
+    boolean isLiked = session.getAttribute("loginUser") != null &&
+        likeService.isPostLiked(postId, loginUserId);
 
     model.addAttribute("post", post);
-    model.addAttribute("hpid", hpid);
     model.addAttribute("comments", comments);
-    model.addAttribute("loginUser", session.getAttribute("loginUser"));
+    model.addAttribute("commentRequestDto", new CommentRequestDto());
+    model.addAttribute("likeCount", likeCount);
+    model.addAttribute("isLiked", isLiked);
+    model.addAttribute("hpid", hpid);
     return "community/post-detail";
   }
 
