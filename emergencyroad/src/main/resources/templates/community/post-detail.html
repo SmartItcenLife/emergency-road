@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세</title>
+</head>
+<body>
+
+<!-- 게시글 내용 -->
+<h2 th:text="${post.title}"></h2>
+<p>작성자: <span th:text="${post.nickname}"></span></p>
+<p>작성일: <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+<p th:if="${post.updatedAt != null}">수정일: <span th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+<hr>
+<p th:text="${post.content}"></p>
+
+<!-- 이미지 표시 -->
+<div th:if="${!post.imageUrls.isEmpty()}">
+  <div th:each="imageUrl : ${post.imageUrls}">
+    <img th:src="${imageUrl}" style="max-width: 400px;">
+  </div>
+</div>
+
+<!-- 수정/삭제 버튼 (작성자 본인만) -->
+<div th:if="${session.loginUser != null && session.loginUser == post.userId}">
+  <a th:href="@{/hospitals/{hpid}/posts/{postId}/edit(hpid=${hpid}, postId=${post.id})}">
+    <button type="button">수정</button>
+  </a>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
+    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+  </form>
+</div>
+
+<!-- 관리자 삭제 버튼 -->
+<div th:if="${session.loginRole == 'ADMIN'}">
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
+    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
+  </form>
+</div>
+
+<!-- 목록으로 -->
+<a th:href="@{/hospitals/{hpid}/posts(hpid=${hpid})}">목록으로</a>
+
+</body>
+</html>

@@ -4,12 +4,14 @@ import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
 import com.itcen.emergencyroad.community.entity.Post;
 import com.itcen.emergencyroad.community.entity.User;
+import com.itcen.emergencyroad.community.repository.PostImageRepository;
 import com.itcen.emergencyroad.community.repository.PostRepository;
 import com.itcen.emergencyroad.community.repository.UserRepository;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import com.itcen.emergencyroad.global.exception.ExceptionStatus;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +31,11 @@ public class PostService {
   private final PostRepository postRepository;
   private final UserRepository userRepository;
   private final HospitalRepository hospitalRepository;
+  private final PostImageService postImageService;
 
   @Transactional
-  public void createPost(String hpid, PostRequestDto dto, Long userId){
+  public void createPost(String hpid, PostRequestDto dto, Long userId,
+      List<MultipartFile> images){
     User user = userRepository.findById(userId).orElseThrow(
         () -> new CustomException(ExceptionStatus.NOT_FOUND));
 
@@ -39,6 +44,8 @@ public class PostService {
 
     Post post = Post.create(user, hospital, dto.getTitle(), dto.getContent());
     postRepository.save(post);
+
+    postImageService.uploadImages(post, images);
   }
 
   @Transactional
@@ -49,10 +56,14 @@ public class PostService {
     boolean isAdmin = ADMIN_ROLE.equals(role);
 
     if(!isAdmin && !isAuthor) throw new CustomException(ExceptionStatus.FORBIDDEN);
+
+    postImageService.deleteImages(postId);
+    post.delete();
   }
 
   @Transactional
-  public void updatePost(Long postId, PostRequestDto dto, Long userId){
+  public void updatePost(Long postId, PostRequestDto dto, Long userId,
+      List<MultipartFile> images){
 
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new CustomException(ExceptionStatus.POST_NOT_FOUND));
@@ -60,6 +71,9 @@ public class PostService {
     if(!post.getUser().getId().equals(userId)) throw new CustomException(ExceptionStatus.USER_POST_FORBIDDEN);
 
     post.update(dto.getTitle(), dto.getContent());
+
+    postImageService.deleteImages(postId);
+    postImageService.uploadImages(post, images);
   }
 
   @Transactional(readOnly = true)
@@ -68,7 +82,8 @@ public class PostService {
 
     if(post.isDeleted()) throw new CustomException(ExceptionStatus.POST_NOT_FOUND);
 
-    return PostResponseDto.from(post);
+    List<String> imageUrls = postImageService.getImageUrls(postId);
+    return PostResponseDto.from(post, imageUrls);
   }
 
   @Transactional(readOnly = true)
@@ -83,6 +98,11 @@ public class PostService {
       posts = postRepository.findByHospitalHpidAndIsDeletedFalse(hpid, pageable);
     }
 
-    return posts.map(PostResponseDto::from);
+    return posts.map(post -> PostResponseDto.from(post, postImageService.getImageUrls(post.getId())));
+  }
+
+  @Transactional(readOnly = true)
+  public String getHospitalName(String hpid){
+     return hospitalRepository.findHospitalByHpid(hpid);
   }
 }

@@ -6,6 +6,7 @@ import com.itcen.emergencyroad.community.service.PostService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequiredArgsConstructor
@@ -31,7 +33,9 @@ public class PostController {
       @RequestParam(required = false) String keyword,
       Model model) {
     Page<PostResponseDto> posts = postService.getPosts(hpid, page, keyword);
+    String hospitalName = postService.getHospitalName(hpid);
 
+    model.addAttribute("hospitalName", hospitalName);
     model.addAttribute("posts", posts);
     model.addAttribute("hpid", hpid);
     model.addAttribute("keyword", keyword);
@@ -48,12 +52,20 @@ public class PostController {
     model.addAttribute("post", post);
     model.addAttribute("hpid", hpid);
     model.addAttribute("loginUser", session.getAttribute("loginUser"));
-    return "community/post-deail";
+    return "community/post-detail";
+  }
+
+  @GetMapping("/new")
+  public String createPostForm(@PathVariable String hpid, Model model){
+    model.addAttribute("postRequestDto", new PostRequestDto());
+    model.addAttribute("hpid", hpid);
+    return "community/post-form";
   }
 
   @PostMapping
   public String createPost(@PathVariable String hpid,
       @Valid @ModelAttribute PostRequestDto dto, BindingResult bindingResult,
+      @RequestParam(required = false) List<MultipartFile> images,
       HttpSession session, Model model) {
     if (bindingResult.hasErrors()) {
       model.addAttribute("hpid", hpid);
@@ -62,14 +74,13 @@ public class PostController {
 
     try {
       Long userId = (Long) session.getAttribute("loginUser");
-      postService.createPost(hpid, dto, userId);
+      postService.createPost(hpid, dto, userId, images);
     } catch (CustomException e) {
       model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
       model.addAttribute("hpid", hpid);
       return "community/post-form";
     }
     return "redirect:/hospitals/" + hpid + "/posts";
-
   }
 
   @GetMapping("/{postId}/edit")
@@ -86,7 +97,8 @@ public class PostController {
   @PostMapping("/{postId}/edit")
   public String updatePost(@PathVariable String hpid, @PathVariable Long postId,
       @Valid @ModelAttribute PostRequestDto dto,
-      BindingResult bindingResult, HttpSession session, Model model) {
+      BindingResult bindingResult, @RequestParam(required = false) List<MultipartFile> images,
+      HttpSession session, Model model) {
 
     if (bindingResult.hasErrors()) {
       model.addAttribute("hpid", hpid);
@@ -95,7 +107,7 @@ public class PostController {
 
     try {
       Long userId = (Long) session.getAttribute("loginUser");
-      postService.updatePost(postId, dto, userId);
+      postService.updatePost(postId, dto, userId, images);
     } catch (CustomException e) {
       model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
       return "community/post-form";

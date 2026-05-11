@@ -10,7 +10,7 @@ public enum ExceptionStatus {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
     INVALID_EMAIL(HttpStatus.BAD_REQUEST, "Invalid email"),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "Invalid password"),
-    IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "Image limit exceeded"),
+    IMAGE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "이미지는 최대 3장까지 입력 가능합니다."),
 
     /* 401 UNAUTHORIZED */
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
@@ -34,6 +34,9 @@ public enum ExceptionStatus {
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "Duplicated email"),
     DUPLICATED_NICKNAME(HttpStatus.CONFLICT, "이미 사용중인 닉네임입니다."),
     DUPLICATED_USERNAME(HttpStatus.CONFLICT, "이미 사용중인 아이디입니다."),
+
+    /* 415 UNSUPPORTED_MEDIA_TYPE */
+    UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "지원하지 않는 파일 형식입니다."),
 
     /* 500 INTERNAL_SERVER_ERROR */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error"),

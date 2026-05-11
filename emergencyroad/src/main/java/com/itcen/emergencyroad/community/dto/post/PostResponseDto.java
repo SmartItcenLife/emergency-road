@@ -2,12 +2,14 @@ package com.itcen.emergencyroad.community.dto.post;
 
 import com.itcen.emergencyroad.community.entity.Post;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Getter;
 
 @Getter
 public class PostResponseDto {
 
   private Long id;
+  private Long userId;
   private String title;
   private String content;
   private String hpid;
@@ -16,10 +18,12 @@ public class PostResponseDto {
   private boolean isDeleted;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
+  private List<String> imageUrls;
 
-  public static PostResponseDto from(Post post){
+  public static PostResponseDto from(Post post, List<String> imageUrls){
     PostResponseDto dto = new PostResponseDto();
     dto.id = post.getId();
+    dto.userId = post.getUser().getId();
     dto.title = post.getTitle();
     dto.content = post.getContent();
     dto.hpid = post.getHospital().getHpid();
@@ -28,7 +32,7 @@ public class PostResponseDto {
     dto.isDeleted = post.isDeleted();
     dto.createdAt = post.getCreatedAt();
     dto.updatedAt = post.getUpdatedAt();
-
+    dto.imageUrls = imageUrls;
     return dto;
   }
 }
