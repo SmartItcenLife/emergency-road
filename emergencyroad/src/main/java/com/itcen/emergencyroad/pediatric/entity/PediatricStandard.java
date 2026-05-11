@@ -3,6 +3,8 @@ package com.itcen.emergencyroad.pediatric.entity;
 import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +14,8 @@ import java.time.LocalDateTime;
 @Table(name = "pediatric_standard")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PediatricStandard extends BaseEntity {
 
     @Id
@@ -54,4 +58,30 @@ public class PediatricStandard extends BaseEntity {
 
     @Column(name = "recorded_at")
     private LocalDateTime recordedAt; // hvidate, 입력일시
+
+    public void updateStandardData(
+            Integer pediatricBedStandard,
+            Integer newbornIcuStandard,
+            Integer pediatricIcuStandard,
+            Integer pediatricEmergencyIcuStandard,
+            Integer pediatricEmergencyAdmissionStandard,
+            Integer generalPediatricVentiStandard,
+            Integer preemieVentiStandard,
+            Integer incubatorStandard,
+            Integer pediatricNegativeIsolationStandard,
+            Integer pediatricGeneralIsolationStandard,
+            LocalDateTime recordedAt
+    ) {
+        this.pediatricBedStandard = pediatricBedStandard;
+        this.newbornIcuStandard = newbornIcuStandard;
+        this.pediatricIcuStandard = pediatricIcuStandard;
+        this.pediatricEmergencyIcuStandard = pediatricEmergencyIcuStandard;
+        this.pediatricEmergencyAdmissionStandard = pediatricEmergencyAdmissionStandard;
+        this.generalPediatricVentiStandard = generalPediatricVentiStandard;
+        this.preemieVentiStandard = preemieVentiStandard;
+        this.incubatorStandard = incubatorStandard;
+        this.pediatricNegativeIsolationStandard = pediatricNegativeIsolationStandard;
+        this.pediatricGeneralIsolationStandard = pediatricGeneralIsolationStandard;
+        this.recordedAt = recordedAt;
+    }
 }

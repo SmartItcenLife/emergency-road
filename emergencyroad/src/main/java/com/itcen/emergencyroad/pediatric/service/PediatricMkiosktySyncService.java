@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.pediatric.service;
 
 import com.itcen.emergencyroad.external.api.PediatricMkiosktyApiClient;
 import com.itcen.emergencyroad.external.api.PediatricRealtimeStatusApiClient;
+import com.itcen.emergencyroad.external.mapper.EmrMapper;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeApiResponseDto;
@@ -25,6 +26,7 @@ public class PediatricMkiosktySyncService {
     private final PediatricMkiosktyRepository pediatricMkiosktyRepository;
     private final HospitalRepository hospitalRepository;
     private final ObjectMapper objectMapper;
+    private final EmrMapper emrMapper;
 
     @Transactional
     public void syncByAddrForPediatricMkioskty(String stage1, String stage2, int page, int row){
@@ -38,10 +40,21 @@ public class PediatricMkiosktySyncService {
                                 PediatricRealtimeMkiosktyDto.class
                         )
         );
+
+        if (responseDto.getResponse().getBody().getItems() == null) {
+            System.out.println("조회 결과가 없습니다. (Empty Response)");
+            return;
+        }
+
         List<PediatricRealtimeMkiosktyDto> items = responseDto.getResponse()
                 .getBody()
                 .getItems()
                 .getItem();
+
+        if (items == null || items.isEmpty()) {
+            System.out.println("처리할 아이템이 없습니다.");
+            return;
+        }
 
         for (PediatricRealtimeMkiosktyDto dto : items) {
             Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);
@@ -51,30 +64,14 @@ public class PediatricMkiosktySyncService {
                 continue;
             }
             PediatricMkioskty entity = pediatricMkiosktyRepository.findByHospital(hospital)
-                    .orElse(
-                            PediatricMkioskty.builder()
-                                    .hospital(hospital)
-                                    .build()
-                    );
+                    .orElseGet(() -> emrMapper.toPediatricMkiosktyEntity(dto, hospital));
 
-            entity.update(
-                    clean(dto.getMkioskty10()),        // 장중첩/폐색 영유아
-                    clean(dto.getMkioskty12()),        // 응급내시경 영유아 위장관
-                    clean(dto.getMkioskty14()),        // 응급내시경 영유아 기관지
-                    clean(dto.getMkioskty15()),        // 저체중출생아
-                    clean(dto.getMkioskty27()),        // 영상의학혈관중재 영유아
-                    clean(dto.getMkioskty10Msg()),
-                    clean(dto.getMkioskty12Msg()),
-                    clean(dto.getMkioskty14Msg()),
-                    clean(dto.getMkioskty15Msg()),
-                    clean(dto.getMkioskty27Msg())
-            );
+            if (entity.getId() != null) {
+                emrMapper.updatePediatricMkiosktyEntity(entity, dto);
+            }
 
             pediatricMkiosktyRepository.save(entity);
         }
 
-    }
-    private String clean(String value) {
-        return value == null ? null : value.trim();
     }
 }
