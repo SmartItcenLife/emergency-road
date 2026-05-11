@@ -7,6 +7,7 @@ import com.itcen.emergencyroad.general.service.GeneralService;
 import com.itcen.emergencyroad.general.service.SrsIllService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,10 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        name = "scheduler.api.enabled",
+        havingValue = "true"
+)
 public class SrsillSyncScheduler {
     private final SrsillSyncService srsillSyncService;
     private final SrsIllService srsIllService;

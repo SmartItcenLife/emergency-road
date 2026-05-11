@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th>병원 ID</th>
+        <th>병원명</th>
+        <th>가용 소아 병상 수</th>
+        <th>전체 소아 병상 수</th>
+        <th>갱신 시각</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="hospital : ${hospitals}">
+        <td th:text="${hospital.hpid}">A1100001</td>
+        <td th:text="${hospital.hospitalName}">병원명</td>
+        <td><span th:text="${hospital.availablePediatricBedCount}">0</span></td>
+        <td><span th:text="${hospital.totalPediatricBedCount}">0</span></td>
+        <td th:text="${hospital.recordedAt}">2026-05-11T14:32</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
