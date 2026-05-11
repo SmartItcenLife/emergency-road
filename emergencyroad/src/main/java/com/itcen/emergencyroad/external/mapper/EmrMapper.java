@@ -4,39 +4,204 @@ import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
+import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
+import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeMkiosktyDto;
+import com.itcen.emergencyroad.pediatric.dto.PediatricStandardDto;
+import com.itcen.emergencyroad.pediatric.entity.PediatricMkioskty;
+import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
+import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
+import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
+import com.itcen.emergencyroad.pregnant.entity.PregnantStandard;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 //DTO -> Entity
 @Component
 public class EmrMapper {
 
     //임산부 Mapper
-    public Pregnant toEntity(EmrDto dto, Hospital hospital) {
+    public Pregnant toPregnantEntity(EmrDto dto, Hospital hospital) {
 
         if (dto == null) return null;
 
         return Pregnant.builder()
                 .hospital(hospital)
-                .hv42(dto.getHv42())
-                .hvncc(dto.getHvncc())
-                .hv11(dto.getHv11())
-                .hvincuayn(dto.getHvincuayn())
-                .hvventisoayn(dto.getHvventisoayn())
+                .nicuAvailable(dto.getMKioskTy15())
+                .deliveryAvailable(dto.getMKioskTy16())
+                .obstetricSurgeryAvailable(dto.getMKioskTy17())
+                .gynecologySurgeryAvailable(dto.getMKioskTy18())
+                .emergencyDialysisAvailable(dto.getMKioskTy22())
                 .build();
     }
-    public void updateEntity(Pregnant entity, EmrDto dto) {
-        if (dto == null) return;
 
-        entity.setHv42(dto.getHv42());
-        entity.setHvncc(dto.getHvncc());
-        entity.setHv11(dto.getHv11());
-        entity.setHvincuayn(dto.getHvincuayn());
-        entity.setHvventisoayn(dto.getHvventisoayn());
+    public PregnantRealtime toPregnantRealTimeStatusEntity(EmrDto dto, Hospital hospital) {
+
+        if (dto == null) return null;
+
+        return PregnantRealtime.builder()
+                .hospital(hospital)
+                .incubatorExists(dto.getHv11())
+                .deliveryRoomCount(dto.getHv42())
+                .nicuBedCount(dto.getHvncc())
+                .incubatorAvailable(dto.getHvincuayn())
+                .prematureVentilatorAvailable(dto.getHvventisoayn())
+                .build();
+    }
+    public PregnantStandard toPregnantStandardStatusEntity(EmrDto dto, Hospital hospital) {
+
+        if (dto == null) return null;
+
+        return PregnantStandard.builder()
+                .hospital(hospital)
+                .deliveryRoomStandard(dto.getHvs26())
+                .nicuStandard(dto.getHvs08())
+                .ventilatorStandard(dto.getHvs31())
+                .incubatorStandard(dto.getHvs32())
+                .build();
     }
 
-    //TODO
+
     //소아 Mapper
+    // 소아 realtime Mapper
+    public PediatricRealtime toPediatricEntity(PediatricRealtimeDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricRealtime.builder()
+                .hospital(hospital)
+                .pediatricVentiAvailable(dto.getHv10())                         // 소아 인공 호흡기 가능 여부
+                .preemieVentiAvailable(dto.getHvventisoayn())                   // 조산아용 인공호흡기 가능 여부
+                .incubatorAvailable(dto.getHv11())                          // 인큐베이터(보육기) 가능 여부
+                .incubatorResourceAvailable(dto.getHvincuayn())              // 인큐베이터 가용 여부
+                .pediatricNegativeIsolationCount(parseInt(dto.getHv15()))     // 소아 음압격리
+                .pediatricGeneralIsolationCount(parseInt(dto.getHv16()))     // 소아 일반 격리
+                .pediatricBedCount(parseInt(dto.getHv28()))                  // 소아 현황
+                .pediatricIcuCount(parseInt(dto.getHv32()))                  // [중환자실] 소아
+                .pediatricEmergencyIcuCount(parseInt(dto.getHv33()))         // [응급]소아 중환자실
+                .pediatricEmergencyAdmissionCount(parseInt(dto.getHv37()))  // [응급] 소아 입원실
+                .pediatricHotline(clean(dto.getHv12()))                      // 소아당직의 직통 연락처
+                .recordedAt(parseDateTime(dto.getHvidate()))                    // 입력일시
+                .build();
+    }
+
+    public void updatePediatricEntity(PediatricRealtime entity, PediatricRealtimeDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.updateRealtimeData(
+                dto.getHv10(),
+                dto.getHvventisoayn(),
+                dto.getHv11(),
+                dto.getHvincuayn(),
+                parseInt(dto.getHv15()),
+                parseInt(dto.getHv16()),
+                parseInt(dto.getHv28()),
+                parseInt(dto.getHv32()),
+                parseInt(dto.getHv33()),
+                parseInt(dto.getHv37()),
+                clean(dto.getHv12()),
+                parseDateTime(dto.getHvidate())
+        );
+    }
+    // 소아 mkioskty Mapper
+    public PediatricMkioskty toPediatricMkiosktyEntity(PediatricRealtimeMkiosktyDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricMkioskty.builder()
+                .hospital(hospital)
+                .pediatricBowelObstructionAvailable(clean(dto.getMkioskty10()))                // 장중첩/폐색 영유아
+                .pediatricEmergencyEndoscopyGastroAvailable(clean(dto.getMkioskty12()))        // 응급내시경 영유아 위장관
+                .pediatricEmergencyEndoscopyBronchialAvailable(clean(dto.getMkioskty14()))     // 응급내시경 영유아 기관지
+                .lowBirthWeightInfantAvailable(clean(dto.getMkioskty15()))                     // 저체중출생아
+                .pediatricVascularInterventionAvailable(clean(dto.getMkioskty27()))            // 영상의학혈관중재 영유아
+                .pediatricBowelObstructionMessage(clean(dto.getMkioskty10Msg()))
+                .pediatricEmergencyEndoscopyGastroMessage(clean(dto.getMkioskty12Msg()))
+                .pediatricEmergencyEndoscopyBronchialMessage(clean(dto.getMkioskty14Msg()))
+                .lowBirthWeightInfantMessage(clean(dto.getMkioskty15Msg()))
+                .pediatricVascularInterventionMessage(clean(dto.getMkioskty27Msg()))
+                .build();
+    }
+
+    public void updatePediatricMkiosktyEntity(PediatricMkioskty entity, PediatricRealtimeMkiosktyDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.update(
+                clean(dto.getMkioskty10()),
+                clean(dto.getMkioskty12()),
+                clean(dto.getMkioskty14()),
+                clean(dto.getMkioskty15()),
+                clean(dto.getMkioskty27()),
+                clean(dto.getMkioskty10Msg()),
+                clean(dto.getMkioskty12Msg()),
+                clean(dto.getMkioskty14Msg()),
+                clean(dto.getMkioskty15Msg()),
+                clean(dto.getMkioskty27Msg())
+        );
+    }
+
+    // 소아 standard Mapper
+    public PediatricStandard toPediatricStandardEntity(PediatricStandardDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricStandard.builder()
+                .hospital(hospital)
+                .pediatricBedStandard(parseInt(dto.getHvs02()))                  // 소아 병상수 기준
+                .newbornIcuStandard(parseInt(dto.getHvs08()))                   // 신생아 중환자실 기준
+                .pediatricIcuStandard(parseInt(dto.getHvs09()))                 // 소아 중환자실 기준
+                .pediatricEmergencyIcuStandard(parseInt(dto.getHvs10()))        // 응급전용 소아 중환자실 기준
+                .pediatricEmergencyAdmissionStandard(parseInt(dto.getHvs20()))  // 응급전용 소아 입원실 기준
+                .generalPediatricVentiStandard(parseInt(dto.getHvs30()))        // 인공호흡기 일반소아 기준
+                .preemieVentiStandard(parseInt(dto.getHvs31()))                 // 인공호흡기 조산아 기준
+                .incubatorStandard(parseInt(dto.getHvs32()))                    // 인큐베이터 기준
+                .pediatricNegativeIsolationStandard(parseInt(dto.getHvs48()))   // 소아 음압격리실 기준
+                .pediatricGeneralIsolationStandard(parseInt(dto.getHvs49()))    // 소아 일반격리실 기준
+                .recordedAt(parseDateTime(dto.getHvidate()))                    // 입력일시
+                .build();
+    }
+
+    public void updatePediatricStandardEntity(PediatricStandard entity, PediatricStandardDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.updateStandardData(
+                parseInt(dto.getHvs02()),
+                parseInt(dto.getHvs08()),
+                parseInt(dto.getHvs09()),
+                parseInt(dto.getHvs10()),
+                parseInt(dto.getHvs20()),
+                parseInt(dto.getHvs30()),
+                parseInt(dto.getHvs31()),
+                parseInt(dto.getHvs32()),
+                parseInt(dto.getHvs48()),
+                parseInt(dto.getHvs49()),
+                parseDateTime(dto.getHvidate())
+        );
+    }
+
+
+
+    private Integer parseInt(String value) {
+        try {
+            if (value == null || value.isBlank()) return null;
+            return Integer.parseInt(value.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        try {
+            if (value == null || value.isBlank()) return null;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            return LocalDateTime.parse(value.trim(), formatter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String clean(String value) {
+        return value == null ? null : value.trim();
+    }
 
 
     //TODO

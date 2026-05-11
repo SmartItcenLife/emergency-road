@@ -41,5 +41,4 @@ public class PediatricRealtimeStatusApiClient {
 
         return response;
     }
-
 }
