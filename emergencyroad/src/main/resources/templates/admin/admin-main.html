@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Emergency Road - 관리자 페이지</title>
+    <style>
+        body { margin: 0; font-family: 'Malgun Gothic', sans-serif; display: flex; height: 100vh; background-color: #f4f6f9; }
+
+        /* 사이드바 스타일 */
+        .sidebar { width: 250px; background-color: #343a40; color: white; display: flex; flex-direction: column; }
+        .sidebar h2 { text-align: center; padding: 20px 0; margin: 0; border-bottom: 1px solid #4f5962; font-size: 20px;}
+        .sidebar a { color: #c2c7d0; text-decoration: none; padding: 15px 20px; display: block; border-bottom: 1px solid #4f5962; }
+        .sidebar a:hover { background-color: #494e53; color: white; }
+
+        /* 메인 컨텐츠 스타일 */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .header { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 24px; color: #333; }
+
+        /* 대시보드 카드 통계 스타일 */
+        .dashboard-cards { display: flex; gap: 20px; }
+        .card { flex: 1; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .card h3 { margin: 0 0 10px 0; color: #666; font-size: 16px; }
+        .card .number { font-size: 32px; font-weight: bold; color: #007bff; margin: 0; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h2>관리자 시스템</h2>
+    <a th:href="@{/admin}">📊 대시보드 (메인)</a>
+    <a th:href="@{/admin/users}">👥 회원 관리</a>
+    <a href="#">📝 커뮤니티 관리</a>
+    <a href="#">💬 실시간 채팅 관리</a>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>대시보드</h1>
+        <p>Emergency Road 시스템 현황을 한눈에 파악하세요.</p>
+    </div>
+
+    <div class="dashboard-cards">
+        <div class="card">
+            <h3>총 가입 회원</h3>
+            <p class="number">1,024</p>
+        </div>
+        <div class="card">
+            <h3>오늘 새 게시글</h3>
+            <p class="number">42</p>
+        </div>
+        <div class="card">
+            <h3>활성화된 채팅방</h3>
+            <p class="number">5</p>
+        </div>
+        <div class="card">
+            <h3>신고 접수 건</h3>
+            <p class="number" style="color: #dc3545;">3</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
