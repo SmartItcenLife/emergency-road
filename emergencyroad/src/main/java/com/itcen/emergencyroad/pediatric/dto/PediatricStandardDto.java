@@ -1,7 +1,13 @@
 package com.itcen.emergencyroad.pediatric.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
 public class PediatricStandardDto {
     private String hpid;      // 기관코드
     private String dutyName;  // 기관명

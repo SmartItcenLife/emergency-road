@@ -6,6 +6,7 @@ import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeApiResponseDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
+import com.itcen.emergencyroad.pediatric.dto.PediatricStandardDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
 import com.itcen.emergencyroad.pediatric.repository.PediatricMkiosktyRepository;
 import com.itcen.emergencyroad.pediatric.repository.PediatricRealtimeRepository;
@@ -41,10 +42,21 @@ public class PediatricSyncService {
                                 )
                 );
 
+        if (responseDto.getResponse().getBody().getItems() == null) {
+            System.out.println("조회 결과가 없습니다. (Empty Response)");
+            return;
+        }
+
         List<PediatricRealtimeDto> items = responseDto.getResponse()
                 .getBody()
                 .getItems()
                 .getItem();
+
+        if (items == null || items.isEmpty()) {
+            System.out.println("처리할 아이템이 없습니다.");
+            return;
+        }
+
 
         for (PediatricRealtimeDto dto : items) {
             Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);

@@ -40,10 +40,21 @@ public class PediatricMkiosktySyncService {
                                 PediatricRealtimeMkiosktyDto.class
                         )
         );
+
+        if (responseDto.getResponse().getBody().getItems() == null) {
+            System.out.println("조회 결과가 없습니다. (Empty Response)");
+            return;
+        }
+
         List<PediatricRealtimeMkiosktyDto> items = responseDto.getResponse()
                 .getBody()
                 .getItems()
                 .getItem();
+
+        if (items == null || items.isEmpty()) {
+            System.out.println("처리할 아이템이 없습니다.");
+            return;
+        }
 
         for (PediatricRealtimeMkiosktyDto dto : items) {
             Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);
