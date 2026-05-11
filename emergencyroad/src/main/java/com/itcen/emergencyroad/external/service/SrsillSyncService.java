@@ -103,7 +103,7 @@ public class SrsillSyncService {
 
                 // --- 임산부 ---
                 .MKioskTy22(item.path("MKioskTy22").asText()) // 응급투석
-                // .MKioskTy15(item.path("MKioskTy15").asText()) // 저체중출생아 집중치료
+                .MKioskTy15(item.path("MKioskTy15").asText()) // 저체중출생아 집중치료
                 .MKioskTy16(item.path("MKioskTy16").asText()) // 산부인과응급 분만
                 .MKioskTy17(item.path("MKioskTy17").asText()) // 산부인과응급 산과수술
                 .MKioskTy18(item.path("MKioskTy18").asText()) // 산부인과응급 부인과수술
@@ -112,7 +112,7 @@ public class SrsillSyncService {
                 .MKioskTy10(item.path("MKioskTy10").asText()) // 장충첩/폐색_영유아
                 .MKioskTy12(item.path("MKioskTy12").asText()) // 응급내시경_영유아 위장관
                 .MKioskTy14(item.path("MKioskTy14").asText()) // 응급내시경_영유아_기관지
-                .MKioskTy15(item.path("MKioskTy15").asText()) // 저체중 출산아
+                //.MKioskTy15(item.path("MKioskTy15").asText()) // 저체중 출산아
                 .MKioskTy27(item.path("MKioskTy27").asText()) // 영상의학혈관중재_영유아
                 .build();
     }

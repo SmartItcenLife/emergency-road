@@ -5,6 +5,7 @@ import com.itcen.emergencyroad.external.dto.EmrDto;
 import com.itcen.emergencyroad.external.service.SrsillSyncService;
 import com.itcen.emergencyroad.general.service.GeneralService;
 import com.itcen.emergencyroad.general.service.SrsIllService;
+import com.itcen.emergencyroad.pregnant.service.PregnantSyncService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +19,7 @@ import java.util.List;
 public class SrsillSyncScheduler {
     private final SrsillSyncService srsillSyncService;
     private final SrsIllService srsIllService;
+    private final PregnantSyncService pregnantSyncService;
 
 
    @Scheduled(fixedDelay = 3000000)
@@ -33,7 +35,7 @@ public class SrsillSyncScheduler {
 
             try {
                 List<EmrDto> list = srsillSyncService.fetchAll(sido);
-
+                pregnantSyncService.saveOrUpdate(list);
                 srsIllService.saveOrUpdate(list);
 
                 log.info("{} srsillSyncService 동기화 완료 size={}", sido, list.size());
