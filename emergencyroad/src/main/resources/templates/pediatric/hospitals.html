@@ -4,12 +4,31 @@
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
+<script th:inline="javascript">
+    const locationProvided = [[${locationProvided}]];
+
+    if (!locationProvided && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position){
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                window.location.href = `/pediatric/hospitals?lat=${lat}&lon=${lon}`;
+            },
+            function (){
+                console.log("위치 정보 제공이 거부되었습니다.");
+            }
+        );
+    }
+
+</script>
 <body>
 <table>
     <thead>
     <tr>
         <th>병원 ID</th>
         <th>병원명</th>
+        <th>거리</th>
         <th>가용 소아 병상 수</th>
         <th>전체 소아 병상 수</th>
         <th>갱신 시각</th>
@@ -20,6 +39,7 @@
     <tr th:each="hospital : ${hospitals}">
         <td th:text="${hospital.hpid}">A1100001</td>
         <td th:text="${hospital.hospitalName}">병원명</td>
+        <td th:text="${hospital.distanceKm != null ? hospital.distanceKm + ' km' : '-'}">-</td>
         <td><span th:text="${hospital.availablePediatricBedCount}">0</span></td>
         <td><span th:text="${hospital.totalPediatricBedCount}">0</span></td>
         <td th:text="${hospital.recordedAt}">2026-05-11T14:32</td>

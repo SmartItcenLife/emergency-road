@@ -18,12 +18,14 @@ public interface PediatricRealtimeRepository extends JpaRepository<PediatricReal
         h.hospitalName,
         pr.pediatricBedCount,
         ps.pediatricBedStandard,
-        pr.recordedAt
+        pr.recordedAt,
+        h.latitude,
+        h.longitude,
+        null
     )
     from PediatricRealtime pr
     join pr.hospital h
     left join PediatricStandard ps on ps.hospital = h
 """)
     List<PediatricHospitalListDto> findPediatricHospitalList();
-
 }

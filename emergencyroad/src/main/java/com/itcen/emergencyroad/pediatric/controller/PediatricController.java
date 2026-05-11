@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -18,11 +19,14 @@ public class PediatricController {
     private final PediatricViewService pediatricViewService;
 
     @GetMapping("/hospitals")
-    public String hospitalList(Model model){
+    public String hospitalList(@RequestParam(required = false) Double lat,
+                               @RequestParam(required = false) Double lon,
+                               Model model){
         List<PediatricHospitalListDto> hospitals =
-                pediatricViewService.getPediatricHospitalList();
+                pediatricViewService.getPediatricHospitalList(lat,lon);
 
         model.addAttribute("hospitals",hospitals);
+        model.addAttribute("locationProvided", lat != null && lon != null);
 
         return "pediatric/hospitals";
     }
