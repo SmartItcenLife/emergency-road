@@ -46,8 +46,14 @@
         <tr th:each="post : ${postList}">
             <td th:text="${post.id}">1</td>
             <td th:text="${post.hospitalName}">서울대학교병원</td>
-            <td th:text="${post.title}">병상 문의드립니다.</td>
-            <td th:text="${post.authorName}">홍길동</td>
+            <td>
+                <a th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${post.hpid}, postId=${post.id})}"
+                   th:text="${post.title}"
+                   style="color: #007bff; text-decoration: none; font-weight: bold;">
+                병상 문의드립니다.
+                </a>
+            </td>
+            <td th:text="${post.userName}">홍길동</td>
             <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-11</td>
 
             <td>
@@ -56,7 +62,9 @@
             </td>
 
             <td>
-                <button th:if="${!post.isDeleted}">강제 삭제</button>
+                <form th:if="${!post.isDeleted}" th:action="@{/admin/posts/{id}/delete(id=${post.id})}" method="post" onsubmit="return confirm('이 게시글을 정말로 강제 삭제하시겠습니까?');">
+                    <button type="submit" style="color: red; cursor: pointer;">강제 삭제</button>
+                </form>
             </td>
         </tr>
         </tbody>

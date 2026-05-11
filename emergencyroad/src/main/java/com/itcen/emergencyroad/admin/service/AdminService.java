@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.admin.service;
 
 import com.itcen.emergencyroad.admin.dto.AdminPostListDTO;
 import com.itcen.emergencyroad.admin.dto.AdminUserResponseDTO;
+import com.itcen.emergencyroad.community.entity.Post;
 import com.itcen.emergencyroad.community.repository.UserRepository;
 import com.itcen.emergencyroad.community.repository.PostRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,5 +40,11 @@ public class AdminService {
         userRepository.deleteById(id);
     }
 
+    @Transactional
+    public void deletePost(Long id){
+        Post post = postRepository.findById(id)
+                        .orElseThrow(()->new IllegalArgumentException("해당 게시글이 존재하지 않습니다"));
+        post.delete();
+    }
 
 }

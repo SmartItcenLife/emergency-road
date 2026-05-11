@@ -41,8 +41,15 @@ public class AdminController {
         model.addAttribute("postList", adminService.findAllPosts());
         return "admin/post-list";
     }
+    //커뮤니티 글 삭제하기
+    @PostMapping("/posts/{id}/delete")
+    public String deletePost(@PathVariable Long id){
+        adminService.deletePost(id);
+        return "redirect:/admin/posts";
+    }
+    // 커뮤니티 제목 누르면 상세 페이지 들어가기
+    // 이건 세빈님 코드에 구현되어 있음.
 
-    // 채팅 들어가기
-
+    // 신고글/댓글 목록 보기
 
 }

@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 public class AdminPostListDTO {
     private Long id;
+    private String hpid;
     private String hospitalName;
     private String title;
     private String userName;
@@ -16,6 +17,7 @@ public class AdminPostListDTO {
 
     public AdminPostListDTO(Post post){
         this.id = post.getId();
+        this.hpid = post.getHospital().getHpid();
         this.hospitalName = post.getHospital().getHospitalName();
         this.title = post.getTitle();
         this.userName = post.getUser().getNickname();
