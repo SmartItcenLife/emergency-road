@@ -5,14 +5,12 @@ import com.itcen.emergencyroad.external.mapper.EmrMapper;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeApiResponseDto;
-import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeMkiosktyDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricStandardDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.pediatric.repository.PediatricStandardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -22,6 +20,7 @@ import java.util.List;
 public class PediatricStandardSyncService {
     private final PediatricRealtimeStatusApiClient pediatricRealtimeStatusApiClient;
     private final PediatricStandardRepository pediatricStandardRepository;
+    private final PediatricApiResponseParser pediatricApiResponseParser;
     private final HospitalRepository hospitalRepository;
     private final ObjectMapper objectMapper;
     private final EmrMapper emrMapper;
@@ -41,20 +40,8 @@ public class PediatricStandardSyncService {
                                 )
                 );
 
-        if (responseDto.getResponse().getBody().getItems() == null) {
-            System.out.println("조회 결과가 없습니다. (Empty Response)");
-            return;
-        }
-
-        List<PediatricStandardDto> items = responseDto.getResponse()
-                .getBody()
-                .getItems()
-                .getItem();
-
-        if (items == null || items.isEmpty()) {
-            System.out.println("처리할 아이템이 없습니다.");
-            return;
-        }
+        List<PediatricStandardDto> items =
+                pediatricApiResponseParser.extractItemsOrEmpty(responseDto,"소아 병상 기준정보" );
 
         for ( PediatricStandardDto dto : items) {
             Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);

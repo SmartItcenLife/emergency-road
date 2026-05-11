@@ -1,17 +1,13 @@
 package com.itcen.emergencyroad.pediatric.service;
 
 import com.itcen.emergencyroad.external.api.PediatricMkiosktyApiClient;
-import com.itcen.emergencyroad.external.api.PediatricRealtimeStatusApiClient;
 import com.itcen.emergencyroad.external.mapper.EmrMapper;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeApiResponseDto;
-import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeMkiosktyDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricMkioskty;
-import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
 import com.itcen.emergencyroad.pediatric.repository.PediatricMkiosktyRepository;
-import com.itcen.emergencyroad.pediatric.repository.PediatricRealtimeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +20,7 @@ import java.util.List;
 public class PediatricMkiosktySyncService {
     private final PediatricMkiosktyApiClient pediatricMkiosktyApiClient;
     private final PediatricMkiosktyRepository pediatricMkiosktyRepository;
+    private final PediatricApiResponseParser pediatricApiResponseParser;
     private final HospitalRepository hospitalRepository;
     private final ObjectMapper objectMapper;
     private final EmrMapper emrMapper;
@@ -41,18 +38,10 @@ public class PediatricMkiosktySyncService {
                         )
         );
 
-        if (responseDto.getResponse().getBody().getItems() == null) {
-            System.out.println("조회 결과가 없습니다. (Empty Response)");
-            return;
-        }
+        List<PediatricRealtimeMkiosktyDto> items =
+                pediatricApiResponseParser.extractItemsOrEmpty(responseDto, "소아 중증질환 수용여부");
 
-        List<PediatricRealtimeMkiosktyDto> items = responseDto.getResponse()
-                .getBody()
-                .getItems()
-                .getItem();
-
-        if (items == null || items.isEmpty()) {
-            System.out.println("처리할 아이템이 없습니다.");
+        if (items.isEmpty()) {
             return;
         }
 
