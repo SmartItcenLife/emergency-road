@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 목록</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<h2 th:text="${hospitalName} + ' 커뮤니티'">병원 커뮤니티</h2>
+
+<!-- 검색창 -->
+<form th:action="@{/hospitals/{hpid}/posts(hpid=${hpid})}" method="get">
+  <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 내용 검색">
+  <button type="submit">검색</button>
+</form>
+
+<!-- 게시글 목록 -->
+<table>
+  <thead>
+  <tr>
+    <th>번호</th>
+    <th>제목</th>
+    <th>작성자</th>
+    <th>작성일</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:if="${posts.isEmpty()}">
+    <td colspan="4">게시글이 없습니다.</td>
+  </tr>
+  <tr th:each="post : ${posts.content}">
+    <td th:text="${post.id}"></td>
+    <td>
+      <a th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${hpid}, postId=${post.id})}"
+         th:text="${post.title}"></a>
+    </td>
+    <td th:text="${post.nickname}"></td>
+    <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></td>
+  </tr>
+  </tbody>
+</table>
+
+<!-- 페이징 -->
+<div>
+  <a th:if="${!posts.first}"
+     th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number - 1}, keyword=${keyword})}"><button type="button">이전</button></a>
+
+  <span th:each="i : ${#numbers.sequence(0, posts.totalPages - 1)}">
+        <a th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${i}, keyword=${keyword})}"
+           th:text="${i + 1}"
+           th:classappend="${i == posts.number} ? 'active'"></a>
+    </span>
+
+  <a th:if="${!posts.last}"
+     th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number + 1}, keyword=${keyword})}"><button type="button">다음</button></a>
+</div>
+
+<!-- 게시글 작성 버튼 (로그인한 경우만) -->
+<div th:if="${session.loginUser != null}">
+  <a th:href="@{/hospitals/{hpid}/posts/new(hpid=${hpid})}">
+    <button type="button">게시글 작성</button>
+  </a>
+</div>
+
+</body>
+</html>

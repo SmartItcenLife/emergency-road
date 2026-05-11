@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 작성/수정</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<h2 th:text="${post != null} ? '게시글 수정' : '게시글 작성'">게시글 작성</h2>
+
+<!-- 에러 메시지 -->
+<div th:if="${errorMessage}">
+  <p th:text="${errorMessage}" style="color: red;"></p>
+</div>
+
+<form th:action="${post != null}
+        ? @{/hospitals/{hpid}/posts/{postId}/edit(hpid=${hpid}, postId=${post.id})}
+        : @{/hospitals/{hpid}/posts(hpid=${hpid})}"
+      th:object="${postRequestDto}"
+      method="post"
+      enctype="multipart/form-data">
+
+  <!-- 제목 -->
+  <div>
+    <label>제목
+      <input type="text" th:field="*{title}"
+             th:value="${post != null} ? ${post.title} : ''"
+             placeholder="제목을 입력해주세요.">
+    </label>
+    <p th:if="${#fields.hasErrors('title')}"
+       th:errors="*{title}"
+       style="color: red;"></p>
+  </div>
+
+  <!-- 내용 -->
+  <div>
+    <label>내용
+<textarea th:field="*{content}"
+          placeholder="내용을 입력해주세요.">
+        <th:block th:text="${post != null} ? ${post.content} : ''"></th:block>
+    </textarea>
+    </label>
+    <p th:if="${#fields.hasErrors('content')}"
+       th:errors="*{content}"
+       style="color: red;"></p>
+  </div>
+
+  <!-- 이미지 업로드 (최대 3장) -->
+  <div>
+    <label>이미지 첨부 (최대 3장, 선택)</label>
+    <input type="file" name="images" accept="image/*" multiple>
+  </div>
+
+  <!-- 기존 이미지 표시 (수정 시) -->
+  <div th:if="${post != null && !post.imageUrls.isEmpty()}">
+    <p>현재 이미지 (수정 시 새로 업로드하면 기존 이미지가 교체됩니다.)</p>
+    <div th:each="imageUrl : ${post.imageUrls}">
+      <img th:src="${imageUrl}" style="max-width: 200px;">
+    </div>
+  </div>
+
+  <button type="submit" th:text="${post != null} ? '수정' : '작성'">작성</button>
+  <a th:href="@{/hospitals/{hpid}/posts(hpid=${hpid})}">취소</a>
+
+</form>
+
+</body>
+</html>

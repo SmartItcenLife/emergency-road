@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.community.service;
 
 import com.itcen.emergencyroad.community.dto.kakao.KakaoUserInfoDto;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
 
 @Service
+@Slf4j
 public class KakaoService {
 
   private final RestTemplate restTemplate;
@@ -68,4 +70,20 @@ public class KakaoService {
     );
     return response.getBody();
   }
+
+  public void logout(String accessToken){
+    String url = "https://kapi.kakao.com/v1/user/logout";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Authorization", "Bearer " + accessToken);
+
+    HttpEntity<Void> request = new HttpEntity<>(headers);
+
+    try{
+      restTemplate.exchange(url, HttpMethod.POST, request, Map.class);
+    } catch (Exception e){
+      log.warn("카카오 로그아웃 API 호출 실패 : {}", e.getMessage());
+    }
+  }
+
 }
