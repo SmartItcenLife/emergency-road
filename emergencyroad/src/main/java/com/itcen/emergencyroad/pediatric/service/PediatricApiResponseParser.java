@@ -15,7 +15,6 @@ public class PediatricApiResponseParser {
       공공 API 응답은 상황에 따라 response, header, body, items가 비어 있거나, resultCode가 성공이 아닌 값으로 내려올 수 있습니다.
       이러한 경우를 처리하기 위한 공통 로직 클래스.
      */
-
     private static final String SUCCESS_CODE = "00"; // 응답코드 : 00 = 성공
     /*
         API 응답 DTO에서 item 목록을 추출합니다.

@@ -9,12 +9,15 @@ import com.itcen.emergencyroad.pediatric.dto.PediatricStandardDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.pediatric.repository.PediatricStandardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PediatricStandardSyncService {
@@ -26,12 +29,18 @@ public class PediatricStandardSyncService {
     private final EmrMapper emrMapper;
 
     @Transactional
-    public void syncBysidoForPediatricStandard(String sido, int page, int rows){
-        String json = pediatricRealtimeStatusApiClient.getPediatricRealtimeRawBySido(sido, page, rows);
+    public void syncBysidoForPediatricStandard(String sido) {
+        int page = 1;
+        int rows = 100;
+
+        while (true) {
+            String json = pediatricRealtimeStatusApiClient.getPediatricRealtimeRawBySido(sido, page, rows);
 
 
-        PediatricRealtimeApiResponseDto<PediatricStandardDto> responseDto =
-                objectMapper.readValue(
+            PediatricRealtimeApiResponseDto<PediatricStandardDto> responseDto;
+
+            try {
+                responseDto = objectMapper.readValue(
                         json,
                         objectMapper.getTypeFactory()
                                 .constructParametricType(
@@ -39,25 +48,51 @@ public class PediatricStandardSyncService {
                                         PediatricStandardDto.class
                                 )
                 );
-
-        List<PediatricStandardDto> items =
-                pediatricApiResponseParser.extractItemsOrEmpty(responseDto,"소아 병상 기준정보" );
-
-        for ( PediatricStandardDto dto : items) {
-            Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);
-
-            if (hospital == null) {
-                System.out.println("병원 없음, Skip : " + dto.getHpid());
-                continue;
+            }
+            catch (InvalidFormatException e) {
+                log.warn(
+                        "소아 병상 기준 정보 API 조회 결과 없음. items가 빈문자열 입니다. sido={}, page={}",
+                        sido,
+                        page
+                );
+                return;
+            } catch (Exception e) {
+                log.warn("소아 병상 기준정보 API 응답 파싱 실패. sido={}, page={}",
+                        sido,
+                        page,
+                        e);
+                return;
             }
 
-            PediatricStandard entity = pediatricStandardRepository.findByHospital(hospital)
-                    .orElseGet(()-> emrMapper.toPediatricStandardEntity(dto,hospital));
+            List<PediatricStandardDto> items =
+                    pediatricApiResponseParser.extractItemsOrEmpty(responseDto, "소아 병상 기준정보");
 
-            if (entity.getId() != null){
-                emrMapper.updatePediatricStandardEntity(entity,dto);
+            if (items.isEmpty()) {
+                return;
             }
-            pediatricStandardRepository.save(entity);
+
+            for (PediatricStandardDto dto : items) {
+                Hospital hospital = hospitalRepository.findByHpid(dto.getHpid()).orElse(null);
+
+                if (hospital == null) {
+                    System.out.println("병원 없음, Skip : " + dto.getHpid());
+                    continue;
+                }
+
+                PediatricStandard entity = pediatricStandardRepository.findByHospital(hospital)
+                        .orElseGet(() -> emrMapper.toPediatricStandardEntity(dto, hospital));
+
+                if (entity.getId() != null) {
+                    emrMapper.updatePediatricStandardEntity(entity, dto);
+                }
+                pediatricStandardRepository.save(entity);
+            }
+
+            Integer totalCount = responseDto.getResponse().getBody().getTotalCount();
+            if (totalCount == null || page * rows >= totalCount) {
+                break;
+            }
+            page++;
         }
     }
 }

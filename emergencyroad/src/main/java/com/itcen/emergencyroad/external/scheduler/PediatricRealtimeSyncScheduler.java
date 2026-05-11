@@ -22,7 +22,7 @@ public class PediatricRealtimeSyncScheduler {
 
             try{
                 log.info("수집 대상 도시 : " + sido);
-                pediatricSyncService.syncBySidoForPediatric(sido,1,100);
+                pediatricSyncService.syncBySidoForPediatric(sido);
             } catch (Exception e){
                 log.error("{} 지역 데이터를 불러오는데 실패했습니다.",sido,e);
             }

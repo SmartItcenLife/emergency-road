@@ -27,7 +27,8 @@ public class PediatricMkiosktySyncScheduler {
             for (String stage2 : stage2List) {
                 try {
                     log.info("수집 대상 지역 : {} {}", stage1, stage2);
-                    pediatricMkiosktySyncService.syncByAddrForPediatricMkioskty(stage1, stage2,1,100);
+                    pediatricMkiosktySyncService.syncByAddrForPediatricMkioskty(stage1, stage2);
+                    Thread.sleep(5000);
                 } catch (Exception e) {
                     log.error("동기화 실패 : {} {}", stage1, stage2, e);
                     }
