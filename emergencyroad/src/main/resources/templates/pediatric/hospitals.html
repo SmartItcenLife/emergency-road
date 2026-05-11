@@ -2,49 +2,287 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>소아 병원 목록</title>
+    <style>
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+        }
+
+        .page {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #f8fafc;
+            padding: 16px;
+        }
+
+        .header {
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 8px;
+        }
+
+        .location {
+            font-size: 13px;
+            color: #2563eb;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 18px 0 10px;
+        }
+
+        .hospital-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hospital-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .hospital-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .hospital-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: #e0f2fe;
+            color: #0284c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex: 0 0 auto;
+        }
+
+        .hospital-info {
+            min-width: 0;
+        }
+
+        .hospital-name {
+            font-size: 15px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 190px;
+        }
+
+        .hospital-meta {
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-free {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .badge-normal {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .badge-busy {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .badge-unknown {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .hospital-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
+
+        .donut {
+            --rate: 0;
+            --donut-color: #9ca3af;
+
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: conic-gradient(var(--donut-color) calc(var(--rate) * 1%), #e5e7eb 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .donut-free {
+            --donut-color: #22c55e;
+        }
+
+        .donut-normal {
+            --donut-color: #facc15;
+        }
+
+        .donut-busy {
+            --donut-color: #ef4444;
+        }
+
+        .donut-unknown {
+            --donut-color: #9ca3af;
+        }
+
+        .donut::before {
+            content: "";
+            position: absolute;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ffffff;
+        }
+
+        .donut span {
+            position: relative;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--donut-color);
+        }
+
+        .bed-text {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            color: #6b7280;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
 </head>
+<body>
+<div class="page">
+    <header class="header">
+        <h1 class="title">소아 병원 목록</h1>
+        <div class="location" th:if="${locationProvided}">
+            현재 위치 기준
+        </div>
+        <div class="location" th:unless="${locationProvided}">
+            기본 위치 기준
+        </div>
+    </header>
+
+    <section>
+        <h2 class="section-title">전체 병원 목록</h2>
+
+        <div class="empty" th:if="${#lists.isEmpty(hospitals)}">
+            표시할 병원 정보가 없습니다.
+        </div>
+
+        <div class="hospital-list" th:unless="${#lists.isEmpty(hospitals)}">
+            <article class="hospital-card" th:each="hospital : ${hospitals}">
+                <div class="hospital-left">
+                    <div class="hospital-icon">H</div>
+
+                    <div class="hospital-info">
+                        <div class="hospital-name" th:text="${hospital.hospitalName}">
+                            한양대병원
+                        </div>
+
+                        <div class="hospital-meta">
+                            <span th:text="${hospital.distanceKm != null ? hospital.distanceKm + 'km' : '-'}">
+                                2.6km
+                            </span>
+
+                            <span class="badge"
+                                  th:classappend="${hospital.congestionLabel == '여유'} ? ' badge-free' :
+                                                  (${hospital.congestionLabel == '보통'} ? ' badge-normal' :
+                                                  (${hospital.congestionLabel == '혼잡'} ? ' badge-busy' : ' badge-unknown'))"
+                                  th:text="${hospital.congestionLabel}">
+                                보통
+                            </span>
+
+                            <span>소아 병상 정보 제공</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hospital-right">
+                    <div>
+                        <div class="donut"
+                             th:classappend="${hospital.congestionLabel == '여유'} ? ' donut-free' :
+                                            (${hospital.congestionLabel == '보통'} ? ' donut-normal' :
+                                            (${hospital.congestionLabel == '혼잡'} ? ' donut-busy' : ' donut-unknown'))"
+                             th:style="|--rate: ${hospital.availableBedPercentage != null ? hospital.availableBedPercentage : 0}|">
+                            <span th:text="${hospital.availableBedPercentage != null ? hospital.availableBedPercentage + '%' : '-'}">
+                            28%
+                            </span>
+                        </div>
+
+                        <div class="bed-text"
+                             th:text="|가용 병상 ${hospital.availablePediatricBedCount != null ? hospital.availablePediatricBedCount : 0}개|">
+                            가용 병상 2개
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+
 <script th:inline="javascript">
     const locationProvided = [[${locationProvided}]];
 
     if (!locationProvided && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            function(position){
+            function(position) {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
                 window.location.href = `/pediatric/hospitals?lat=${lat}&lon=${lon}`;
             },
-            function (){
+            function() {
                 console.log("위치 정보 제공이 거부되었습니다.");
             }
         );
     }
-
 </script>
-<body>
-<table>
-    <thead>
-    <tr>
-        <th>병원 ID</th>
-        <th>병원명</th>
-        <th>거리</th>
-        <th>가용 소아 병상 수</th>
-        <th>전체 소아 병상 수</th>
-        <th>갱신 시각</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    <tr th:each="hospital : ${hospitals}">
-        <td th:text="${hospital.hpid}">A1100001</td>
-        <td th:text="${hospital.hospitalName}">병원명</td>
-        <td th:text="${hospital.distanceKm != null ? hospital.distanceKm + ' km' : '-'}">-</td>
-        <td><span th:text="${hospital.availablePediatricBedCount}">0</span></td>
-        <td><span th:text="${hospital.totalPediatricBedCount}">0</span></td>
-        <td th:text="${hospital.recordedAt}">2026-05-11T14:32</td>
-    </tr>
-    </tbody>
-</table>
 </body>
 </html>

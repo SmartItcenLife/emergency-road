@@ -21,5 +21,36 @@ public class PediatricHospitalListDto {
     public void updateDistanceKm(Double distanceKm){
         this.distanceKm = distanceKm;
     }
+    // TODO 일반 - 임산부 - 소아 및 유아   모두 사용할 수 있는 메서드들은 공통 유틸로 정의하여 따로 정의
+    // 가용 병상 수 퍼센테이지 변환 메서드
+    public Integer getAvailableBedPercentage() {
+        if(availablePediatricBedCount == null || totalPediatricBedCount == null){
+            return null;
+        }
+        // 분모가 0인경우
+        if (totalPediatricBedCount == 0) {
+            return null;
+        }
+        return (int)Math.round((availablePediatricBedCount * 100.0) / totalPediatricBedCount);
+    }
+
+    // 병원 혼잡도 임의 지정
+    public String getCongestionLabel() {
+        Integer percentage = getAvailableBedPercentage();
+
+        if (percentage == null) {
+            return "정보없음";
+        }
+
+        if (percentage >= 50) {
+            return "여유";
+        }
+
+        if (percentage >= 20) {
+            return "보통";
+        }
+
+        return "혼잡";
+    }
 }
 
