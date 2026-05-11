@@ -27,7 +27,7 @@
     <tbody>
     <tr th:each="user : ${userList}">
         <td th:text="${user.id}">1</td>
-        <td th:text="${user.username}">testUser</td>
+        <td th:text="${user.userName}">testUser</td>
         <td th:text="${user.nickname}">홍길동</td>
         <td th:text="${user.role}">USER</td>
         <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-11</td>
