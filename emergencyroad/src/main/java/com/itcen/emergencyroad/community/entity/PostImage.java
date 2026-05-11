@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.community.entity;
 
+import com.itcen.emergencyroad.global.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,27 +22,19 @@ import java.time.LocalDateTime;
 @Table(name = "post_images")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostImage {
+public class PostImage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate(){
-        this.createdAt = LocalDateTime.now();
-    }
 
     public static PostImage create(Post post, String imageUrl){
         PostImage postImage = new PostImage();

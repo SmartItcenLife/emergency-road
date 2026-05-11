@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<nav th:fragment="nav">
+
+  <!-- 로그인 상태 -->
+  <div th:if="${session.loginUser != null}">
+
+    <!-- 프로필 이미지 -->
+    <img th:if="${session.loginProfileImage != null}"
+         th:src="${session.loginProfileImage}"
+         style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+
+    <!-- 기본 프로필 이미지 (없을 경우) -->
+    <img th:if="${session.loginProfileImage == null}"
+         src="/images/default-profile.png"
+         style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+
+    <!-- 닉네임 -->
+    <span th:text="${session.loginNickname} + '님'"></span>
+
+    <!-- 관리자 뱃지 -->
+    <span th:if="${session.loginRole == 'ADMIN'}">[관리자]</span>
+
+    <!-- 로그아웃 버튼 -->
+    <a th:href="@{/logout}"><button type="button">로그아웃</button></a>
+  </div>
+
+  <!-- 비로그인 상태 -->
+  <div th:if="${session.loginUser == null}">
+    <a th:href="@{/login}"><button type="button">로그인</button></a>
+    <a th:href="@{/signup}"><button type="button">회원가입</button></a>
+  </div>
+
+</nav>
+
+</body>
+</html>
