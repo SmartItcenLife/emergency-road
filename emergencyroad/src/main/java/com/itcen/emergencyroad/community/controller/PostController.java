@@ -1,7 +1,10 @@
 package com.itcen.emergencyroad.community.controller;
 
+import com.itcen.emergencyroad.community.dto.comment.CommentResponseDto;
 import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
+import com.itcen.emergencyroad.community.entity.Comment;
+import com.itcen.emergencyroad.community.service.CommentService;
 import com.itcen.emergencyroad.community.service.PostService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
@@ -26,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
 
   private final PostService postService;
+  private final CommentService commentService;
 
   @GetMapping
   public String getPosts(@PathVariable String hpid,
@@ -48,9 +52,11 @@ public class PostController {
       Model model,
       HttpSession session) {
     PostResponseDto post = postService.getPost(postId);
+    List<CommentResponseDto> comments = commentService.getComments(postId);
 
     model.addAttribute("post", post);
     model.addAttribute("hpid", hpid);
+    model.addAttribute("comments", comments);
     model.addAttribute("loginUser", session.getAttribute("loginUser"));
     return "community/post-detail";
   }

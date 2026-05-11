@@ -31,11 +31,51 @@
   </form>
 </div>
 
+<h4>댓글 <span th:text="${#lists.size(comments)}"></span>개</h4>
+
+<div th:if="${comments.isEmpty()}">
+  <p>아직 댓글이 없습니다.</p>
+</div>
+
+<div th:each="comment : ${comments}">
+  <p>
+    <strong th:text="${comment.nickname}"></strong>
+    <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    <span th:if="${comment.updatedAt != null}">(수정됨)</span>
+  </p>
+  <p th:text="${comment.content}"></p>
+
+  <!-- 댓글 수정 폼 (작성자 본인만) -->
+  <div th:if="${session.loginUser != null && session.loginUser == comment.userId}">
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/edit(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <input type="text" name="content" th:value="${comment.content}">
+      <button type="submit">수정</button>
+    </form>
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+    </form>
+  </div>
+
 <!-- 관리자 삭제 버튼 -->
 <div th:if="${session.loginRole == 'ADMIN'}">
   <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
     <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
   </form>
+</div>
+
+<!-- 댓글 작성 폼 (로그인한 경우만) -->
+<div th:if="${session.loginUser != null}">
+  <h4>댓글 작성</h4>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments(hpid=${hpid}, postId=${post.id})}"
+        method="post">
+    <textarea name="content" placeholder="댓글을 입력해주세요. (500자 이하)"></textarea>
+    <button type="submit">댓글 작성</button>
+  </form>
+</div>
+<div th:if="${session.loginUser == null}">
+  <p>댓글을 작성하려면 <a th:href="@{/login}">로그인</a>이 필요합니다.</p>
 </div>
 
 <!-- 목록으로 -->

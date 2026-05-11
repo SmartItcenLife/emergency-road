@@ -25,10 +25,14 @@ public enum ExceptionStatus {
     /* 403 FORBIDDEN */
     FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden"),
     USER_POST_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 작성한 게시글 외에는 수정할 수 없습니다."),
+    USER_COMMENT_FORBIDDEN(HttpStatus.FORBIDDEN, "본인이 작성한 댓글 외에는 수정할 수 없습니다."),
+    DELETE_FORBIDDEN(HttpStatus.FORBIDDEN, "삭제할 수 있는 권한이 없습니다."),
 
     /* 404 NOT_FOUND */
     NOT_FOUND(HttpStatus.NOT_FOUND, "Not found"),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
 
     /* 409 CONFLICT */
     DUPLICATED_EMAIL(HttpStatus.CONFLICT, "Duplicated email"),

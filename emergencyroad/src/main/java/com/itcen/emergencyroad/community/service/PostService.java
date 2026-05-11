@@ -55,7 +55,7 @@ public class PostService {
     boolean isAuthor = post.getUser().getId().equals(userId);
     boolean isAdmin = ADMIN_ROLE.equals(role);
 
-    if(!isAdmin && !isAuthor) throw new CustomException(ExceptionStatus.FORBIDDEN);
+    if(!isAdmin && !isAuthor) throw new CustomException(ExceptionStatus.DELETE_FORBIDDEN);
 
     postImageService.deleteImages(postId);
     post.delete();
