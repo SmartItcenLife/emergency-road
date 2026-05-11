@@ -17,6 +17,16 @@ public class LoginInterceptor implements HandlerInterceptor {
       return false;
     }
 
+    // /admin/** 경로인 경우 ADMIN role 체크함.
+    String requestURI = request.getRequestURI();
+    if(requestURI.startsWith("/admin")){
+      String role = (String) session.getAttribute("loginRole");
+      if(!"ADMIN".equals(role)){
+        response.sendRedirect("/"); // ADMIN이 아닌 경우에는 / URL로 보냄(Redirect).
+        return false;
+      }
+    }
+
     return true;
   }
 }
