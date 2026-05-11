@@ -6,8 +6,10 @@ import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricRealtimeMkiosktyDto;
+import com.itcen.emergencyroad.pediatric.dto.PediatricStandardDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricMkioskty;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
+import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +44,6 @@ public class EmrMapper {
         entity.setHvventisoayn(dto.getHvventisoayn());
     }
 
-    //TODO
     //소아 Mapper
     // 소아 realtime Mapper
     public PediatricRealtime toPediatricEntity(PediatricRealtimeDto dto, Hospital hospital) {
@@ -118,6 +119,47 @@ public class EmrMapper {
                 clean(dto.getMkioskty27Msg())
         );
     }
+
+    // 소아 standard Mapper
+    public PediatricStandard toPediatricStandardEntity(PediatricStandardDto dto, Hospital hospital) {
+        if (dto == null) return null;
+
+        return PediatricStandard.builder()
+                .hospital(hospital)
+                .pediatricBedStandard(parseInt(dto.getHvs02()))                  // 소아 병상수 기준
+                .newbornIcuStandard(parseInt(dto.getHvs08()))                   // 신생아 중환자실 기준
+                .pediatricIcuStandard(parseInt(dto.getHvs09()))                 // 소아 중환자실 기준
+                .pediatricEmergencyIcuStandard(parseInt(dto.getHvs10()))        // 응급전용 소아 중환자실 기준
+                .pediatricEmergencyAdmissionStandard(parseInt(dto.getHvs20()))  // 응급전용 소아 입원실 기준
+                .generalPediatricVentiStandard(parseInt(dto.getHvs30()))        // 인공호흡기 일반소아 기준
+                .preemieVentiStandard(parseInt(dto.getHvs31()))                 // 인공호흡기 조산아 기준
+                .incubatorStandard(parseInt(dto.getHvs32()))                    // 인큐베이터 기준
+                .pediatricNegativeIsolationStandard(parseInt(dto.getHvs48()))   // 소아 음압격리실 기준
+                .pediatricGeneralIsolationStandard(parseInt(dto.getHvs49()))    // 소아 일반격리실 기준
+                .recordedAt(parseDateTime(dto.getHvidate()))                    // 입력일시
+                .build();
+    }
+
+    public void updatePediatricStandardEntity(PediatricStandard entity, PediatricStandardDto dto) {
+        if (dto == null || entity == null) return;
+
+        entity.updateStandardData(
+                parseInt(dto.getHvs02()),
+                parseInt(dto.getHvs08()),
+                parseInt(dto.getHvs09()),
+                parseInt(dto.getHvs10()),
+                parseInt(dto.getHvs20()),
+                parseInt(dto.getHvs30()),
+                parseInt(dto.getHvs31()),
+                parseInt(dto.getHvs32()),
+                parseInt(dto.getHvs48()),
+                parseInt(dto.getHvs49()),
+                parseDateTime(dto.getHvidate())
+        );
+    }
+
+
+
     private Integer parseInt(String value) {
         try {
             if (value == null || value.isBlank()) return null;
