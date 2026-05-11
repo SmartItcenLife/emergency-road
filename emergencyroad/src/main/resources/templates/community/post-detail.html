@@ -5,7 +5,7 @@
   <title>게시글 상세</title>
 </head>
 <body>
-
+<div th:replace="~{fragments/nav :: nav}"></div>
 <!-- 게시글 내용 -->
 <h2 th:text="${post.title}"></h2>
 <p>작성자: <span th:text="${post.nickname}"></span></p>
