@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<!-- 게시글 내용 -->
+<h2 th:text="${post.title}"></h2>
+<p>작성자: <span th:text="${post.nickname}"></span></p>
+<p>작성일: <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+<p th:if="${post.updatedAt != null}">수정일: <span th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+<hr>
+<p th:text="${post.content}"></p>
+
+<!-- 이미지 표시 -->
+<div th:if="${!post.imageUrls.isEmpty() && post.imageUrls != null}">
+  <div th:each="imageUrl : ${post.imageUrls}">
+    <img th:src="${imageUrl}" style="max-width: 400px;">
+  </div>
+</div>
+
+<!-- 게시글 좋아요 -->
+<div>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/like(hpid=${hpid}, postId=${post.id})}"
+        method="post">
+    <button type="submit"
+            th:text="${isLiked} ? '❤️ ' + ${likeCount} : '🤍 ' + ${likeCount}"
+            th:disabled="${session.loginUser == null}">
+    </button>
+  </form>
+  <span th:if="${session.loginUser == null}">로그인 후 좋아요를 누를 수 있습니다.</span>
+</div>
+
+<!-- 수정/삭제 버튼 (작성자 본인만) -->
+<div th:if="${session.loginUser != null && session.loginUser == post.userId}">
+  <a th:href="@{/hospitals/{hpid}/posts/{postId}/edit(hpid=${hpid}, postId=${post.id})}">
+    <button type="button">수정</button>
+  </a>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
+    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+  </form>
+</div>
+
+<!-- 관리자 삭제 버튼 -->
+<div th:if="${session.loginRole == 'ADMIN'}">
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}" method="post">
+    <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
+  </form>
+</div>
+
+<!-- 댓글 목록 -->
+<h4>댓글 <span th:text="${#lists.size(comments)}"></span>개</h4>
+
+<div th:if="${comments.isEmpty()}">
+  <p>아직 댓글이 없습니다.</p>
+</div>
+
+<div th:each="comment : ${comments}">
+  <p>
+    <strong th:text="${comment.nickname}"></strong>
+    <span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></span>
+    <span th:if="${comment.updatedAt != null}">(수정됨)</span>
+  </p>
+  <p th:text="${comment.content}"></p>
+
+  <!-- 댓글 좋아요 -->
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/like(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+        method="post">
+    <button type="submit"
+            th:text="${comment.liked} ? '❤️ ' + ${comment.likeCount} : '🤍 ' + ${comment.likeCount}"
+            th:disabled="${session.loginUser == null}">
+    </button>
+  </form>
+
+  <!-- 댓글 수정 폼 (작성자 본인만) -->
+  <div th:if="${session.loginUser != null && session.loginUser == comment.userId}">
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/edit(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <input type="text" name="content" th:value="${comment.content}">
+      <button type="submit">수정</button>
+    </form>
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <button type="submit" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+    </form>
+  </div>
+
+  <!-- 관리자 댓글 삭제 -->
+  <div th:if="${session.loginRole == 'ADMIN'}">
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+          method="post">
+      <button type="submit" onclick="return confirm('삭제하시겠습니까?')">관리자 삭제</button>
+    </form>
+  </div>
+  <hr>
+</div>
+
+<!-- 댓글 작성 폼 (로그인한 경우만) -->
+<div th:if="${session.loginUser != null}">
+  <h4>댓글 작성</h4>
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments(hpid=${hpid}, postId=${post.id})}"
+        method="post">
+    <textarea name="content" placeholder="댓글을 입력해주세요. (500자 이하)"></textarea>
+    <button type="submit">댓글 작성</button>
+  </form>
+</div>
+<div th:if="${session.loginUser == null}">
+  <p>댓글을 작성하려면 <a th:href="@{/login}">로그인</a>이 필요합니다.</p>
+</div>
+
+<!-- 목록으로 -->
+<a th:href="@{/hospitals/{hpid}/posts(hpid=${hpid})}">목록으로</a>
+
+</body>
+</html>

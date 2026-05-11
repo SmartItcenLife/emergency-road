@@ -96,6 +96,12 @@ public class EmrSyncService {
                 .dutyName(getText(item, "dutyName"))
                 .dutyTel3(getText(item, "dutyTel3"))
 
+                //임산부 기준
+                .hvs26(parseInt(getText(item, "hvs26")))
+                .hvs08(parseInt(getText(item, "hvs08")))
+                .hvs31(parseInt(getText(item, "hvs31")))
+                .hvs32(parseInt(getText(item, "hvs32")))
+
                 // 응급실 소아 관련 정보
                 .hv11(getText(item, "hv11"))
                 .hvincuayn(getText(item, "hvincuayn"))
