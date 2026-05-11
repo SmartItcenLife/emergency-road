@@ -33,5 +33,11 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    // 관리자
+    // 사용자 삭제하기
+    @Transactional // 데이터 베이스의 데이터를 변경(생성, 수정, 삭제)할 때 안전장치
+    public void deleteUser(Long id){
+        userRepository.deleteById(id);
+    }
+
+
 }

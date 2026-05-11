@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.admin.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -26,6 +28,12 @@ public class AdminController {
         model.addAttribute("userList", adminService.findAllUsers());
         return "admin/user-list";
     }
+    // 회원 삭제하기
+    @PostMapping("/users/{id}/delete")
+    public String deleteUser(@PathVariable Long id){
+        adminService.deleteUser(id);
+        return "redirect:/admin/users";
+    }
 
     //  커뮤니티 글 목록 조회
     @GetMapping("/posts")
@@ -34,7 +42,7 @@ public class AdminController {
         return "admin/post-list";
     }
 
-    // 채팅 들어가기?
+    // 채팅 들어가기
 
 
 }
