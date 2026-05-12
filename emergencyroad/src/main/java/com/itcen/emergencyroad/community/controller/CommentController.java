@@ -1,7 +1,9 @@
 package com.itcen.emergencyroad.community.controller;
 
 import com.itcen.emergencyroad.community.dto.comment.CommentRequestDto;
+import com.itcen.emergencyroad.community.enums.ReportTargetType;
 import com.itcen.emergencyroad.community.service.CommentService;
+import com.itcen.emergencyroad.community.service.ReportService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -9,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class CommentController {
 
   private final CommentService commentService;
+  private final ReportService reportService;
 
   @PostMapping
   public String createComment(@PathVariable String hpid, @PathVariable Long postId,
@@ -68,6 +68,22 @@ public class CommentController {
     Long userId = (Long) session.getAttribute("loginUser");
     String role = (String) session.getAttribute("loginRole");
     commentService.deleteComment(commentId, userId, role);
+    return "redirect:/hospitals/" + hpid + "/posts/" + postId;
+  }
+
+  // 댓글 신고 접수
+  @PostMapping("/{commentId}/report")
+  public String reportComment(@PathVariable String hpid,
+                              @PathVariable Long postId,
+                              @PathVariable Long commentId, // 타겟 번호가 댓글 번호임
+                              @RequestParam ReportTargetType targetType,
+                              HttpSession session) {
+
+    Long reporterId = (Long) session.getAttribute("loginUser");
+
+    // 여기서 targetId 자리에 postId가 아니라 'commentId'를 넣어줌
+    reportService.createReport(reporterId, targetType, commentId);
+
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }
 }
