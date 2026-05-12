@@ -56,12 +56,31 @@ public class AdminService {
     }
 
     // 신고받은 게시글, 댓글 관리하기
+    // AdminService.java 내부
+    // 신고받은 게시글, 댓글 관리하기 (상태값 포함)
     public List<ReportResponseDTO> findAllReports(){
         List<Report> reports = reportRepository.findAll();
 
-        return reports.stream()
-                .map(ReportResponseDTO::new)
-                .toList();
+        return reports.stream().map(report -> {
+            boolean isDeleted = false;
+
+            // 대상이 게시글이면 PostRepository에서 삭제 여부 확인
+            if (report.getTargetType() == ReportTargetType.POST) {
+                isDeleted = postRepository.findById(report.getTargetId())
+                        .map(Post::isDeleted)
+                        .orElse(true); // 만약 게시글이 아예 DB에 없으면 삭제된 것으로 간주
+            }
+            // 대상이 댓글이면 CommentRepository에서 삭제 여부 확인
+            else if (report.getTargetType() == ReportTargetType.COMMENT) {
+                isDeleted = commentRepository.findById(report.getTargetId())
+                        .map(Comment::isDeleted)
+                        .orElse(true);
+            }
+
+            // ⭐ DTO를 만들 때 방금 확인한 isDeleted 값을 같이 넣어서 포장해줍니다!
+            return new ReportResponseDTO(report, isDeleted);
+
+        }).collect(Collectors.toList());
     }
     @Transactional
     public void deleteReportedTarget(Long reportId) {
