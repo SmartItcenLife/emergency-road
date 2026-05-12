@@ -29,9 +29,9 @@ public class PregnantRealtime extends BaseEntity {
     @Column(name = "hv11", length = 20)
     private String incubatorExists;
 
-    // 현재 분만실 수
+    // 현재 분만실 가용 여부
     @Column(name = "hv42")
-    private String deliveryRoomCount;
+    private String isDeliveryRoomAvailable;
 
     // 현재 NICU 병상 수
     @Column(name = "hvncc")
@@ -47,7 +47,7 @@ public class PregnantRealtime extends BaseEntity {
 
     public void update(EmrDto dto) {
         this.incubatorExists= dto.getHv11();
-        this.deliveryRoomCount = dto.getHv42();
+        this.isDeliveryRoomAvailable = dto.getHv42();
         this.nicuBedCount = dto.getHvncc();
         this.incubatorAvailable = dto.getHvincuayn();
         this.prematureVentilatorAvailable = dto.getHvventisoayn();

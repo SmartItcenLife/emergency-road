@@ -24,16 +24,6 @@ public class HospitalDetail extends BaseEntity {
     @JoinColumn(name = "hpid", referencedColumnName = "hpid", unique = true)
     private Hospital hospital;
 
-    // --- 가중치 기반 추천을 위한 점수 필드 ---
-
-    @Builder.Default
-    @Column(name = "base_score")
-    private Double baseScore = 0.0; // 위치(거리)를 제외한 종합 점수
-
-    @Builder.Default
-    @Column(name = "is_available_now")
-    private Boolean isAvailableNow = false;// 현재 진료 가능 여부 (반정규화)
-
     // --- 병상 및 의료 정보 ---
 
     @Column(name = "dgid_id_name", columnDefinition = "TEXT")
@@ -55,7 +45,7 @@ public class HospitalDetail extends BaseEntity {
     private Integer hpnicuCount; // 신생아 중환자실 병상 수
 
     @Column(name = "hpopyn")
-    private Integer operatingRoomCount; //수수실 수
+    private Integer operatingRoomCount; //수술실 수
 
     // --- 진료 시간 정보 ---
     @Column(name = "duty_time1s")
@@ -93,16 +83,16 @@ public class HospitalDetail extends BaseEntity {
     @Column(name = "duty_time7c")
     private String sundayEndTime;
 
-    // 스케줄러가 점수와 병상 수 업데이트할 때 사용 메서드
-    public void updateRealtimeStatus(
-            Integer availableEmergencyBedCount,
-            Double baseScore,
-            Boolean isAvailableNow
-    ) {
-        this.availableEmergencyBedCount = availableEmergencyBedCount;
-        this.baseScore = baseScore;
-        this.isAvailableNow = isAvailableNow;
-    }
+//    // 스케줄러가 점수와 병상 수 업데이트할 때 사용 메서드
+//    public void updateRealtimeStatus(
+//            Integer availableEmergencyBedCount,
+//            Double baseScore,
+//            Boolean isAvailableNow
+//    ) {
+//        this.availableEmergencyBedCount = availableEmergencyBedCount;
+//        this.baseScore = baseScore;
+//        this.isAvailableNow = isAvailableNow;
+//    }
 
     // 5번 API - 더티 체크를 위한 업데이트 메서드
     public void updateDetail(EgytBassDto dto) {

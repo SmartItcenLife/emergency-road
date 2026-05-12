@@ -22,7 +22,7 @@ public class SrsillSyncScheduler {
     private final PregnantSyncService pregnantSyncService;
 
 
-   @Scheduled(fixedDelay = 3000000)
+  // @Scheduled(fixedDelay = 3000000)
     public void sync() {
 
         log.info("EMR API 가져오기 시작");
