@@ -201,11 +201,10 @@
 <div class="page">
     <header class="header">
         <h1 class="title">소아 병원 목록</h1>
-        <div class="location" th:if="${locationProvided}">
-            현재 위치 기준
-        </div>
-        <div class="location" th:unless="${locationProvided}">
-            기본 위치 기준
+        <div class="location">
+            <span th:text="${locationProvided ? '현재 위치' : '기본 위치'}">현재 위치</span>
+            :
+            <span th:text="${displayLocation}"></span>
         </div>
     </header>
 

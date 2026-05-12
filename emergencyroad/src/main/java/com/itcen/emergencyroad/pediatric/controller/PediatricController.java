@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.pediatric.controller;
 
+import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.service.PediatricViewService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 public class PediatricController {
 
     private final PediatricViewService pediatricViewService;
+    private final KakaoLocalApiClient kakaoLocalApiClient;
 
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,
@@ -24,9 +26,11 @@ public class PediatricController {
                                Model model){
         List<PediatricHospitalListDto> hospitals =
                 pediatricViewService.getPediatricHospitalList(lat,lon);
+        String displayLocation = kakaoLocalApiClient.getDisplayLocation(lat, lon);
 
         model.addAttribute("hospitals",hospitals);
         model.addAttribute("locationProvided", lat != null && lon != null);
+        model.addAttribute("displayLocation", displayLocation);
 
         return "pediatric/hospitals";
     }
