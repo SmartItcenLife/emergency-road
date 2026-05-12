@@ -19,7 +19,7 @@ public class PediatricRealtimeSyncScheduler {
 
     private final PediatricSyncService pediatricSyncService;
 
-    @Scheduled(fixedDelay = 3000000)
+   // @Scheduled(fixedDelay = 3000000)
     public void sync() {
         log.info("실시간 소아 / 유아 데이터 가져오기 시작");
 

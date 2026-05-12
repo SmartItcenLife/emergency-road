@@ -22,20 +22,8 @@ public class PathService {
     private final KakaoMobilityApiClient kakaoApiClient;
 
     // 사용자 위치(매개변수) 받기 → DB에서 병원 찾기 → 카카오에게 보낼 주문서(JSON) 조립하기 → 카카오에 통신 지시하기 → 받아온 결과를 parseResponse에 넘기기
-    public List<PathResponseDto> findHospitalsWithDistance(LocationRequestDto requestDto) {
+    public List<PathResponseDto> findHospitalsWithDistance(LocationRequestDto requestDto,  List<Hospital> hospitals) {
 
-        // 1. DB에서 가져오되, 데이터가 없으면 가짜 데이터를 만들기(지금 없으니까 만들어야댐
-        List<Hospital> targetHospitals = hospitalRepository.findAll(); // 목적 병원 리스트
-        if (targetHospitals.isEmpty()) {
-            System.out.println("⚠️ DB가 비어있어 테스트용 가짜 데이터 만듦");
-            // @Builder가 설정되어 있다고 가정. 만약 에러나면 new Hospital() 후 setter를 사용.
-            targetHospitals.add(Hospital.builder()
-                    .hpid("TEST01").hospitalName("가짜강남성심병원")
-                    .longitude(126.9095).latitude(37.4912).build());
-            targetHospitals.add(Hospital.builder()
-                    .hpid("TEST02").hospitalName("가짜서울대학교병원")
-                    .longitude(127.0000).latitude(37.5796).build());
-        }
 
         // 2. JSON 바디에 사용자의 위도, 경도 값 넣기
         JSONObject requestBody = new JSONObject();
@@ -47,7 +35,7 @@ public class PathService {
         // 3. 목적지 리스트
         JSONArray destinations = new JSONArray(); // 배열
         // 여기를 for 문 말고 parallelStream()으로 구현하면 병렬로 요청하기 때문에 빠르게 취합 가능
-        for (Hospital hospital : targetHospitals) {
+        for (Hospital hospital : hospitals) {
             // 좌표가 있는 것만 담기
             if (hospital.getLongitude() == null || hospital.getLatitude() == null) continue;
             JSONObject dest = new JSONObject();
@@ -73,7 +61,7 @@ public class PathService {
         String jsonResponse = kakaoApiClient.fetchDirections(requestBody);
 
         // 4. 응답 파싱 (기존 로직 유지)
-        return parseResponse(jsonResponse, targetHospitals);
+        return parseResponse(jsonResponse, hospitals);
     }
 
     // 카카오가 던져준 긴 원본 텍스트(String)를 분석하기
@@ -103,8 +91,8 @@ public class PathService {
                     resultList.add(PathResponseDto.builder()
                             .hospitalName(matched.getHospitalName())
                             .hpid(hpid)
-                            .distanceKm(Math.round((summary.getInt("distance") / 1000.0) * 10) / 10.0)
-                            .durationmin(summary.getInt("duration") / 60)
+                            .distance(Math.round((summary.getInt("distance") / 1000.0) * 10) / 10.0)
+                            .duration(summary.getInt("duration") / 60)
                             .build());
                 }
             }

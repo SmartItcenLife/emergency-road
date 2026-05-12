@@ -27,10 +27,10 @@ public class EgytBassInfoSyncScheduler {
 
     //새벽 3시 하루 1회
 //    @Scheduled(cron = "0 0 3 * * *")
-    @Scheduled(
-            initialDelay = 6000,
-            fixedDelay = 3000000
-    )
+//    @Scheduled(
+//            initialDelay = 6000,
+//            fixedDelay = 3000000
+//    )
     public void sync() {
 
         log.info("EgytBassInfo API 가져오기 시작");
