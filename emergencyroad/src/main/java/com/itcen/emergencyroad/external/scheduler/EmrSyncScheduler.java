@@ -25,7 +25,7 @@ public class EmrSyncScheduler {
     private final PregnantRealtimeSyncService pregnantRealtimeSyncService;
     private  final GeneralService generalService;
 
-    @Scheduled(fixedDelay = 3000000)
+    //@Scheduled(fixedDelay = 3000000)
     public void sync() {
 
         log.info("EMR API 가져오기 시작");
