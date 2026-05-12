@@ -30,7 +30,7 @@ public class RecommendController {
 
 
         model.addAttribute("rankings", rankings);
-        model.addAttribute("category", "PREGNANT");
+        model.addAttribute("category", category);
 
         return "recommend/result";
     }
