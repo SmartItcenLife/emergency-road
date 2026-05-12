@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>응급의료 추천</title></head>
+<body>
+<h2>환자 특징 </h2>
+
+<form id="recommendForm" action="/recommend/rank" method="get">
+    <input type="hidden" name="category" id="categoryInput">
+    <input type="hidden" name="lat" id="latInput">
+    <input type="hidden" name="lon" id="lonInput">
+
+    <button type="button" onclick="getLocation('PEDIATRIC')">소아</button>
+    <button type="button" onclick="getLocation('GENERAL')">일반</button>
+    <button type="button" onclick="getLocation('PREGNANT')">임산부</button>
+</form>
+
+<script>
+    function getLocation(category) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('categoryInput').value = category;
+                document.getElementById('latInput').value = position.coords.latitude;
+                document.getElementById('lonInput').value = position.coords.longitude;
+                document.getElementById('recommendForm').submit();
+            }, function(error) {
+                alert("위치 정보 권한이 필요합니다.");
+            });
+        } else {
+            alert("이 브라우저는 위치 정보를 지원하지 않습니다.");
+        }
+    }
+</script>
+</body>
+</html>
