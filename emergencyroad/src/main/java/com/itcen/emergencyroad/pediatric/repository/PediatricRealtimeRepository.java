@@ -19,6 +19,7 @@ public interface PediatricRealtimeRepository extends JpaRepository<PediatricReal
         pr.pediatricBedCount,
         ps.pediatricBedStandard,
         pr.recordedAt,
+        h.emergencyPhone,
         h.latitude,
         h.longitude,
         null

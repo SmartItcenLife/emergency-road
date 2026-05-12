@@ -13,6 +13,7 @@ public class PediatricHospitalListDto {
     private Integer availablePediatricBedCount; // 소아 가용 병상 수
     private Integer totalPediatricBedCount; // 소아 전체 병상 수
     private LocalDateTime recordedAt; // 입력일시
+    private String emergencyPhone; // 응급실 병원 전화 번호
 
     private Double hospitalLatitude; // 병원 위도
     private Double hospitalLongitude; // 병원 경도
