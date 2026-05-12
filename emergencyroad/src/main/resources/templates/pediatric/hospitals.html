@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>소아 병원 목록</title>
     <style>
         body {
@@ -12,11 +13,17 @@
         }
 
         .page {
-            max-width: 430px;
-            margin: 0 auto;
+            width: 100%;
             min-height: 100vh;
             background: #f8fafc;
-            padding: 16px;
+            padding: 14px;
+            box-sizing: border-box;
+        }
+        @media (min-width: 768px) {
+            .page {
+                max-width: 430px;
+                margin: 0 auto;
+            }
         }
 
         .header {
@@ -51,7 +58,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            padding: 14px;
+            padding: 10px 12px;
             background: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
@@ -62,23 +69,26 @@
             align-items: center;
             gap: 10px;
             min-width: 0;
+            flex:1;
         }
 
         .hospital-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
             background: #e0f2fe;
             color: #0284c7;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            font-size: 16px;
             flex: 0 0 auto;
         }
 
         .hospital-info {
             min-width: 0;
+            flex: 1;
         }
 
         .hospital-name {
@@ -98,6 +108,9 @@
             font-size: 12px;
             color: #6b7280;
             flex-wrap: wrap;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .badge {
@@ -130,43 +143,14 @@
         .hospital-right {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex: 0 0 auto;
         }
-        .call-button {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: #eff6ff;
-            color: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 700;
-            flex: 0 0 auto;
-        }
-
-        .call-icon-img {
-            width: 18px;
-            height: 18px;
-        }
-
-        .call-button-disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .hospital-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            align-items: center;
-        }
-        .route-button {
-            width: 34px;
-            height: 34px;
+        .call-button,
+        .route-button,
+        .community-button {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: #eff6ff;
             color: #2563eb;
@@ -177,17 +161,63 @@
             border: 1px solid #bfdbfe;
             flex: 0 0 auto;
         }
-        .finder-icon-img{
-            width: 18px;
-            height: 18px;
+
+        .call-icon-img,
+        .finder-icon-img,
+        .community-icon-img {
+            width: 14px;
+            height: 14px;
+        }
+
+        .detail-toggle {
+            width: 20px;
+            height: 70px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+        .detail-toggle-icon {
+            width: 8px;
+            height: 14px;
+            display: block;
+            opacity: 0.55;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .detail-toggle:hover .detail-toggle-icon {
+            opacity: 1;
+        }
+
+        .call-button-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .hospital-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hospital-status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
         }
 
         .donut {
             --rate: 0;
             --donut-color: #9ca3af;
 
-            width: 54px;
-            height: 54px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: conic-gradient(var(--donut-color) calc(var(--rate) * 1%), #e5e7eb 0);
             display: flex;
@@ -215,24 +245,24 @@
         .donut::before {
             content: "";
             position: absolute;
-            width: 38px;
-            height: 38px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             background: #ffffff;
         }
 
         .donut span {
             position: relative;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             color: var(--donut-color);
         }
 
         .bed-text {
-            font-size: 11px;
+            font-size: 10px;
             color: #6b7280;
-            margin-top: 4px;
             text-align: center;
+            white-space: nowrap;
         }
 
         .empty {
@@ -288,27 +318,11 @@
 
                             <span>소아 병상 정보 제공</span>
                         </div>
-                        <button type="button" class="detail-button">상세보기</button>
                     </div>
                 </div>
 
                 <div class="hospital-right">
-                    <div class="hospital-actions">
-                        <a class="call-button"
-                           th:href="${hospital.emergencyPhone != null ? 'tel:' + hospital.emergencyPhone : '#'}"
-                           th:classappend="${hospital.emergencyPhone == null} ? ' call-button-disabled'">
-                            <img th:src="@{/images/phone.svg}" class="call-icon-img" alt="전화걸기">
-                        </a>
-
-                        <a class="route-button"
-                           href="#"
-                           th:data-hospital-name="${hospital.hospitalName}"
-                           th:data-lat="${hospital.hospitalLatitude}"
-                           th:data-lon="${hospital.hospitalLongitude}">
-                            <img th:src="@{/images/finder.svg}" class="finder-icon-img" alt="길찾기">
-                        </a>
-                    </div>
-                    <div>
+                    <div class="hospital-status">
                         <div class="donut"
                              th:classappend="${hospital.congestionLabel == '여유'} ? ' donut-free' :
                                             (${hospital.congestionLabel == '보통'} ? ' donut-normal' :
@@ -323,7 +337,36 @@
                              th:text="|가용 병상 ${hospital.availablePediatricBedCount != null ? hospital.availablePediatricBedCount : 0}개|">
                             가용 병상 2개
                         </div>
+
+                        <div class="hospital-actions">
+                            <a class="call-button"
+                               th:href="${hospital.emergencyPhone != null ? 'tel:' + hospital.emergencyPhone : '#'}"
+                               th:classappend="${hospital.emergencyPhone == null} ? ' call-button-disabled'">
+                                <img th:src="@{/images/phone.svg}" class="call-icon-img" alt="전화걸기">
+                            </a>
+
+                            <a class="route-button"
+                               href="#"
+                               th:data-hospital-name="${hospital.hospitalName}"
+                               th:data-lat="${hospital.hospitalLatitude}"
+                               th:data-lon="${hospital.hospitalLongitude}">
+                                <img th:src="@{/images/finder.svg}" class="finder-icon-img" alt="길찾기">
+                            </a>
+
+                            <!-- 임시 커뮤니티 페이지 입니다. -->
+                            <a class="community-button"
+                               th:href="@{/community(hpid=${hospital.hpid})}"
+                               aria-label="커뮤니티 이동">
+                                <img th:src="@{/images/community.svg}" class="community-icon-img" alt="커뮤니티">
+                            </a>
+                        </div>
                     </div>
+                    <button type="button"
+                            class="detail-toggle"
+                            th:data-hpid="${hospital.hpid}"
+                            aria-label="상세보기">
+                        <img th:src="@{/images/angle-brackets.png}" class="detail-toggle-icon" alt="상세보기">
+                    </button>
                 </div>
             </article>
         </div>
