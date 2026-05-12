@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.pediatric.service;
 
+import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.repository.PediatricRealtimeRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,12 @@ public class PediatricViewService {
         );
         return hospitals;
     }
+
+    public PediatricHospitalDetailDto getPediatricHospitalDetail(String hpid) {
+        return pediatricRealtimeRepository.findPediatricHospitalDetail(hpid)
+                .orElseThrow(() -> new IllegalArgumentException("소아 병원 상세 정보가 없습니다. hpid=" + hpid));
+    }
+
     // 거리 계산 메서드
     private double calculateDistanceKm(
             double userLat,
