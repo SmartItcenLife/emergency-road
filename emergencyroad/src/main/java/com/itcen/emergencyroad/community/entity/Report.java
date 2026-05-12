@@ -32,12 +32,16 @@ public class Report extends BaseEntity {
     @Column(name="target_id", nullable = false)
     private Long targetId;
 
+    @Column(name="reason", length = 255)
+    private String reason;
+
     // 신고 생성 메서드
-    public static Report createReport(User reporter,  ReportTargetType targetType, Long targetId){
+    public static Report createReport(User reporter,  ReportTargetType targetType, Long targetId, String reason){
         Report report = new Report();
         report.reporter = reporter;
         report.targetType = targetType;
         report.targetId = targetId;
+        report.reason = reason;
         return report;
     }
 

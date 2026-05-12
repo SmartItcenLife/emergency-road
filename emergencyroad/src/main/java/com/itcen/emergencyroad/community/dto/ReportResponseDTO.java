@@ -13,6 +13,7 @@ public class ReportResponseDTO {
     private ReportTargetType targetType;
     private Long targetId;
     private LocalDateTime createdAt;
+    private String reason;
 
     public ReportResponseDTO(Report report) {
         this.id = report.getId();
@@ -20,5 +21,6 @@ public class ReportResponseDTO {
         this.targetType = report.getTargetType();
         this.targetId = report.getTargetId();
         this.createdAt = report.getCreatedAt();
+        this.reason = report.getReason();
     }
 }

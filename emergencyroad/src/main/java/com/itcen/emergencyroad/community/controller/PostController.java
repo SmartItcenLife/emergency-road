@@ -144,11 +144,11 @@ public class PostController {
 
   @PostMapping("/{postId}/report")
   public String reportPost(@PathVariable String hpid, @PathVariable Long postId,
-                           @RequestParam ReportTargetType targetType, HttpSession session){
+                           @RequestParam ReportTargetType targetType, @RequestParam String reason,HttpSession session){
 
     Long reporterId = (Long) session.getAttribute("loginUser");
 
-    reportService.createReport(reporterId, targetType, postId);
+    reportService.createReport(reporterId, targetType, postId, reason);
 
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }

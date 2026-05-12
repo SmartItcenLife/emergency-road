@@ -37,7 +37,15 @@
 <div th:if="${session.loginUser != null}">
   <form th:action="@{/hospitals/{hpid}/posts/{postId}/report(hpid=${hpid}, postId=${post.id})}" method="post">
     <input type="hidden" name="targetType" value="POST">
-    <button type="submit" onclick="return confirm('이 게시글을 신고하시겠습니까?')" style="color: red;">게시글 신고</button>
+    <select name="reason" required style="padding: 3px; font-size: 12px;">
+      <option value="">-- 신고 사유 선택 --</option>
+      <option value="스팸 홍보/도배">스팸 홍보/도배</option>
+      <option value="욕설/혐오/차별적 표현">욕설/혐오/차별적 표현</option>
+      <option value="거짓/허위 정보">거짓/허위 정보</option>
+      <option value="기타 부적절한 내용">기타 부적절한 내용</option>
+    </select>
+    <button type="submit" onclick="return confirm('이 내용으로 신고하시겠습니까?')" style="color: red;">
+      게시글 신고</button>
   </form>
 </div>
 

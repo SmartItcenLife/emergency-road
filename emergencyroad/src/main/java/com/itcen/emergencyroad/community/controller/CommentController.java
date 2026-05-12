@@ -77,12 +77,13 @@ public class CommentController {
                               @PathVariable Long postId,
                               @PathVariable Long commentId, // 타겟 번호가 댓글 번호임
                               @RequestParam ReportTargetType targetType,
+                              @RequestParam String reason,
                               HttpSession session) {
 
     Long reporterId = (Long) session.getAttribute("loginUser");
 
     // 여기서 targetId 자리에 postId가 아니라 'commentId'를 넣어줌
-    reportService.createReport(reporterId, targetType, commentId);
+    reportService.createReport(reporterId, targetType, commentId, reason);
 
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }

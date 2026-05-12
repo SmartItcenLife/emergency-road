@@ -25,6 +25,7 @@
             <th>신고번호</th>
             <th>신고자</th>
             <th>대상 게시글(ID)</th>
+            <th>신고사유</th>
             <th>신고일시</th>
             <th>관리</th>
         </tr>
@@ -32,12 +33,18 @@
         <tbody>
         <tr th:each="report : ${reportList}" th:if="${report.targetType.name() == 'POST'}">
             <td th:text="${report.id}">1</td>
+
             <td th:text="${report.reporterNickname}">신고왕</td>
+
             <td>
                 <a class="post-link" th:href="@{/admin/posts/{id}(id=${report.targetId})}"
                    th:text="'게시글 #' + ${report.targetId}">글 보러가기</a>
             </td>
+
+            <td th:text="${report.reason}" style="font-weight: bold; color: darkred;"></td>
+
             <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+
             <td><button style="color: red;">강제삭제</button></td>
         </tr>
         </tbody>

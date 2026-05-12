@@ -61,6 +61,6 @@ public class Post extends BaseEntity {
     }
 
     public void delete(){
-      this.isDeleted = true;
+      this.isDeleted = true; // Soft Delete
     }
 }
