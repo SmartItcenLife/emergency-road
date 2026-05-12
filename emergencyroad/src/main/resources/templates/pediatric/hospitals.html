@@ -158,6 +158,30 @@
             pointer-events: none;
         }
 
+        .hospital-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: center;
+        }
+        .route-button {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #eff6ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 1px solid #bfdbfe;
+            flex: 0 0 auto;
+        }
+        .finder-icon-img{
+            width: 18px;
+            height: 18px;
+        }
+
         .donut {
             --rate: 0;
             --donut-color: #9ca3af;
@@ -264,15 +288,26 @@
 
                             <span>소아 병상 정보 제공</span>
                         </div>
+                        <button type="button" class="detail-button">상세보기</button>
                     </div>
                 </div>
 
                 <div class="hospital-right">
-                    <a class="call-button"
-                       th:href="${hospital.emergencyPhone != null ? 'tel:' + hospital.emergencyPhone : '#'}"
-                       th:classappend="${hospital.emergencyPhone == null} ? ' call-button-disabled'">
-                       <img th:src="@{/images/phone.svg}" class="call-icon-img">
-                    </a>
+                    <div class="hospital-actions">
+                        <a class="call-button"
+                           th:href="${hospital.emergencyPhone != null ? 'tel:' + hospital.emergencyPhone : '#'}"
+                           th:classappend="${hospital.emergencyPhone == null} ? ' call-button-disabled'">
+                            <img th:src="@{/images/phone.svg}" class="call-icon-img" alt="전화걸기">
+                        </a>
+
+                        <a class="route-button"
+                           href="#"
+                           th:data-hospital-name="${hospital.hospitalName}"
+                           th:data-lat="${hospital.hospitalLatitude}"
+                           th:data-lon="${hospital.hospitalLongitude}">
+                            <img th:src="@{/images/finder.svg}" class="finder-icon-img" alt="길찾기">
+                        </a>
+                    </div>
                     <div>
                         <div class="donut"
                              th:classappend="${hospital.congestionLabel == '여유'} ? ' donut-free' :
@@ -311,6 +346,31 @@
             }
         );
     }
+
+    const userLat = [[${userLat}]];
+    const userLon = [[${userLon}]];
+
+    document.querySelectorAll(".route-button").forEach(function(button){
+        button.addEventListener("click", function(e){
+            e.preventDefault();
+
+            const hospitalName = button.dataset.hospitalName;
+            const hospitalLat = button.dataset.lat;
+            const hospitalLon = button.dataset.lon;
+
+            if (!hospitalLat || !hospitalLon){
+                alert("병원 위치 정보가 없습니다");
+                return;
+            }
+            const startName = encodeURIComponent("현재 위치");
+            const endName = encodeURIComponent(hospitalName);
+
+            const url =
+                `https://map.kakao.com/link/by/car/${startName},${userLat},${userLon}/${endName},${hospitalLat},${hospitalLon}`;
+
+            window.open(url,"_blank");
+        });
+    });
 </script>
 </body>
 </html>

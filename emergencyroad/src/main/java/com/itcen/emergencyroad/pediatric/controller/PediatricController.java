@@ -27,10 +27,15 @@ public class PediatricController {
         List<PediatricHospitalListDto> hospitals =
                 pediatricViewService.getPediatricHospitalList(lat,lon);
         String displayLocation = kakaoLocalApiClient.getDisplayLocation(lat, lon);
+        // 서울특별시 중구, 기본값
+        double baseLat = lat != null ? lat : 37.5665;
+        double baseLon = lon != null ? lon : 126.9780;
 
         model.addAttribute("hospitals",hospitals);
         model.addAttribute("locationProvided", lat != null && lon != null);
         model.addAttribute("displayLocation", displayLocation);
+        model.addAttribute("userLat",baseLat);
+        model.addAttribute("userLon",baseLon);
 
         return "pediatric/hospitals";
     }
