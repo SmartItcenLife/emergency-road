@@ -70,8 +70,13 @@ public class UserController {
       return "auth/login";
     }
 
-    // 추후에 게시판 개발완료 할 때  해당 url로 변경해야 함.
-    return "redirect:/posts";
+//    // 추후에 게시판 개발완료 할 때  해당 url로 변경해야 함.
+//    return "redirect:/posts";
+    String role = (String) session.getAttribute("loginRole");
+    if("ADMIN".equals(role)){
+      return "redirect:/admin";
+    }
+    return "redirect:/";
   }
 
   @GetMapping("/login/kakao")
@@ -90,7 +95,7 @@ public class UserController {
 
   @GetMapping("/logout")
   public String logout(HttpSession session){
-    session.invalidate();
+    userService.logout(session);
     return "redirect:/login";
   }
 }

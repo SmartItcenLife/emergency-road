@@ -1,5 +1,7 @@
 package com.itcen.emergencyroad.community.entity;
 
+import com.itcen.emergencyroad.global.BaseEntity;
+import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,8 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @Table(name = "posts")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +32,9 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // 추후 수정 ..!
-    @Column(name = "hospital_id", nullable = true, length = 20)
-    private String hospitalId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", nullable = false)
+    private Hospital hospital;
 
     @Column(name = "title", nullable = false, length = 100)
     private String title;
@@ -45,26 +45,10 @@ public class Post {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = true)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate(){
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public static Post create(User user, String hospitalId, String title, String content){
+    public static Post create(User user, Hospital hospital, String title, String content){
         Post post = new Post();
         post.user = user;
-        post.hospitalId = hospitalId;
+        post.hospital = hospital;
         post.title = title;
         post.content = content;
 

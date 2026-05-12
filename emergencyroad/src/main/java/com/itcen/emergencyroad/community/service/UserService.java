@@ -61,9 +61,7 @@ public class UserService {
       throw new CustomException(ExceptionStatus.AUTHENTICATION_FAIL);
     }
 
-    session.setAttribute("loginUser", user.getId());
-    session.setAttribute("loginNickname", user.getNickname());
-    session.setAttribute("loginRole", user.getRole().name());
+    setSession(session, user, null);
   }
 
   @Transactional
@@ -77,7 +75,7 @@ public class UserService {
     User user = userRepository.findByKakaoId(kakaoId)
         .orElseGet(() -> {
           String nickname = kakaoUserInfo.getNickname();
-          if(userRepository.existsByNickname(kakaoUserInfo.getNickname())){
+          if(userRepository.existsByNickname(nickname)){
             // 카카오 닉네임은 최대 20자여서 _(1자)와 UUID(9자)를 합치면 딱 30자가 맞춰집니다.
               nickname = nickname + "_" + UUID.randomUUID().toString().substring(0,9);
           }
@@ -92,13 +90,21 @@ public class UserService {
 
     user.updateKakaoProfile(kakaoUserInfo.getNickname(), kakaoUserInfo.getProfileImageUrl());
 
-    setSession(session, user);
+    setSession(session, user,accessToken);
   }
 
-  private void setSession(HttpSession session, User user){
+  public void logout(HttpSession session){
+    String accessToken = (String) session.getAttribute("kakaoAccessToken");
+
+    if(accessToken != null) kakaoService.logout(accessToken);
+    session.invalidate();
+  }
+
+  private void setSession(HttpSession session, User user, String kakaoAccessToken){
     session.setAttribute("loginUser", user.getId());
     session.setAttribute("loginNickname", user.getNickname());
     session.setAttribute("loginRole", user.getRole().name());
+    session.setAttribute("loginProfileImage", user.getProfileImageUrl());
+    session.setAttribute("kakaoAccessToken", kakaoAccessToken);
   }
-
 }
