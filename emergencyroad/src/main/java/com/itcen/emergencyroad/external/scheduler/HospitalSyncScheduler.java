@@ -19,10 +19,10 @@ public class HospitalSyncScheduler {
     private final MessageSyncService messageSyncService;
 
     //즉시 실행
-    @Scheduled(
-            initialDelay = 1000,
-            fixedDelay = 3000000
-    )
+//    @Scheduled(
+//            initialDelay = 1000,
+//            fixedDelay = 3000000
+//    )
     public void sync() {
 
         log.info("EMR API 가져오기 시작");

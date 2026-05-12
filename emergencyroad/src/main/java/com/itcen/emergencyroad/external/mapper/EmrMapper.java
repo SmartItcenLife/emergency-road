@@ -44,7 +44,7 @@ public class EmrMapper {
         return PregnantRealtime.builder()
                 .hospital(hospital)
                 .incubatorExists(dto.getHv11())
-                .deliveryRoomCount(dto.getHv42())
+                .isDeliveryRoomAvailable(dto.getHv42())
                 .nicuBedCount(dto.getHvncc())
                 .incubatorAvailable(dto.getHvincuayn())
                 .prematureVentilatorAvailable(dto.getHvventisoayn())

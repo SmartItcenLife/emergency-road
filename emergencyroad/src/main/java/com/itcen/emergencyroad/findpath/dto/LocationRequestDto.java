@@ -1,11 +1,14 @@
 package com.itcen.emergencyroad.findpath.dto;
 // 사용자가 서버에게 보내는 위도 경도 데이터
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter // 세터가 필요
+@Builder
+@AllArgsConstructor
 public class LocationRequestDto {
     private Double originLat; // 사용자 위도
     private Double originLng; // 사용자 경도

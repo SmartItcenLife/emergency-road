@@ -10,7 +10,7 @@ public class PathResponseDto {
 
     private String hospitalName; // 병원 이름
     private String hpid; // 병원 아이디
-    private Double distanceKm; // 거리
-    private Integer durationmin; // 소요 시간(분 단위)
+    private Double distance; // 거리
+    private Integer duration; // 소요 시간(분 단위)
 
 }

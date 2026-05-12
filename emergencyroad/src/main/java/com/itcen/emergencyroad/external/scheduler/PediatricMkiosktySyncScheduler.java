@@ -17,7 +17,7 @@ public class PediatricMkiosktySyncScheduler {
 
     private final PediatricMkiosktySyncService pediatricMkiosktySyncService;
 
-    @Scheduled(fixedDelay = 3000000)
+    //@Scheduled(fixedDelay = 3000000)
     public void sync() {
         log.info("소아 대상 : 중증질환 수용여부 데이터 조회시작");
         for (Map.Entry<String, List<String>> entry : RegionCode.MAP.entrySet()) {
