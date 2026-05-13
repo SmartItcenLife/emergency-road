@@ -5,9 +5,11 @@ import com.itcen.emergencyroad.community.dto.comment.CommentResponseDto;
 import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
 import com.itcen.emergencyroad.community.entity.Comment;
+import com.itcen.emergencyroad.community.enums.ReportTargetType;
 import com.itcen.emergencyroad.community.service.CommentService;
 import com.itcen.emergencyroad.community.service.LikeService;
 import com.itcen.emergencyroad.community.service.PostService;
+import com.itcen.emergencyroad.community.service.ReportService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -33,6 +35,7 @@ public class PostController {
   private final PostService postService;
   private final CommentService commentService;
   private final LikeService likeService;
+  private final ReportService reportService;
 
   @GetMapping
   public String getPosts(@PathVariable String hpid,
@@ -137,6 +140,17 @@ public class PostController {
     String role = (String) session.getAttribute("loginRole");
     postService.deletePost(postId, userId, role);
     return "redirect:/hospitals/" + hpid + "/posts";
+  }
+
+  @PostMapping("/{postId}/report")
+  public String reportPost(@PathVariable String hpid, @PathVariable Long postId,
+                           @RequestParam ReportTargetType targetType, @RequestParam String reason,HttpSession session){
+
+    Long reporterId = (Long) session.getAttribute("loginUser");
+
+    reportService.createReport(reporterId, targetType, postId, reason);
+
+    return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }
 
 }

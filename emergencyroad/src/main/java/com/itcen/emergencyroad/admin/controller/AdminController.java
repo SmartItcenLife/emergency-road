@@ -51,5 +51,12 @@ public class AdminController {
     // 이건 세빈님 코드에 구현되어 있음.
 
     // 신고글/댓글 목록 보기
+    @GetMapping("/reports")
+    public String reportedList(Model model){
+        model.addAttribute("reportList", adminService.findAllReports());
+        return "admin/report-list";
+    }
+    // 신고버튼을 눌렀을 때의 상호작용은 post 컨트롤러에서 함
+
 
 }

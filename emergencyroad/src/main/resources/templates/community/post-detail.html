@@ -33,6 +33,22 @@
   <span th:if="${session.loginUser == null}">로그인 후 좋아요를 누를 수 있습니다.</span>
 </div>
 
+<!-- 게시글 본문용 신고 버튼 -->
+<div th:if="${session.loginUser != null}">
+  <form th:action="@{/hospitals/{hpid}/posts/{postId}/report(hpid=${hpid}, postId=${post.id})}" method="post">
+    <input type="hidden" name="targetType" value="POST">
+    <select name="reason" required style="padding: 3px; font-size: 12px;">
+      <option value="">-- 신고 사유 선택 --</option>
+      <option value="스팸 홍보/도배">스팸 홍보/도배</option>
+      <option value="욕설/혐오/차별적 표현">욕설/혐오/차별적 표현</option>
+      <option value="거짓/허위 정보">거짓/허위 정보</option>
+      <option value="기타 부적절한 내용">기타 부적절한 내용</option>
+    </select>
+    <button type="submit" onclick="return confirm('이 내용으로 신고하시겠습니까?')" style="color: red;">
+      게시글 신고</button>
+  </form>
+</div>
+
 <!-- 수정/삭제 버튼 (작성자 본인만) -->
 <div th:if="${session.loginUser != null && session.loginUser == post.userId}">
   <a th:href="@{/hospitals/{hpid}/posts/{postId}/edit(hpid=${hpid}, postId=${post.id})}">
@@ -73,6 +89,13 @@
             th:disabled="${session.loginUser == null}">
     </button>
   </form>
+
+  <!-- 댓글 신고 버튼(댓글 하나하나) -->
+  <div th:if="${session.loginUser != null}">
+    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/report(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}" method="post">
+      <input type="hidden" name="targetType" value="COMMENT">
+      <button type="submit" onclick="return confirm('이 댓글을 신고하시겠습니까?')" style="color: darkorange;">🚨 댓글 신고</button>
+    </form>  </div>
 
   <!-- 댓글 수정 폼 (작성자 본인만) -->
   <div th:if="${session.loginUser != null && session.loginUser == comment.userId}">
