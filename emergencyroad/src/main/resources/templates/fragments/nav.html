@@ -23,8 +23,12 @@
     <!-- 관리자 뱃지 -->
     <span th:if="${session.loginRole == 'ADMIN'}">[관리자]</span>
 
+    <!-- 마이페이지 버튼-->
+    <a th:href="@{/mypage}"><button type="button" style="color: black; background: #0d6efd">마이페이지</button>
+    </a>
+
     <!-- 로그아웃 버튼 -->
-    <a th:href="@{/logout}"><button type="button">로그아웃</button></a>
+    <a th:href="@{/logout}"><button type="button" style="color: black; background: #0d6efd">로그아웃</button></a>
   </div>
 
   <!-- 비로그인 상태 -->
