@@ -137,7 +137,8 @@ public class HospitalRecommendationService {
             return hospitalScoreRepository.findAllByPregnantScoreGreaterThan(0.0);
 
         } else if (category == HospitalCategory.PEDIATRIC) {
-            return List.of();
+            return hospitalScoreRepository.findAllByPediatricScoreGreaterThan(0.0);
+
         } else if (category == HospitalCategory.GENERAL) {
             return hospitalScoreRepository.findAllByGeneralScoreGreaterThan(0.0);
 
