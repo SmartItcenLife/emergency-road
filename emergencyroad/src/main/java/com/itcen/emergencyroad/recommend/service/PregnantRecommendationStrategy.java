@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.recommend.service;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.entity.HospitalDetail;
+import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
 import com.itcen.emergencyroad.pregnant.entity.PregnantStandard;
@@ -10,6 +11,7 @@ import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
 import com.itcen.emergencyroad.recommend.entity.HospitalScore;
 import com.itcen.emergencyroad.recommend.entity.WeightPregnantConfiguration;
 import com.itcen.emergencyroad.recommend.repository.HospitalScoreRepository;
+import com.itcen.emergencyroad.recommend.repository.WeightPregnantConfigurationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,8 @@ import java.util.List;
 public class PregnantRecommendationStrategy implements RecommendationStrategy {
 
     private final HospitalScoreRepository hospitalScoreRepository;
+    private final WeightPregnantConfigurationRepository weightRepository;
+    private final HospitalRepository hospitalRepository;
 
     // 알고리즘 보정 계수
     // 실시간 데이터는 신뢰도가 낮거나 변동이 크니까 가중치를 줄이는 용도
@@ -49,15 +53,23 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
      * - 병원별 점수 엔티티 생성/조회
      * - calculatePregnantScore() 호출로 실제 점수 계산 수행
      * - 결과를 DB에 저장
-     *
-     * @param configObj   관리자 설정 가중치
-     * @param resultsList 병원 + 임산부 + 실시간 데이터 묶음
      */
-    @Override
-    public void calculateScores(Object configObj, List<?> resultsList) {
 
-        WeightPregnantConfiguration config = (WeightPregnantConfiguration) configObj;
-        List<PregnantHospitalProjection> results = (List<PregnantHospitalProjection>) resultsList;
+    @Override
+    public void calculateScores() {
+
+        // 1. 임산부 가중치 조회
+        WeightPregnantConfiguration config =
+                weightRepository
+                        .findTopByCategoryOrderByCreatedAtDesc(
+                                HospitalCategory.PREGNANT
+                        )
+                        .orElseThrow(() ->
+                                new RuntimeException("임산부 가중치 설정이 없습니다.")
+                        );
+        // 2. 임산부 병원 데이터 조회
+        List<PregnantHospitalProjection> results =
+                hospitalRepository.findAllHospitalPregnantData();
 
         for (PregnantHospitalProjection row : results) {
 
@@ -242,7 +254,7 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
 
     @Override
     public HospitalCategory getCategory() {
-        return null;
+        return HospitalCategory.PREGNANT;
     }
 
 
