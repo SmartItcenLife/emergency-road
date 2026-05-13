@@ -7,5 +7,5 @@ public interface RecommendationStrategy {
 
     HospitalCategory getCategory();
 
-    void calculateScores(Object config, List<?> data);
+    void calculateScores();
 }
