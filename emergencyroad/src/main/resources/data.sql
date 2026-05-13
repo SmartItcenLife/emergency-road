@@ -33,4 +33,34 @@
 --            NOW(),
 --            NOW()
 --        );
-SELECT 1;
+-- INSERT INTO weight_pediatric_configuration (
+--     category,
+--     pediatric_emergency_weight,
+--     pediatric_icu_weight,
+--     pediatric_emergency_icu_weight,
+--     incubator_weight,
+--     preemie_venti_weight,
+--     pediatric_venti_weight,
+--     negative_isolation_weight,
+--     isolation_weight,
+--     special_treatment_weight,
+--     low_birth_weight_bonus,
+--     created_at,
+--     updated_at
+-- )
+-- VALUES (
+--            'PEDIATRIC',
+--            40.0,
+--            20.0,
+--            25.0,
+--            15.0,
+--            15.0,
+--            10.0,
+--            10.0,
+--            5.0,
+--            15.0,
+--            20.0,
+--            NOW(),
+--            NOW()
+--        );
+ SELECT 1;
