@@ -59,7 +59,7 @@ public class PathService {
 
         // 4. API 호출은 맨 마지막에
         String jsonResponse = kakaoApiClient.fetchDirections(requestBody);
-
+        System.out.println(jsonResponse);
         // 4. 응답 파싱 (기존 로직 유지)
         return parseResponse(jsonResponse, hospitals);
     }
@@ -70,21 +70,32 @@ public class PathService {
         List<PathResponseDto> resultList = new ArrayList<>();
         JSONObject responseObj = new JSONObject(jsonResponse);
 
+        int totalRoutes = 0;
+        int successCount = 0;
+        int failCount = 0;
+
         // 키 값이 routes이면 배열에서 꺼내라
         if (responseObj.has("routes")) {
             JSONArray routes = responseObj.getJSONArray("routes");
+            totalRoutes = routes.length();
             for (int i = 0; i < routes.length(); i++) {
                 JSONObject route = routes.getJSONObject(i);
-                if (route.getInt("result_code") != 0) continue;
-
+                if (route.getInt("result_code") != 0) {
+                    failCount++;
+                    continue;
+                }
+                successCount++;
                 // hpid와 써머리에 키 값, 써머리 값 넣음
                 String hpid = route.getString("key");
+                System.out.println("카카오 응답 key = " + hpid);
                 JSONObject summary = route.getJSONObject("summary");
 
                 // DB 병원 hpid와 카카오가 준 hpid가 일치하는 병원을 반환
                 Hospital matched = targetHospitals.stream()
                         .filter(h -> h.getHpid().equals(hpid))
                         .findFirst().orElse(null);
+
+                System.out.println("병원 HPID = " + matched.getHpid());
 
                 //병원 이름, hpid, 거리, 소요 시간을 직관적으로 넣을 수 있음.
                 if (matched != null) {
@@ -96,6 +107,12 @@ public class PathService {
                             .build());
                 }
             }
+            System.out.println("========== 카카오 거리 계산 통계 ==========");
+            System.out.println("전체 요청 대상 수 (routes) = " + totalRoutes);
+            System.out.println("성공 (거리 계산됨) = " + successCount);
+            System.out.println("실패 (304 포함) = " + failCount);
+            System.out.println("최종 매핑 결과 수 = " + resultList.size());
+            System.out.println("=========================================");
         }
         return resultList;
     }
