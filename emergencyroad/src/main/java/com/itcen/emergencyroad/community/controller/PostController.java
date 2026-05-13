@@ -148,7 +148,7 @@ public class PostController {
 
     Long reporterId = (Long) session.getAttribute("loginUser");
 
-    reportService.createReport(reporterId, targetType, postId, reason);
+    reportService.createReport(reporterId, targetType, postId, reason, hpid);
 
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }
