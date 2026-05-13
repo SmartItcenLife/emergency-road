@@ -1,9 +1,9 @@
 package com.itcen.emergencyroad.hospital.repository;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
+import com.itcen.emergencyroad.recommend.dto.projection.GeneralHospitalProjection;
 import org.springframework.data.jpa.repository.Query;
 import com.itcen.emergencyroad.recommend.dto.projection.PregnantHospitalProjection;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 
 import java.util.List;
@@ -35,4 +35,20 @@ public interface HospitalRepository extends JpaRepositoryImplementation<Hospital
             LEFT JOIN PregnantStandard ps ON ps.hospital = h
             """)
     List<PregnantHospitalProjection> findAllHospitalPregnantData();
+
+    //필요한 엔티티들을 직접 조인해서 가져오는 쿼리
+    @Query("""
+            SELECT h as hospital,
+                   hd as detail,
+                   s as score,
+                   p as general,
+                   prs as generalRealTimeAndStandard
+            FROM Hospital h
+            LEFT JOIN HospitalDetail hd ON hd.hospital = h
+            LEFT JOIN HospitalScore s ON s.hospital = h
+            LEFT JOIN GeneralSrsIll p ON p.hospital = h
+            LEFT JOIN GeneralRealTimeAndStandard prs ON prs.hospital = h
+            """)
+    List<GeneralHospitalProjection> findAllGeneralHospitalData();
+
 }

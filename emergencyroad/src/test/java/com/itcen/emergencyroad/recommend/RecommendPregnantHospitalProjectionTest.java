@@ -2,10 +2,12 @@ package com.itcen.emergencyroad.recommend;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.entity.HospitalDetail;
+import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
 import com.itcen.emergencyroad.recommend.entity.HospitalScore;
 import com.itcen.emergencyroad.recommend.entity.WeightPregnantConfiguration;
+import com.itcen.emergencyroad.recommend.repository.WeightPregnantConfigurationRepository;
 import com.itcen.emergencyroad.recommend.service.PregnantRecommendationStrategy;
 import com.itcen.emergencyroad.recommend.repository.HospitalScoreRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +22,20 @@ public class RecommendPregnantHospitalProjectionTest {
 
     @BeforeEach
     void setUp() {
-        HospitalScoreRepository repository = Mockito.mock(HospitalScoreRepository.class);
-        strategy = new PregnantRecommendationStrategy(repository);
+        HospitalScoreRepository repository =
+                Mockito.mock(HospitalScoreRepository.class);
+
+        WeightPregnantConfigurationRepository weightRepository =
+                Mockito.mock(WeightPregnantConfigurationRepository.class);
+
+        HospitalRepository hospitalRepository =
+                Mockito.mock(HospitalRepository.class);
+
+        strategy = new PregnantRecommendationStrategy(
+                repository,
+                weightRepository,
+                hospitalRepository
+        );
     }
 
     @Test

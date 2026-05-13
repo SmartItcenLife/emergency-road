@@ -6,15 +6,11 @@ import com.itcen.emergencyroad.findpath.service.PathService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.recommend.dto.HospitalRankingResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
-import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
 import com.itcen.emergencyroad.recommend.entity.HospitalScore;
-import com.itcen.emergencyroad.recommend.entity.WeightPregnantConfiguration;
 import com.itcen.emergencyroad.recommend.repository.HospitalScoreRepository;
-import com.itcen.emergencyroad.recommend.repository.WeightPregnantConfigurationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 @Service
@@ -24,30 +20,10 @@ public class HospitalRecommendationService {
 
     // 모든 추천 전략들을 주입받아서 확장 가능하게 만든 구조
     private final List<RecommendationStrategy> strategies;
-
-    private final WeightPregnantConfigurationRepository weightPregnantConfigurationRepository;
-    private final HospitalRepository hospitalRepository;
     private final HospitalScoreRepository hospitalScoreRepository;
 
     // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
     private final PathService pathService;
-
-    // 카테고리별 데이터 조회 (현재는 임산부만 구현됨)
-    private List<?> fetchDataForCategory(HospitalCategory category) {
-
-        if (category == HospitalCategory.PREGNANT) {
-            // 임산부 추천용 projection 데이터 조회 (병원 + 점수 + 실시간 상태)
-            return hospitalRepository.findAllHospitalPregnantData();
-
-        } else if (category == HospitalCategory.PEDIATRIC) {
-            // 소아 추천 데이터 (추후 구현 예정)
-
-        } else if (category == HospitalCategory.GENERAL) {
-            // 일반 응급 추천 데이터 (추후 구현 예정)
-        }
-
-        return List.of();
-    }
 
     // 스케줄러에서 호출되는 전체 점수 갱신 로직
     // 모든 병원의 기본 점수를 미리 계산해서 DB에 저장하는 역할
@@ -55,34 +31,12 @@ public class HospitalRecommendationService {
     public void calculateAllHospitalScores() {
 
         for (RecommendationStrategy strategy : strategies) {
-
-            // strategy가 어떤 카테고리인지 확인 (임산부/소아/일반)
-            if (strategy.getCategory() == null) {
-                continue;
-            }
-
-            // 해당 카테고리의 가중치 설정값 조회
-            WeightPregnantConfiguration config =
-                    weightPregnantConfigurationRepository.findTopByCategoryOrderByCreatedAtDesc(strategy.getCategory())
-                            .orElseThrow(() ->
-                                    new RuntimeException(strategy.getCategory() + " 가중치 설정이 없습니다.")
-                            );
-
-            // 해당 카테고리에 맞는 병원 데이터 조회
-            List<?> results = fetchDataForCategory(strategy.getCategory());
-
             // 실제 점수 계산 로직 실행 (전략 패턴)
-            strategy.calculateScores(config, results);
+            strategy.calculateScores();
         }
     }
 
-    // 임산부 기준 점수가 0보다 큰 병원만 필터링
-    // 즉, 추천 가능한 병원만 남기는 전처리 단계
-    private List<HospitalScore> getPregnantScores() {
-        return hospitalScoreRepository.findAllByPregnantScoreGreaterThan(0.0);
-    }
-
-    // 거리 기반 점수 계산 로직
+    // 거리 기반 점수 계산 로직 -> 소요시간
     // 거리가 가까울수록 높은 점수를 부여하는 구조
     private double calculateDistanceWeight(double distance) {
         // 0km → 50점
@@ -184,9 +138,9 @@ public class HospitalRecommendationService {
 
         } else if (category == HospitalCategory.PEDIATRIC) {
             return List.of();
-
         } else if (category == HospitalCategory.GENERAL) {
-            return List.of();
+            return hospitalScoreRepository.findAllByGeneralScoreGreaterThan(0.0);
+
         }
 
         return List.of();
