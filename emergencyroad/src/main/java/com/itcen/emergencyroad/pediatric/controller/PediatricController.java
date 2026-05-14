@@ -1,14 +1,14 @@
 package com.itcen.emergencyroad.pediatric.controller;
 
 import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
+import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.service.PediatricViewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -39,4 +39,13 @@ public class PediatricController {
 
         return "pediatric/hospitals";
     }
+
+    @GetMapping("/hospitals/{hpid}/detail")
+    @ResponseBody
+    public ResponseEntity<PediatricHospitalDetailDto> getHospitalDetail(@PathVariable String hpid){
+        PediatricHospitalDetailDto detail =
+                pediatricViewService.getPediatricHospitalDetail(hpid);
+        return ResponseEntity.ok(detail);
+    }
+
 }
