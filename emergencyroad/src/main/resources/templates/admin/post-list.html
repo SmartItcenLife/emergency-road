@@ -62,7 +62,8 @@
             </td>
 
             <td>
-                <form th:if="${!post.isDeleted}" th:action="@{/admin/posts/{id}/delete(id=${post.id})}" method="post" onsubmit="return confirm('이 게시글을 정말로 강제 삭제하시겠습니까?');">
+                <form th:if="${!post.isDeleted}" th:action="@{/admin/posts/{id}/delete(id=${post.id})}" method="post"
+                      onsubmit="return confirm('이 게시글을 정말로 강제 삭제하시겠습니까?');">
                     <button type="submit" style="color: red; cursor: pointer;">강제 삭제</button>
                 </form>
             </td>

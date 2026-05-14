@@ -265,6 +265,143 @@
             white-space: nowrap;
         }
 
+        .detail-toggle-open .detail-toggle-icon {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+
+        .hospital-detail-wrapper {
+            margin-top: -4px;
+            margin-bottom: 10px;
+        }
+
+        .hospital-detail-panel {
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .detail-section + .detail-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .detail-title {
+            margin: 0 0 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .detail-label {
+            flex: 0 0 auto;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            min-width: 0;
+            text-align: right;
+            font-weight: 700;
+            color: #1f2937;
+            word-break: keep-all;
+        }
+
+        .detail-resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .detail-resource {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .detail-resource-name {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .detail-resource-value {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .detail-capability-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .detail-capability {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .capability-badge {
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .capability-available {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .capability-unavailable {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .capability-unknown {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .detail-message {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .detail-loading,
+        .detail-error {
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .detail-error {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
         .empty {
             padding: 24px;
             text-align: center;
@@ -414,6 +551,177 @@
             window.open(url,"_blank");
         });
     });
+
+    document.querySelectorAll(".detail-toggle").forEach(function(button) {
+        button.addEventListener("click", function() {
+            const hpid = button.dataset.hpid;
+            const card = button.closest(".hospital-card");
+            const currentDetail = card.nextElementSibling;
+
+            if (currentDetail && currentDetail.classList.contains("hospital-detail-wrapper")) {
+                currentDetail.remove();
+                button.classList.remove("detail-toggle-open");
+                return;
+            }
+
+            document.querySelectorAll(".hospital-detail-wrapper").forEach(function(detail) {
+                detail.remove();
+            });
+            document.querySelectorAll(".detail-toggle-open").forEach(function(openButton) {
+                openButton.classList.remove("detail-toggle-open");
+            });
+
+            button.classList.add("detail-toggle-open");
+
+            const loadingWrapper = document.createElement("div");
+            loadingWrapper.className = "hospital-detail-wrapper";
+            loadingWrapper.innerHTML = `<div class="detail-loading">상세 정보를 불러오는 중입니다.</div>`;
+            card.insertAdjacentElement("afterend", loadingWrapper);
+
+            fetch(`/pediatric/hospitals/${hpid}/detail`)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error("상세 정보를 불러오지 못했습니다.");
+                    }
+                    return response.json();
+                })
+                .then(function(detail) {
+                    loadingWrapper.innerHTML = createHospitalDetailHtml(detail);
+                })
+                .catch(function(error) {
+                    loadingWrapper.innerHTML = `<div class="detail-error">${escapeHtml(error.message)}</div>`;
+                });
+        });
+    });
+
+    function createHospitalDetailHtml(detail) {
+        return `
+            <div class="hospital-detail-panel">
+                <div class="detail-section">
+                    <h3 class="detail-title">기본 정보</h3>
+                    ${createDetailRow("주소", detail.address)}
+                    ${createDetailRow("응급실 번호", detail.emergencyPhone)}
+                    ${createDetailRow("대표전화", detail.phone)}
+                    ${createDetailRow("소아 당직 연락처", detail.pediatricHotline)}
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">소아 핵심 자원</h3>
+                    <div class="detail-resource-grid">
+                        ${createResourceItem("소아 ICU", detail.pediatricIcuCount, detail.pediatricIcuStandard)}
+                        ${createResourceItem("응급 소아 ICU", detail.pediatricEmergencyIcuCount, detail.pediatricEmergencyIcuStandard)}
+                        ${createResourceItem("응급 소아 입원", detail.pediatricEmergencyAdmissionCount, detail.pediatricEmergencyAdmissionStandard)}
+                        ${createResourceItem("소아 음압격리", detail.pediatricNegativeIsolationCount, detail.pediatricNegativeIsolationStandard)}
+                        ${createResourceItem("소아 일반격리", detail.pediatricGeneralIsolationCount, detail.pediatricGeneralIsolationStandard)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">장비 가능 여부</h3>
+                    <div class="detail-capability-list">
+                        ${createCapabilityItem("소아 인공호흡기", detail.pediatricVentiAvailable)}
+                        ${createCapabilityItem("조산아 인공호흡기", detail.preemieVentiAvailable)}
+                        ${createCapabilityItem("인큐베이터", detail.incubatorAvailable)}
+                        ${createCapabilityItem("인큐베이터 자원", detail.incubatorResourceAvailable)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">소아 중증 수용 가능</h3>
+                    <div class="detail-capability-list">
+                        ${createCapabilityItem("장중첩/폐색 영유아", detail.pediatricBowelObstructionAvailable, detail.pediatricBowelObstructionMessage)}
+                        ${createCapabilityItem("응급내시경 위장관", detail.pediatricEmergencyEndoscopyGastroAvailable, detail.pediatricEmergencyEndoscopyGastroMessage)}
+                        ${createCapabilityItem("응급내시경 기관지", detail.pediatricEmergencyEndoscopyBronchialAvailable, detail.pediatricEmergencyEndoscopyBronchialMessage)}
+                        ${createCapabilityItem("저체중출생아", detail.lowBirthWeightInfantAvailable, detail.lowBirthWeightInfantMessage)}
+                        ${createCapabilityItem("영상의학 혈관중재", detail.pediatricVascularInterventionAvailable, detail.pediatricVascularInterventionMessage)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">갱신 시간</h3>
+                    ${createDetailRow("실시간 정보", formatDateTime(detail.realtimeRecordedAt))}
+                    ${createDetailRow("기준 정보", formatDateTime(detail.standardRecordedAt))}
+                </div>
+            </div>
+        `;
+    }
+
+    function createDetailRow(label, value) {
+        return `
+            <div class="detail-row">
+                <span class="detail-label">${escapeHtml(label)}</span>
+                <span class="detail-value">${escapeHtml(displayValue(value))}</span>
+            </div>
+        `;
+    }
+
+    // 자원 정보를 표시하는 작은 박스를 만드는 함수
+    function createResourceItem(label, current, standard) {
+        return `
+            <div class="detail-resource">
+                <span class="detail-resource-name">${escapeHtml(label)}</span>
+                <span class="detail-resource-value">${escapeHtml(formatCount(current, standard))}</span>
+            </div>
+        `;
+    }
+    // 가능 여부를 표시하는 행을 만드는 함수
+    function createCapabilityItem(label, value, message) {
+        const status = normalizeAvailability(value);
+        const messageHtml = message ? `<div class="detail-message">${escapeHtml(message)}</div>` : "";
+
+        return `
+            <div>
+                <div class="detail-capability">
+                    <span>${escapeHtml(label)}</span>
+                    <span class="capability-badge ${status.className}">${escapeHtml(status.label)}</span>
+                </div>
+                ${messageHtml}
+            </div>
+        `;
+    }
+
+    function normalizeAvailability(value) {
+        if (value === true || value === "Y" || value === "가능" || value === "1") {
+            return { label: "가능", className: "capability-available" };
+        }
+        if (value === false || value === "N" || value === "불가" || value === "0") {
+            return { label: "불가", className: "capability-unavailable" };
+        }
+        return { label: displayValue(value), className: "capability-unknown" };
+    }
+    // 현재 수 / 기준 수 출력 포맷 설정 함수
+    function formatCount(current, standard) {
+        const currentValue = displayValue(current);
+        const standardValue = displayValue(standard);
+
+        if (currentValue === "-" && standardValue === "-") {
+            return "-";
+        }
+        return `${currentValue} / ${standardValue}`;
+    }
+    // 빈 문자열을 "-" 로 표기
+    function displayValue(value) {
+        if (value === null || value === undefined || value === "") {
+            return "-";
+        }
+        return value;
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "-";
+        }
+        return value.replace("T", " ").slice(0, 16);
+    }
+    // 문자열을 HTML 로 바로 넣을 때 발생하는 문제를 방지하기 위한 함수.
+    function escapeHtml(value) {
+        return String(displayValue(value))
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
 </script>
 </body>
 </html>
