@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 /**
- * 병원 실시간 상세 정보 및 추천 점수 Entity
+ * 병원 기본 메타 정보
  */
 @Entity
 @Getter

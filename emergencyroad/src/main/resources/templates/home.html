@@ -8,7 +8,9 @@
     <input type="hidden" name="category" id="categoryInput">
     <input type="hidden" name="lat" id="latInput">
     <input type="hidden" name="lon" id="lonInput">
-
+    <p id="geoMessage" style="color: #666;">
+        병원 추천을 위해 현재 위치 정보가 필요합니다.
+    </p>
     <button type="button" onclick="getLocation('PEDIATRIC')">소아</button>
     <button type="button" onclick="getLocation('GENERAL')">일반</button>
     <button type="button" onclick="getLocation('PREGNANT')">임산부</button>
@@ -16,6 +18,9 @@
 
 <script>
     function getLocation(category) {
+        document.getElementById('geoMessage').innerText =
+            "📍 위치 정보를 요청 중입니다... 브라우저에서 허용해주세요.";
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 document.getElementById('categoryInput').value = category;
@@ -23,7 +28,8 @@
                 document.getElementById('lonInput').value = position.coords.longitude;
                 document.getElementById('recommendForm').submit();
             }, function(error) {
-                alert("위치 정보 권한이 필요합니다.");
+                document.getElementById('geoMessage').innerText =
+                    "위치 권한이 거부되었습니다. 설정에서 허용해주세요.";
             });
         } else {
             alert("이 브라우저는 위치 정보를 지원하지 않습니다.");

@@ -222,6 +222,8 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         System.out.println("혼잡도 점수 = " + congestionScore);
     }
 
+    //hvec = 실시간 가용 병상
+    //hperyn = 응급실 기준 병상 수 => 가용 병상 / 전체 응급 병상
     //혼잡도 계산
     private double calculateCongestionScore(
             GeneralRealTimeAndStandard realtime,

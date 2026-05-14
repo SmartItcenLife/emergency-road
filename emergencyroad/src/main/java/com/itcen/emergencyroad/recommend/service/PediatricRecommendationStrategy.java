@@ -26,8 +26,7 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
     private final HospitalScoreRepository hospitalScoreRepository;
     private final HospitalRepository hospitalRepository;
     private final WeightPediatricConfigurationRepository weightRepository;
-
-    // 특수질환 기본 가산 개수 기준
+     // 특수질환 기본 가산 개수 기준
     private static final int MIN_AVAILABLE_COUNT = 0;
 
 
@@ -135,12 +134,38 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
             return;
         }
 
+        //TODO : 여기가 응급 가능하면서 병상수 퍼센트가 여유일 때로 해야할듯
         // 2. 기본 소아 응급 가능
-        if (realtime.getPediatricBedCount() != null
-                && realtime.getPediatricBedCount() > MIN_AVAILABLE_COUNT) {
+//        if (realtime.getPediatricBedCount() != null
+//                && realtime.getPediatricBedCount() > MIN_AVAILABLE_COUNT) {
+//
+//            score += config.getPediatricEmergencyWeight();
+//            tags.append("소아병상");
+//        }
+        // 추천 전략 클래스(RecommendationStrategy) 내부 가정
+        if (realtime.getPediatricBedCount() != null && standard.getPediatricBedStandard() != null) {
 
-            score += config.getPediatricEmergencyWeight();
-            tags.append("소아병상");
+            int available = realtime.getPediatricBedCount();
+            int total = standard.getPediatricBedStandard();
+
+            if (total > 0) {
+                // 1. 퍼센트 계산 (PediatricCongestionCalculator 활용 권장)
+                double percent = (available * 100.0) / total;
+
+                // 2. 가중치 차등 부여 (여유로울수록 높은 점수)
+                if (percent >= 50.0) { // '여유' 상태
+                    score += config.getPediatricEmergencyWeight() * 4; // 가중치 1.5배 보너스
+                    tags.append("소아병상여유 ");
+                }
+                else if (percent >= 20.0) { // '보통' 상태
+                    score += config.getPediatricEmergencyWeight();
+                    tags.append("소아병상 ");
+                }
+                else if (available > 0) { // '혼잡'하지만 병상은 있음
+                    score += config.getPediatricEmergencyWeight() * 0.5; // 가중치 절반만 부여
+                    tags.append("소아병상부족 ");
+                }
+            }
         }
 
         // 3. 소아 ICU

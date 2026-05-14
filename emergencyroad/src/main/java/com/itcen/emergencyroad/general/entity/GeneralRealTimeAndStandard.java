@@ -29,7 +29,7 @@ public class GeneralRealTimeAndStandard extends BaseEntity {
     private Integer hvec; // 응급실 일반 병상 실시간 가용 병상 수
 
     @Column(name = "er_total_beds")
-    private Integer hvs01; // 응급실 일반 병상 전체 병상 수
+    private Integer hvs01; // 응급실 일반 병상 전체 병상 수 --> 이게 맞음
 
     // --- 중환자실 병상 정보 ---
     @Column(name = "icu_available_beds")

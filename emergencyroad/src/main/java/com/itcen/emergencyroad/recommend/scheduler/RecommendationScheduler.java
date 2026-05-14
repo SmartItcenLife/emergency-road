@@ -14,7 +14,7 @@ public class RecommendationScheduler {
     private final HospitalRecommendationService recommendationService;
 
 
-    @Scheduled(cron = "0 40 22 * * *")
+    @Scheduled(cron = "0 37 12 * * *")
     public void updateBaseHospitalScores() {
 
         recommendationService.calculateAllHospitalScores();
