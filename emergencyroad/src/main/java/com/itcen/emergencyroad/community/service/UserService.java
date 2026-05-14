@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.community.service;
 
 import com.itcen.emergencyroad.community.dto.LoginRequestDto;
 import com.itcen.emergencyroad.community.dto.SignupRequestDto;
+import com.itcen.emergencyroad.community.dto.UpdateUserRequestDto;
 import com.itcen.emergencyroad.community.dto.kakao.KakaoUserInfoDto;
 import com.itcen.emergencyroad.community.entity.User;
 import com.itcen.emergencyroad.community.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final KakaoService kakaoService;
+  private final ProfileImageService profileImageService;
 
   @Transactional
   public void signUp(SignupRequestDto dto){
@@ -98,6 +101,34 @@ public class UserService {
 
     if(accessToken != null) kakaoService.logout(accessToken);
     session.invalidate();
+  }
+
+  @Transactional
+  public void updateUser(Long userId, UpdateUserRequestDto dto, MultipartFile profileImage,
+      HttpSession session){
+    User user = userRepository.findById(userId)
+        .orElseThrow(() -> new CustomException(ExceptionStatus.USER_NOT_FOUND));
+
+    if(dto.getNickname() != null && !dto.getNickname().isBlank()){
+      if(!dto.getNickname().equals(user.getNickname()) &&
+      userRepository.existsByNickname(dto.getNickname())){
+        throw new CustomException(ExceptionStatus.DUPLICATED_NICKNAME);
+      }
+      user.updateNickname(dto.getNickname());
+    }
+
+    if(profileImage != null && !profileImage.isEmpty()){
+      String imageUrl = profileImageService.uploadProfileImage(profileImage);
+      user.updateProfileImage(imageUrl);
+    }
+
+    setSession(session, user, (String) session.getAttribute("kakaoAccessToken"));
+  }
+
+  @Transactional(readOnly = true)
+  public User getUser(Long userId){
+    return userRepository.findById(userId)
+        .orElseThrow(() -> new CustomException(ExceptionStatus.NOT_FOUND));
   }
 
   private void setSession(HttpSession session, User user, String kakaoAccessToken){

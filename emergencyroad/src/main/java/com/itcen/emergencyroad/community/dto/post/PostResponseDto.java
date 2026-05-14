@@ -19,8 +19,11 @@ public class PostResponseDto {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private List<String> imageUrls;
+  private long recommendCount;
+  private long commentCount;
+  private String profileImageUrl;
 
-  public static PostResponseDto from(Post post, List<String> imageUrls){
+  public static PostResponseDto from(Post post, List<String> imageUrls, long recommendCount, long commentCount){
     PostResponseDto dto = new PostResponseDto();
     dto.id = post.getId();
     dto.userId = post.getUser().getId();
@@ -33,6 +36,10 @@ public class PostResponseDto {
     dto.createdAt = post.getCreatedAt();
     dto.updatedAt = post.getUpdatedAt();
     dto.imageUrls = imageUrls;
+    dto.recommendCount = recommendCount;
+    dto.commentCount = commentCount;
+    dto.profileImageUrl = post.getUser().getProfileImageUrl();
+
     return dto;
   }
 }
