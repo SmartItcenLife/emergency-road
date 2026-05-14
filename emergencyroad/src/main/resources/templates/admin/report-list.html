@@ -2,17 +2,40 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>관리자 페이지</title>
+<!--    <style>-->
+<!--        /* 전체 화면 및 배경 설정 */-->
+<!--        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; display: flex; }-->
+
+<!--        /* 왼쪽 사이드바 (깔끔하게 메인 가기 버튼만 남김!) */-->
+<!--        .sidebar { width: 250px; min-height: 100vh; background-color: #343a40; color: white; padding: 20px; box-sizing: border-box; }-->
+<!--        .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 22px; border-bottom: 1px solid #4f5962; padding-bottom: 15px; }-->
+<!--        .home-btn { display: block; padding: 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center; font-weight: bold; transition: background 0.3s; }-->
+<!--        .home-btn:hover { background-color: #0056b3; }-->
+
+<!--        /* 오른쪽 메인 컨텐츠 영역 */-->
+<!--        .content { flex: 1; padding: 40px; }-->
+<!--        h1 { color: #333; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 30px; }-->
+<!--        h2 { color: #555; margin-top: 40px; font-size: 20px; border-left: 4px solid #007bff; padding-left: 10px; }-->
+
+<!--        /* 테이블(표) 디자인 통일 */-->
+<!--        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }-->
+<!--        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }-->
+<!--        th { background-color: #007bff; color: white; font-weight: bold; }-->
+<!--        tr:hover { background-color: #f8f9fa; }-->
+
+<!--        /* 링크 및 버튼 디자인 */-->
+<!--        a.post-link { color: #007bff; text-decoration: none; font-weight: bold; }-->
+<!--        a.post-link:hover { text-decoration: underline; }-->
+<!--        button { cursor: pointer; border: none; background: none; font-weight: bold; font-size: 14px; transition: transform 0.2s; }-->
+<!--        button:hover { transform: scale(1.1); }-->
+<!--    </style>-->
 </head>
 <body>
 
 <div class="sidebar">
     <h2>관리자 시스템</h2>
     <a th:href="@{/admin}">📊 대시보드 (메인)</a>
-    <a th:href="@{/admin/users}">👥 회원 관리</a>
-    <a th:href="@{/admin/posts}">📝 커뮤니티 관리</a>
-    <a th:href="@{/admin/reports}">신고된 게시글/댓글 관리</a>
-    <a href="#">💬 실시간 채팅 관리</a>
 </div>
 
 <h1>🚨 신고 관리 센터</h1>
