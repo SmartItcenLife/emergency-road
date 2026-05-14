@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/pediatric")
 public class PediatricController {
 
-    //private final PediatricViewService pediatricViewService;
+    private final PediatricViewService pediatricViewService;
     private final KakaoLocalApiClient kakaoLocalApiClient;
     private final HospitalRecommendationService hospitalRecommendationService;
 
