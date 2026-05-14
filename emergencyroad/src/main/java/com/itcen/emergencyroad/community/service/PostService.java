@@ -4,7 +4,9 @@ import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
 import com.itcen.emergencyroad.community.entity.Post;
 import com.itcen.emergencyroad.community.entity.User;
+import com.itcen.emergencyroad.community.repository.CommentRepository;
 import com.itcen.emergencyroad.community.repository.PostImageRepository;
+import com.itcen.emergencyroad.community.repository.PostLikeRepository;
 import com.itcen.emergencyroad.community.repository.PostRepository;
 import com.itcen.emergencyroad.community.repository.UserRepository;
 import com.itcen.emergencyroad.global.exception.CustomException;
@@ -32,6 +34,10 @@ public class PostService {
   private final UserRepository userRepository;
   private final HospitalRepository hospitalRepository;
   private final PostImageService postImageService;
+  private final LikeService likeService;
+  private final CommentService commentService;
+  private final PostLikeRepository postLikeRepository;
+  private final CommentRepository commentRepository;
 
   @Transactional
   public void createPost(String hpid, PostRequestDto dto, Long userId,
@@ -83,7 +89,11 @@ public class PostService {
     if(post.isDeleted()) throw new CustomException(ExceptionStatus.POST_NOT_FOUND);
 
     List<String> imageUrls = postImageService.getImageUrls(postId);
-    return PostResponseDto.from(post, imageUrls);
+
+    long postLikeCount = postLikeRepository.countByPost_Id(postId);
+    long commentLikeCount = commentRepository.countByPostIdAndIsDeletedFalse(postId);
+
+    return PostResponseDto.from(post, imageUrls, postLikeCount, commentLikeCount);
   }
 
   @Transactional(readOnly = true)
@@ -98,7 +108,12 @@ public class PostService {
       posts = postRepository.findByHospitalHpidAndIsDeletedFalse(hpid, pageable);
     }
 
-    return posts.map(post -> PostResponseDto.from(post, postImageService.getImageUrls(post.getId())));
+    return posts.map(post -> {
+      List<String> imageUrls = postImageService.getImageUrls(post.getId());
+      long postLikeCount = postLikeRepository.countByPost_Id(post.getId());
+      long commentCount = commentRepository.countByPostIdAndIsDeletedFalse(post.getId());
+      return PostResponseDto.from(post, imageUrls, postLikeCount, commentCount);
+    });
   }
 
   @Transactional(readOnly = true)

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>회원정보 수정</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        body { background-color: white; }
+
+        .page-container {
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        .top-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 16px 24px;
+        }
+
+        .profile-img-wrap {
+            position: relative;
+            width: 90px;
+            height: 90px;
+            margin-bottom: 12px;
+        }
+
+        .profile-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-edit-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #0d6efd;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: white;
+            font-size: 13px;
+        }
+
+        .input-card {
+            border-radius: 16px;
+            border: 1px solid #e9ecef;
+            margin: 0 16px 12px;
+        }
+
+        .field-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e8f0fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0d6efd;
+            flex-shrink: 0;
+        }
+
+        .form-control {
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 0;
+            padding-left: 0;
+            background: transparent;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-bottom-color: #0d6efd;
+            background: transparent;
+        }
+
+        .form-control:disabled {
+            background: transparent;
+            color: #adb5bd;
+        }
+
+        .submit-button {
+            height: 52px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 14px;
+            margin: 8px 16px 0;
+            width: calc(100% - 32px);
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-container">
+
+    <!-- 상단 헤더 -->
+    <div class="top-header">
+        <button type="button" class="btn p-0" onclick="history.back()">
+            <i class="bi bi-chevron-left fs-5"></i>
+        </button>
+        <span class="fw-bold fs-5">회원정보 수정</span>
+    </div>
+
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="alert alert-danger mx-3 mt-3" role="alert">
+        <p th:text="${errorMessage}" class="mb-0"></p>
+    </div>
+
+    <form th:action="@{/mypage}" method="post" enctype="multipart/form-data"
+          th:object="${updateUserRequestDto}">
+
+        <!-- 프로필 이미지 -->
+        <div class="profile-area">
+            <div class="profile-img-wrap">
+                <!-- 이미지 있을 때 -->
+                <img th:if="${user.profileImageUrl != null}"
+                     th:src="${user.profileImageUrl}"
+                     id="profilePreviewImage"
+                     class="profile-img">
+                <!-- 이미지 없을 때 -->
+                <div th:if="${user.profileImageUrl == null}"
+                     class="profile-img" id="profilePlaceholder">
+                    <i class="bi bi-person-fill text-secondary" style="font-size: 2.5rem;"></i>
+                </div>
+                <img th:if="${user.profileImageUrl == null}"
+                     id="profilePreviewImage"
+                     class="profile-img d-none">
+
+                <!-- 이미지 변경 버튼 -->
+                <label for="profileImage" class="profile-edit-btn">
+                    <i class="bi bi-camera-fill"></i>
+                </label>
+                <input type="file" id="profileImage" name="profileImage"
+                       accept="image/jpeg,image/jpg,image/png" class="d-none">
+            </div>
+            <span class="text-secondary small">프로필 사진 변경</span>
+        </div>
+
+        <!-- 아이디 (수정 불가) -->
+        <div class="input-card bg-white p-3 d-flex align-items-start gap-3">
+            <div class="field-icon mt-1">
+                <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+                <label class="fw-bold mb-1">아이디</label>
+                <input type="text" class="form-control" th:value="${user.userName}"
+                       disabled placeholder="아이디">
+                <div class="form-text text-secondary">아이디는 변경할 수 없습니다.</div>
+            </div>
+        </div>
+
+        <!-- 닉네임 -->
+        <div class="input-card bg-white p-3 d-flex align-items-start gap-3">
+            <div class="field-icon mt-1">
+                <i class="bi bi-emoji-smile-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+                <label class="fw-bold mb-1">닉네임</label>
+                <input type="text" th:field="*{nickname}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('nickname')} ? 'is-invalid'"
+                       th:placeholder="${user.nickname}"
+                       maxlength="30">
+                <div class="form-text">최대 30자</div>
+                <p th:if="${#fields.hasErrors('nickname')}"
+                   th:errors="*{nickname}"
+                   class="invalid-feedback d-block mb-0 text-danger small"></p>
+            </div>
+        </div>
+
+        <!-- 이메일 (수정 불가) -->
+        <div th:if="${user.email != null}"
+             class="input-card bg-white p-3 d-flex align-items-start gap-3">
+            <div class="field-icon mt-1">
+                <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+                <label class="fw-bold mb-1">이메일</label>
+                <input type="text" class="form-control" th:value="${user.email}"
+                       disabled>
+                <div class="form-text text-secondary">이메일은 변경할 수 없습니다.</div>
+            </div>
+        </div>
+
+        <!-- 수정 버튼 -->
+        <button type="submit" class="btn btn-primary submit-button">
+            수정 완료
+        </button>
+
+    </form>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 프로필 이미지 미리보기
+    document.getElementById('profileImage').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const previewImage = document.getElementById('profilePreviewImage');
+            const placeholder = document.getElementById('profilePlaceholder');
+
+            previewImage.src = e.target.result;
+            previewImage.classList.remove('d-none');
+            if (placeholder) placeholder.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
+</body>
+</html>

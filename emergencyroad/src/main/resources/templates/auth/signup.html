@@ -1,74 +1,271 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>emergency-route signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>회원가입</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: white;
+    }
+
+    .signup-container {
+      max-width: 430px;
+    }
+
+    .input-card {
+      border-radius: 16px;
+      border: 1px solid #e9ecef;
+    }
+
+    .field-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #e8f0fe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0d6efd;
+      flex-shrink: 0;
+    }
+
+    .form-control {
+      border: none;
+      border-bottom: 1px solid #dee2e6;
+      border-radius: 0;
+      padding-left: 0;
+      background: transparent;
+    }
+
+    .form-control:focus {
+      box-shadow: none;
+      border-bottom-color: #0d6efd;
+      background: transparent;
+    }
+
+    .submit-button {
+      height: 56px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-radius: 14px;
+    }
+
+    .profile-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .char-count {
+      font-size: 12px;
+      color: #adb5bd;
+    }
+  </style>
 </head>
+
 <body>
-<h2>회원가입</h2>
+<main class="container min-vh-100 d-flex justify-content-center align-items-start py-5">
+  <section class="signup-container w-100">
 
-<!-- getMapping, Post 매핑 둘 다 넘어옴. 값은 회원가입 화면에서 넘어가고 이후로 회원가입이 에러없이 넘어가면 -->
-<!-- redirect로 /login을 호출함. -->
+    <!-- 상단 제목 -->
+    <div class="mb-2 d-flex justify-content-between align-items-start">
+      <div>
+        <h1 class="fw-bold mb-2">회원가입</h1>
+        <p class="text-secondary mb-0">응급길 커뮤니티에 오신 것을 환영합니다!</p>
+      </div>
+      <i class="bi bi-chat-dots-fill text-primary" style="font-size: 3rem; opacity: 0.3;"></i>
+    </div>
 
-<!-- 중복 확인 에러 메시지 -->
-<div th:if="${errorMessage}">
-  <p th:text="${errorMessage}" style="color: red"></p>
-</div>
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+      <p th:text="${errorMessage}" class="mb-0"></p>
+    </div>
 
-<!--회원 가입 화면-->
-<form th:action="@{/signup}" th:object="${signupRequestDto}" method="post">
+    <form th:action="@{/signup}" th:object="${signupRequestDto}" method="post" enctype="multipart/form-data">
 
-  <!-- 아이디 -->
-  <div>
-    <label>아이디
-      <input type="text" th:field="*{userName}" placeholder="영문과 숫자 조합으로 6~20자">
-    </label>
-    <p th:if="${#fields.hasErrors('userName')}"
-      th:errors="*{userName}"
-       style="color: red">
-    </p>
-  </div>
+      <!-- 아이디 -->
+      <div class="input-card bg-white p-3 mb-3 d-flex align-items-start gap-3">
+        <div class="field-icon mt-1">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+          <label class="fw-bold mb-1">아이디</label>
+          <div class="d-flex align-items-center">
+            <input type="text"
+                   th:field="*{userName}"
+                   class="form-control"
+                   th:classappend="${#fields.hasErrors('userName')} ? 'is-invalid'"
+                   placeholder="사용할 아이디를 입력하세요"
+                   maxlength="20">
+            <span class="char-count ms-2">0/20</span>
+          </div>
+          <div class="form-text">4~20자의 영문, 숫자 조합</div>
+          <p th:if="${#fields.hasErrors('userName')}"
+             th:errors="*{userName}"
+             class="invalid-feedback d-block mb-0 text-danger small"></p>
+        </div>
+      </div>
 
-  <!-- 비밀번호 -->
-  <div>
-    <label>비밀번호
-      <input type="password" th:field="*{password}" placeholder="영문,숫자,특수문자로 8자 이상">
-    </label>
-    <p th:if="${#fields.hasErrors('password')}"
-       th:errors="*{password}"
-       style="color:red;"></p>
-  </div>
+      <!-- 비밀번호 -->
+      <div class="input-card bg-white p-3 mb-3 d-flex align-items-start gap-3">
+        <div class="field-icon mt-1">
+          <i class="bi bi-lock-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+          <label class="fw-bold mb-1">비밀번호</label>
+          <div class="d-flex align-items-center">
+            <input type="password"
+                   id="password"
+                   th:field="*{password}"
+                   class="form-control"
+                   th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"
+                   placeholder="비밀번호를 입력하세요">
+            <i class="bi bi-eye-slash ms-2 text-secondary" id="togglePassword" style="cursor: pointer;"></i>
+          </div>
+          <div class="form-text">8~20자의 영문, 숫자, 특수문자 조합</div>
+          <p th:if="${#fields.hasErrors('password')}"
+             th:errors="*{password}"
+             class="invalid-feedback d-block mb-0 text-danger small"></p>
+        </div>
+      </div>
 
-  <!-- 닉네임 -->
-  <div>
-    <label>닉네임</label>
-    <input type="text" th:field="*{nickname}" placeholder="20자 이내">
-    <p th:if="${#fields.hasErrors('nickname')}"
-       th:errors="*{nickname}"
-       style="color: red;"></p>
-  </div>
+      <!-- 닉네임 -->
+      <div class="input-card bg-white p-3 mb-3 d-flex align-items-start gap-3">
+        <div class="field-icon mt-1">
+          <i class="bi bi-emoji-smile-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+          <label class="fw-bold mb-1">닉네임</label>
+          <input type="text"
+                 th:field="*{nickname}"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('nickname')} ? 'is-invalid'"
+                 placeholder="닉네임을 입력하세요"
+                 maxlength="20">
+          <div class="form-text">2~10자의 닉네임</div>
+          <p th:if="${#fields.hasErrors('nickname')}"
+             th:errors="*{nickname}"
+             class="invalid-feedback d-block mb-0 text-danger small"></p>
+        </div>
+      </div>
 
-  <!-- 이메일 -->
-  <div>
-    <label>이메일</label>
-    <input type="email" th:field="*{email}" placeholder="example@email.com">
-    <p th:if="${#fields.hasErrors('email')}"
-       th:errors="*{email}"
-       style="color: red;"></p>
-  </div>
+      <!-- 이메일 -->
+      <div class="input-card bg-white p-3 mb-3 d-flex align-items-start gap-3">
+        <div class="field-icon mt-1">
+          <i class="bi bi-envelope-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+          <label class="fw-bold mb-1">이메일</label>
+          <input type="email"
+                 th:field="*{email}"
+                 class="form-control"
+                 th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+                 placeholder="이메일을 입력하세요">
+          <p th:if="${#fields.hasErrors('email')}"
+             th:errors="*{email}"
+             class="invalid-feedback d-block mb-0 text-danger small"></p>
+        </div>
+      </div>
 
-  <!-- 프로필 이미지 -->
-  <div>
-    <label>프로필 이미지 (선택)</label>
-    <input type="file" accept="image/*" id="profileImage">
-    <input type="hidden" th:field="*{profileImageUrl}">
-  </div>
+      <!-- 프로필 이미지 -->
+      <div class="input-card bg-white p-3 mb-4 d-flex align-items-start gap-3">
+        <div class="field-icon mt-1">
+          <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="flex-grow-1">
+          <label class="fw-bold mb-2">프로필 이미지</label>
+          <div class="d-flex align-items-center gap-3">
 
-  <button type="submit">회원가입</button>
+            <div class="profile-preview" id="profilePreview">
+              <i id="profileDefaultIcon"
+                 class="bi bi-person-fill text-secondary"
+                 style="font-size: 2rem;"></i>
 
-</form>
+              <img id="profilePreviewImage"
+                   src=""
+                   alt="프로필 이미지 미리보기"
+                   class="d-none"
+                   style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            </div>
 
-<a th:href="@{/login}">이미 계정이 있으신가요? 로그인</a>
+            <div>
+              <label for="profileImage" class="btn btn-outline-primary btn-sm px-4">
+                파일 선택
+              </label>
 
+              <input type="file"
+                     id="profileImage"
+                     name="profileImage"
+                     accept="image/jpeg,image/jpg,image/png"
+                     class="d-none">
+
+              <input type="hidden" th:field="*{profileImageUrl}">
+              <div class="form-text mt-1">JPG, PNG 파일 (최대 5MB)</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 회원가입 버튼 -->
+      <button type="submit" class="btn btn-primary w-100 submit-button mb-4">
+        회원가입
+      </button>
+
+    </form>
+
+    <!-- 로그인 이동 -->
+    <div class="text-center">
+      <p class="text-secondary mb-1">이미 계정이 있으신가요?</p>
+      <a th:href="@{/login}" class="fw-bold text-primary text-decoration-none">로그인 화면으로 이동</a>
+    </div>
+
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 비밀번호 보기/숨기기
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const pw = document.getElementById('password');
+    const icon = this;
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.classList.replace('bi-eye-slash', 'bi-eye');
+    } else {
+      pw.type = 'password';
+      icon.classList.replace('bi-eye', 'bi-eye-slash');
+    }
+  });
+
+  // 프로필 이미지 미리보기
+  document.getElementById('profileImage').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const previewImage = document.getElementById('profilePreviewImage');
+      const defaultIcon = document.getElementById('profileDefaultIcon');
+
+      previewImage.src = e.target.result;
+      previewImage.classList.remove('d-none');
+      defaultIcon.classList.add('d-none');
+    };
+    reader.readAsDataURL(file);
+  });
+</script>
 </body>
 </html>

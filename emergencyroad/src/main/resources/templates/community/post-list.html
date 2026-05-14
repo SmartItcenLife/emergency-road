@@ -1,66 +1,293 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>게시글 목록</title>
+
+  <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+  >
+
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #1f2937;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background-color: #ffffff;
+      padding: 20px 16px 88px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      line-height: 1.35;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      height: 44px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .search-button {
+      height: 44px;
+      min-width: 64px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+
+    .post-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .post-card {
+      display: block;
+      padding: 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background-color: #ffffff;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .post-card:hover {
+      color: inherit;
+      background-color: #f9fafb;
+    }
+
+    .post-topic {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 10px;
+      margin-bottom: 10px;
+      border-radius: 999px;
+      background-color: #eaf3ff;
+      color: #2563eb;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .post-title {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .post-empty {
+      padding: 40px 0;
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .pagination-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .page-link-custom {
+      min-width: 34px;
+      height: 34px;
+      padding: 0 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .page-link-custom.active {
+      background-color: #0d6efd;
+      color: #ffffff;
+      border-color: #0d6efd;
+    }
+
+    .write-button-wrap {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      width: 100%;
+      max-width: 430px;
+      padding: 0 16px;
+      transform: translateX(-50%);
+    }
+
+    .write-button {
+      height: 52px;
+      border-radius: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .post-topic {
+      background-color: #eaf3ff;
+      color: #2563eb;
+      font-size: 12px;      /* 날짜랑 동일하게 */
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+  </style>
 </head>
+
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
-<h2 th:text="${hospitalName} + ' 커뮤니티'">병원 커뮤니티</h2>
 
-<!-- 검색창 -->
-<form th:action="@{/hospitals/{hpid}/posts(hpid=${hpid})}" method="get">
-  <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 내용 검색">
-  <button type="submit">검색</button>
-</form>
+<main class="page-container">
 
-<!-- 게시글 목록 -->
-<table>
-  <thead>
-  <tr>
-    <th>번호</th>
-    <th>제목</th>
-    <th>작성자</th>
-    <th>작성일</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:if="${posts.isEmpty()}">
-    <td colspan="4">게시글이 없습니다.</td>
-  </tr>
-  <tr th:each="post : ${posts.content}">
-    <td th:text="${post.id}"></td>
-    <td>
-      <a th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${hpid}, postId=${post.id})}"
-         th:text="${post.title}"></a>
-    </td>
-    <td th:text="${post.nickname}"></td>
-    <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></td>
-  </tr>
-  </tbody>
-</table>
+  <h2 class="page-title" th:text="${hospitalName} + ' 커뮤니티'">
+    병원 커뮤니티
+  </h2>
 
-<!-- 페이징 -->
-<div>
-  <a th:if="${!posts.first}"
-     th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number - 1}, keyword=${keyword})}"><button type="button">이전</button></a>
+  <!-- 검색창 -->
+  <form
+      class="search-form"
+      th:action="@{/hospitals/{hpid}/posts(hpid=${hpid})}"
+      method="get"
+  >
+    <input
+        type="text"
+        name="keyword"
+        th:value="${keyword}"
+        class="form-control search-input"
+        placeholder="제목 혹은 내용 검색"
+    >
+    <button type="submit" class="btn btn-primary search-button">
+      검색
+    </button>
+  </form>
 
-  <span th:each="i : ${#numbers.sequence(0, posts.totalPages - 1)}">
-        <a th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${i}, keyword=${keyword})}"
-           th:text="${i + 1}"
-           th:classappend="${i == posts.number} ? 'active'"></a>
+  <!--게시글 목록 -->
+  <section class="post-list">
+
+    <div th:if="${posts.isEmpty()}" class="post-empty">
+      게시글이 없습니다.
+    </div>
+
+    <a
+        th:each="post : ${posts.content}"
+        th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${hpid}, postId=${post.id})}"
+        class="post-card d-flex gap-3"
+    >
+      <!-- 왼쪽 텍스트 영역 -->
+      <div class="flex-grow-1 d-flex flex-column gap-1">
+
+        <!-- 뱃지 + 날짜 -->
+        <div class="d-flex align-items-center gap-2" style = "font-size : 12px;">
+          <span class="post-topic" style="font-size: 12px">게시글</span>
+          <span class="text-secondary" style="font-size: 12px; white-space: nowrap;"
+                th:text="${#temporals.format(post.createdAt, 'YY MM.dd HH:mm')}"></span>
+        </div>
+
+        <!-- 제목 -->
+        <div class="post-title" th:text="${post.title}"></div>
+
+        <!-- 작성자 + 통계 -->
+        <div class="post-footer text-secondary" style="font-size: 13px;">
+
+          <!-- 프로필 이미지 -->
+          <img th:if="${post.profileImageUrl != null}"
+               th:src="${post.profileImageUrl}"
+               style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
+          <div th:if="${post.profileImageUrl == null}"
+               style="width: 20px; height: 20px; border-radius: 50%; background-color: #e8f0fe; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-person-fill" style="font-size: 12px; color: #0d6efd;"></i>
+          </div>
+
+          <span th:text="${post.nickname}"></span>
+          <span> · 추천 </span><span th:text="${post.recommendCount}"></span>
+          <span> · 댓글 </span><span th:text="${post.commentCount}"></span>
+        </div>
+
+      </div>
+
+      <!--  썸네일 (하단 정렬) -->
+      <div class="flex-shrink-0 d-flex align-items-end">
+        <img th:if="${post.imageUrls != null && !post.imageUrls.isEmpty()}"
+             th:src="${post.imageUrls[0]}"
+             style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover;">
+        <img th:if="${post.imageUrls == null || post.imageUrls.isEmpty()}"
+             src="/images/default-thumbnail.svg"
+             style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover;">
+      </div>
+    </a>
+
+  </section>
+
+  <!-- 페이징 -->
+  <div class="pagination-area" th:if="${posts.totalPages > 0}">
+
+    <a
+        th:if="${!posts.first}"
+        th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number - 1}, keyword=${keyword})}"
+        class="page-link-custom"
+    >
+      이전
+    </a>
+
+    <span th:each="i : ${#numbers.sequence(0, posts.totalPages - 1)}">
+      <a
+          th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${i}, keyword=${keyword})}"
+          th:text="${i + 1}"
+          class="page-link-custom"
+          th:classappend="${i == posts.number} ? ' active'"
+      >
+        1
+      </a>
     </span>
 
-  <a th:if="${!posts.last}"
-     th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number + 1}, keyword=${keyword})}"><button type="button">다음</button></a>
-</div>
+    <a
+        th:if="${!posts.last}"
+        th:href="@{/hospitals/{hpid}/posts(hpid=${hpid}, page=${posts.number + 1}, keyword=${keyword})}"
+        class="page-link-custom"
+    >
+      다음
+    </a>
 
-<!-- 게시글 작성 버튼 (로그인한 경우만) -->
-<div th:if="${session.loginUser != null}">
-  <a th:href="@{/hospitals/{hpid}/posts/new(hpid=${hpid})}">
-    <button type="button">게시글 작성</button>
-  </a>
-</div>
+  </div>
 
+  <!-- 게시글 작성 버튼 -->
+  <div class="write-button-wrap" th:if="${session.loginUser != null}">
+    <a
+        th:href="@{/hospitals/{hpid}/posts/new(hpid=${hpid})}"
+        class="btn btn-primary w-100 write-button"
+    >
+      글쓰기
+    </a>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

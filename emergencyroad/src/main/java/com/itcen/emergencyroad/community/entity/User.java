@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -90,5 +91,13 @@ public class User {
 
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateProfileImage(String imageUrl) {
+        this.profileImageUrl = imageUrl;
+    }
+
+    public void updateNickname(@Size(max = 30, message = "닉네임은 30자 이하로 입력해주세요.") String nickname) {
+        this.nickname = nickname;
     }
 }

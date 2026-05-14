@@ -15,6 +15,7 @@ public class CommentResponseDto {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
   private long likeCount;
+  private String profileImageUrl;
 
   public static CommentResponseDto from(Comment comment, long likeCount, boolean isLiked){
     CommentResponseDto dto = new CommentResponseDto();
@@ -26,6 +27,7 @@ public class CommentResponseDto {
     dto.isLiked = isLiked;
     dto.createdAt = comment.getCreatedAt();
     dto.updatedAt = comment.getCreatedAt();
+    dto.profileImageUrl = comment.getUser().getProfileImageUrl();
 
     return dto;
   }
