@@ -49,4 +49,24 @@ public class WeightGeneralConfiguration extends BaseEntity {
 
     @Builder.Default
     private Double angioBonus = 5.0;
+
+    public void updateGeneralWeights(
+            Double erRoom,
+            Double sevDisease,
+            Double icu,
+            Double equipment,
+            Double congestion,
+            Double ecmo,
+            Double crrt,
+            Double angio
+    ){
+        this.emergencyRoomWeight = erRoom;
+        this.severeDiseaseWeight = sevDisease;
+        this.icuWeight = icu;
+        this.equipmentWeight = equipment;
+        this.congestionWeight = congestion;
+        this.ecmoBonus = ecmo;
+        this.crrtBonus = crrt;
+        this.angioBonus = angio;
+    }
 }
