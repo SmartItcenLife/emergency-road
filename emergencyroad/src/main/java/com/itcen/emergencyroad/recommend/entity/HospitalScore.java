@@ -1,7 +1,13 @@
 package com.itcen.emergencyroad.recommend.entity;
 
+import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.global.BaseEntity;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
+import com.itcen.emergencyroad.hospital.entity.HospitalDetail;
+import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
+import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
+import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
+import com.itcen.emergencyroad.pregnant.entity.PregnantStandard;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -26,8 +32,43 @@ public class HospitalScore extends BaseEntity {
     @JoinColumn(name = "hpid", referencedColumnName = "hpid", unique = true, nullable = false)
     private Hospital hospital;
 
-    // --- 카테고리별 추천 점수 (0.0 ~ 100.0) ---
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private HospitalDetail hospitalDetail;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private PediatricStandard pediatricStandard;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private PediatricRealtime pediatricRealtime;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private PregnantStandard pregnantStandard;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private PregnantRealtime pregnantRealtime;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hpid", referencedColumnName = "hpid",
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private GeneralRealTimeAndStandard generalRealTimeAndStandard;
+
+    // --- 카테고리별 추천 점수 (0.0 ~ 100.0) ---
     @Builder.Default
     @Column(name = "pregnant_score")
     private Double pregnantScore = 0.0; // 임산부 응급 점수 (분만실, 산과수술 등 반영)
