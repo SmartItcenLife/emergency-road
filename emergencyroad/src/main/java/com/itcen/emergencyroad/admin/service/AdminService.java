@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.admin.service;
 
 import com.itcen.emergencyroad.admin.dto.AdminPostListDTO;
 import com.itcen.emergencyroad.admin.dto.AdminUserResponseDTO;
+import com.itcen.emergencyroad.admin.dto.DashboardResponseDto;
 import com.itcen.emergencyroad.community.dto.ReportResponseDTO;
 import com.itcen.emergencyroad.community.entity.Comment;
 import com.itcen.emergencyroad.community.entity.Post;
@@ -105,6 +106,23 @@ public class AdminService {
 
         // 4. 조치가 끝난 '신고 접수증'은 관리자 목록에서 안 보이게 삭제
         reportRepository.delete(report);
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardResponseDto getDashboardStats() {
+        // 오늘 00시 00분 00초 구하기
+        java.time.LocalDateTime startOfDay = java.time.LocalDate.now().atStartOfDay();
+
+        // 1. 오늘 가입한 회원 수
+        long todayUsers = userRepository.countByCreatedAtAfter(startOfDay);
+
+        // 2. 오늘 새 게시글 수
+        long todayPosts = postRepository.countByCreatedAtAfter(startOfDay);
+
+        // 3. 현재 총 신고 접수 건수
+        long totalReports = reportRepository.count();
+
+        return new DashboardResponseDto(todayUsers, todayPosts, totalReports);
     }
 
 }

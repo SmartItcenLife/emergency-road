@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.admin.controller;
 
+import com.itcen.emergencyroad.admin.dto.DashboardResponseDto;
 import org.springframework.ui.Model;
 import com.itcen.emergencyroad.admin.service.AdminService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,15 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    // 메인 페이지
+    // 메인 페이지 대시보드
     @GetMapping({"", "/"})
-    public String adminMain(){
+    public String adminMain(Model model) {
+        // 서비스에서 통계 바구니를 가져옵니다.
+        DashboardResponseDto stats = adminService.getDashboardStats();
+
+        // "stats"라는 이름으로 화면에 던져줍니다.
+        model.addAttribute("stats", stats);
+
         return "admin/admin-main";
     }
 
