@@ -2,6 +2,7 @@ package com.itcen.emergencyroad.hospital.repository;
 
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.recommend.dto.projection.GeneralHospitalProjection;
+import com.itcen.emergencyroad.recommend.dto.projection.PediatricHospitalProjection;
 import org.springframework.data.jpa.repository.Query;
 import com.itcen.emergencyroad.recommend.dto.projection.PregnantHospitalProjection;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
@@ -50,5 +51,21 @@ public interface HospitalRepository extends JpaRepositoryImplementation<Hospital
             LEFT JOIN GeneralRealTimeAndStandard prs ON prs.hospital = h
             """)
     List<GeneralHospitalProjection> findAllGeneralHospitalData();
+
+    @Query("""
+            SELECT h as hospital,
+                   hd as detail,
+                   s as score,
+                   p as pediatricMkioskty,
+                   pr as pediatricRealtime,
+                   ps as pediatricStandard
+            FROM Hospital h
+            LEFT JOIN HospitalDetail hd ON hd.hospital = h
+            LEFT JOIN HospitalScore s ON s.hospital = h
+            LEFT JOIN PediatricMkioskty p ON p.hospital = h
+            LEFT JOIN PediatricRealtime pr ON pr.hospital = h
+            LEFT JOIN PediatricStandard ps ON ps.hospital = h
+            """)
+    List<PediatricHospitalProjection> findAllHospitalPediatricData();
 
 }

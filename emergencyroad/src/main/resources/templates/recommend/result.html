@@ -2,89 +2,82 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>추천 병원 TOP3</title>
-
+    <title>실시간 추천 병원 TOP3</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f6f8;
-            padding: 20px;
-        }
+        body { font-family: 'Pretendard', sans-serif; background-color: #f5f6f8; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; padding: 16px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-left: 5px solid #007bff; }
 
-        h1 {
-            color: #333;
-        }
+        /* 카테고리별 강조 색상 */
+        .card.pediatric { border-left-color: #ff9800; } /* 소아: 주황 */
+        .card.pregnant { border-left-color: #e91e63; }  /* 임산부: 핑크 */
 
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .card {
-            background: white;
-            padding: 16px;
-            margin-bottom: 12px;
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        .title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .score {
-            color: #e91e63;
-            font-weight: bold;
-            margin-top: 8px;
-        }
-
-        .info {
-            font-size: 14px;
-            color: #666;
-            margin-top: 4px;
-        }
+        .title { font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
+        .score { color: #2c3e50; font-weight: bold; margin-top: 8px; font-size: 14px; }
+        .info { font-size: 14px; color: #666; margin-top: 4px; }
+        .badge { background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #333; margin-right: 4px; }
+        .highlight { color: #d32f2f; font-weight: bold; }
     </style>
-
 </head>
 <body>
 
 <div class="container">
-
-    <h1>추천 병원 TOP3</h1>
-
-    <!-- 카테고리 -->
-    <p th:text="${category}"></p>
-
+    <h1 th:text="${category.description} + ' 추천 TOP3'">병원 추천</h1>
+    <p class="sub-text">
+        의료 인프라 점수, 실시간 병원 상태, 응급실 혼잡도, 이동 시간을 종합해 추천했어요.
+    </p>
     <!-- 리스트 반복 -->
-    <div th:each="item : ${rankings}" class="card">
+    <div th:each="item : ${rankings}" class="card"
+         th:classappend="${category.name() == 'PEDIATRIC' ? 'pediatric' : (category.name() == 'PREGNANT' ? 'pregnant' : '')}">
 
-        <div class="title" th:text="${item.hospitalName}">
-            병원 이름
-        </div>
-
-        <div class="score">
-            최종 점수 :
-            <span th:text="${item.finalScore}">0</span>
+        <div class="title">
+            <span th:text="${item.hospitalName}">병원 이름</span>
+<!--            <span class="score" th:text="${#numbers.formatDecimal(item.finalScore, 1, 1)} + '점'">0점</span>-->
         </div>
 
         <div class="info">
-            거리 :
-            <span th:text="${item.distance}">0</span> km
+            📍 <span th:text="${item.address}">주소 정보 없음</span>
         </div>
 
         <div class="info">
-            소요 시간 :
-            <span th:text="${item.duration}">0</span> 분
+            🚗 거리: <span th:text="${#numbers.formatDecimal(item.distance, 1, 1)}">0</span>km
+            (약 <span th:text="${#numbers.formatDecimal(item.duration, 1, 0)}">0</span>분 소요)
         </div>
 
-        <div class="info">
-            병원 ID :
-            <span th:text="${item.hpid}">id</span>
+        <!--  카테고리별 상세 정보 노출 (클래스 타입 체크 방식) -->
+        <div class="detail-info" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+
+            <!-- 1. 소아과 전용 정보 (PediatricHospitalResponseDto 인지 확인) -->
+            <div th:if="${item instanceof T(com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto)}">
+        <span class="badge">실시간 소아 가용 병상:
+            <b class="highlight" th:text="${item.availablePediatricBedCount != null ? item.availablePediatricBedCount : 0}">0</b>
+        </span>
+                <span class="badge">인큐베이터 가능:
+            <b th:text="${item.incubatorAvailable != null ? item.incubatorAvailable : '불가능'}">0</b>
+        </span>
+            </div>
+
+            <!-- 2. 임산부 전용 정보 (PregnantHospitalResponseDto 인지 확인) -->
+            <div th:if="${item instanceof T(com.itcen.emergencyroad.recommend.dto.PregnantHospitalResponseDto)}">
+        <span class="badge">분만 가능 여부:
+            <b class="highlight" th:text="${item.deliveryAvailable != null ? '가능' : '확인불가'}">확인</b>
+        </span>
+            </div>
+
+            <!-- 3. 일반 전용 정보 (GeneralHospitalResponseDto 인지 확인) -->
+            <div th:if="${item instanceof T(com.itcen.emergencyroad.recommend.dto.GeneralHospitalResponseDto)}">
+        <span class="badge">응급실 가용:
+            <b class="highlight" th:text="${item.availableBedCount != null ? item.availableBedCount : 0}">0</b>
+        </span>
+            </div>
         </div>
 
+        <!-- 태그 출력 -->
+        <div style="margin-top: 8px;">
+            <small th:if="${item.tags != null}" th:each="tag : ${#strings.arraySplit(item.tags, '|')}"
+                   class="badge" style="background: #e3f2fd; color: #1976d2;" th:text="${tag}">태그</small>
+        </div>
     </div>
-
 </div>
 
 </body>

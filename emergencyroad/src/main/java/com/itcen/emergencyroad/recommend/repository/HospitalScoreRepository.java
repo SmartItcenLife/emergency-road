@@ -11,4 +11,5 @@ public interface HospitalScoreRepository extends JpaRepository<HospitalScore,Str
     Optional<HospitalScore> findByHospital_Hpid(String hpid);
     List<HospitalScore> findAllByPregnantScoreGreaterThan(Double score);
     List<HospitalScore> findAllByGeneralScoreGreaterThan(Double score);
+    List<HospitalScore> findAllByPediatricScoreGreaterThan(Double score);
 }
