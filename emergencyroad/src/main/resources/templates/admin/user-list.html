@@ -3,71 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <title>관리자 페이지</title>
-<!--    <style>-->
-<!--        /* 전체 화면 및 배경 설정 */-->
-<!--        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; display: flex; }-->
+    <style>
+        /* 1. 폰트 및 배경: 팀 디자인처럼 세련된 폰트와 연한 회색 배경 적용 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f6f8; color: #1a1a1a; margin: 0; padding: 0; display: flex; height: 100vh; }
 
-<!--        /* 왼쪽 사이드바 (깔끔하게 메인 가기 버튼만 남김!) */-->
-<!--        .sidebar { width: 250px; min-height: 100vh; background-color: #343a40; color: white; padding: 20px; box-sizing: border-box; }-->
-<!--        .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 22px; border-bottom: 1px solid #4f5962; padding-bottom: 15px; }-->
-<!--        .home-btn { display: block; padding: 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; text-align: center; font-weight: bold; transition: background 0.3s; }-->
-<!--        .home-btn:hover { background-color: #0056b3; }-->
+        /* 2. 사이드바: 어두운 색을 버리고, 흰색 배경에 둥근 파란색 호버 메뉴로 앱 느낌 강조 */
+        .sidebar { width: 250px; min-height: 100vh; background-color: #ffffff; padding: 24px 20px; box-sizing: border-box; display: flex; flex-direction: column; border-right: 1px solid #ebeef2; }
+        .sidebar h2 { text-align: center; margin-top: 0; margin-bottom: 30px; font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .sidebar a { display: block; padding: 14px 20px; color: #505866; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 15px; transition: all 0.2s ease; margin-bottom: 8px; }
+        .sidebar a:hover { background-color: #f0f4ff; color: #2f6cf6; } /* 팀 앱의 '글쓰기' 파란색과 유사한 포인트 색상 */
 
-<!--        /* 오른쪽 메인 컨텐츠 영역 */-->
-<!--        .content { flex: 1; padding: 40px; }-->
-<!--        h1 { color: #333; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 30px; }-->
-<!--        h2 { color: #555; margin-top: 40px; font-size: 20px; border-left: 4px solid #007bff; padding-left: 10px; }-->
+        /* 3. 메인 컨텐츠 영역 */
+        .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; }
+        h1 { color: #1a1a1a; font-size: 26px; font-weight: 700; margin-top: 0; margin-bottom: 24px; }
+        h2 { color: #1a1a1a; margin-top: 40px; font-size: 18px; font-weight: 600; margin-bottom: 16px;}
 
-<!--        /* 테이블(표) 디자인 통일 */-->
-<!--        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; }-->
-<!--        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }-->
-<!--        th { background-color: #007bff; color: white; font-weight: bold; }-->
-<!--        tr:hover { background-color: #f8f9fa; }-->
+        /* 4. 대시보드 카드: 팀 앱의 게시글/병원 목록 카드와 똑같은 흰색+둥근 모서리+옅은 테두리 */
+        .dashboard-cards { display: flex; gap: 20px; }
+        .card { flex: 1; background-color: #ffffff; padding: 28px 24px; border-radius: 16px; border: 1px solid #ebeef2; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .card h3 { margin: 0 0 12px 0; color: #8b95a1; font-size: 15px; font-weight: 600; }
+        .card .number { font-size: 36px; font-weight: 700; color: #2f6cf6; margin: 0; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(47, 108, 246, 0.08); border-color: #2f6cf6; }
 
-<!--        /* 링크 및 버튼 디자인 */-->
-<!--        a.post-link { color: #007bff; text-decoration: none; font-weight: bold; }-->
-<!--        a.post-link:hover { text-decoration: underline; }-->
-<!--        button { cursor: pointer; border: none; background: none; font-weight: bold; font-size: 14px; transition: transform 0.2s; }-->
-<!--        button:hover { transform: scale(1.1); }-->
-<!--    </style>-->
+        /* 5. 테이블(표): 투박한 파란색 헤더를 버리고, 연한 회색 헤더와 흰색 본문으로 모던하게 변경 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: #ffffff; border-radius: 16px; border: 1px solid #ebeef2; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        th, td { padding: 16px; text-align: center; border-bottom: 1px solid #ebeef2; font-size: 14px; color: #333d4b; }
+        th { background-color: #f9fafb; color: #6b7684; font-weight: 600; font-size: 13px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8f9fa; }
+
+        /* 6. 링크 및 상태 텍스트 */
+        a.post-link { color: #2f6cf6; text-decoration: none; font-weight: 600; }
+        a.post-link:hover { text-decoration: underline; }
+        .deleted-text { color: #8b95a1; font-weight: 600; }
+
+        /* 7. 버튼(삭제/탈퇴): 위험한 액션은 빨간색 배경의 귀여운 둥근(Pill) 스타일 버튼으로! */
+        button { cursor: pointer; border: none; background-color: #f2f4f6; color: #505866; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        form button[type="submit"] { background-color: #fee2e2; color: #ef4444; } /* 빨간색 경고 버튼 */
+        form button[type="submit"]:hover { background-color: #fecaca; }
+    </style>
 </head>
 <body>
 
 <div class="sidebar">
     <h2>관리자 시스템</h2>
     <a th:href="@{/admin}">📊 대시보드 (메인)</a>
+    <a th:href="@{/admin/users}">👥 회원 관리</a>
+    <a th:href="@{/admin/posts}">📝 커뮤니티 관리</a>
+    <a th:href="@{/admin/reports}">신고된 게시글/댓글 관리</a>
 </div>
 
-<h1>회원 관리</h1>
+<div class="main-content">
+    <h1>회원 관리</h1>
 
-<table>
-    <thead>
-    <tr>
-        <th>번호(ID)</th>
-        <th>아이디</th>
-        <th>닉네임</th>
-        <th>권한</th>
-        <th>가입일</th>
-        <th>관리</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="user : ${userList}">
-<!--        <td th:text="${user.id}">1</td>-->
-        <td th:text="${user.userName}">testUser</td>
-        <td th:text="${user.nickname}">홍길동</td>
-        <td th:text="${user.role}">USER</td>
-        <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-11</td>
-        <td th:text="${user.}">신고 여부</td>
-        <td>
-            <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post"
-                  onsubmit="return confirm('정말 이 회원을 강제 탈퇴 처리하시겠습니까?');">
-                <button type="submit" style="color: red; cursor: pointer;">탈퇴</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+    <table>
+        <thead>
+        <tr>
+            <th>순번</th>
+            <th>아이디</th>
+            <th>닉네임</th>
+            <th>권한</th>
+            <th>가입일</th>
+<!--            <th>신고 누적</th>-->
+            <th>관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user, iterStat : ${userList}">
+            <td th:text="${iterStat.count}">1</td>
+            <td th:text="${user.userName}">testUser</td>
+            <td th:text="${user.nickname}">홍길동</td>
+            <td th:text="${user.role}">USER</td>
+            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2026-05-11</td>
+
+<!--            <td>-->
+<!--                <span th:if="${user.reportCount != null and user.reportCount > 0}" style="color: red; font-weight: bold;">-->
+<!--                    🚨 <span th:text="${user.reportCount} + '회'">1회</span>-->
+<!--                </span>-->
+<!--                <span th:if="${user.reportCount == null or user.reportCount == 0}" style="color: gray;">0회</span>-->
+<!--            </td>-->
+
+            <td>
+                <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post"
+                      onsubmit="return confirm('정말 이 회원을 강제 탈퇴 처리하시겠습니까? (DB에서 영구 삭제됩니다)');">
+                    <button type="submit" style="color: red;">탈퇴</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
 </body>
 </html>
