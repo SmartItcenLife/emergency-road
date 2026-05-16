@@ -2,7 +2,7 @@ package com.itcen.emergencyroad.recommend.service;
 
 import com.itcen.emergencyroad.findpath.dto.LocationRequestDto;
 import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
-import com.itcen.emergencyroad.findpath.service.PathService;
+import com.itcen.emergencyroad.findpath.service.cacaoService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.recommend.dto.HospitalRankingResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
@@ -23,7 +23,7 @@ public class HospitalRecommendationService {
     private final HospitalScoreRepository hospitalScoreRepository;
 
     // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
-    private final PathService pathService;
+    private final cacaoService cacaoService;
 
     // 스케줄러에서 호출되는 전체 점수 갱신 로직
     // 모든 병원의 기본 점수를 미리 계산해서 DB에 저장하는 역할
@@ -63,7 +63,7 @@ public class HospitalRecommendationService {
         }
         // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출)
         List<PathResponseDto> paths =
-                pathService.findHospitalsWithDistance(
+                cacaoService.findHospitalsWithDistance(
                         new LocationRequestDto(lat, lon), hospitals);
 
         // 3. 병원 ID 기준 빠른 조회를 위한 Map 생성
