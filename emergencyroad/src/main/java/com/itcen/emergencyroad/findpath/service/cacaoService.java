@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service // 비즈니스 로직을 수행한다는 어노테이션
 @RequiredArgsConstructor // 의존성 주입. 생성자를 만들어준다.
-public class PathService {
+public class cacaoService {
     // RequiredArgsConstructor 어노테이션 하고 내가 필요한 객체 선언하면 자동으로 생성자 만들어짐.
     // 미리 만들어둔 객체를 가져다 꽂는 것.
     private final HospitalRepository hospitalRepository;
