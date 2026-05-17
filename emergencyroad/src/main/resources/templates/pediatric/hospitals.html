@@ -410,6 +410,73 @@
             border-radius: 8px;
             border: 1px solid #e5e7eb;
         }
+        .detail-resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .detail-resource {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .detail-resource-name {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .detail-resource-value {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .detail-capability-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .detail-capability {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .capability-badge {
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .capability-available {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .capability-unavailable {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .capability-unknown {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .detail-message {
+            margin-top: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>

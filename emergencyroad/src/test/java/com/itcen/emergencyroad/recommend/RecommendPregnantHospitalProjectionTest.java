@@ -87,7 +87,7 @@ public class RecommendPregnantHospitalProjectionTest {
 
         assertThat(score.getPregnantTags())
                 .contains("분만가능")
-                .contains("NICU보유")
+                .contains("NICU만석")
                 .contains("분만실여유")
                 .contains("산과수술");
     }
