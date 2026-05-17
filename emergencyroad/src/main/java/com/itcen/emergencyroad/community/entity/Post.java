@@ -45,6 +45,10 @@ public class Post extends BaseEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
+    public void delete(){
+        this.isDeleted = true; // Soft Delete
+    }
+
     public static Post create(User user, Hospital hospital, String title, String content){
         Post post = new Post();
         post.user = user;
@@ -60,7 +64,4 @@ public class Post extends BaseEntity {
         this.content = content;
     }
 
-    public void delete(){
-      this.isDeleted = true; // Soft Delete
-    }
 }
