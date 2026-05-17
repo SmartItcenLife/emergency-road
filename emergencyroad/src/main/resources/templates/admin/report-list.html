@@ -2,7 +2,47 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>관리자 페이지</title>
+    <style>
+        /* 1. 폰트 및 배경: 팀 디자인처럼 세련된 폰트와 연한 회색 배경 적용 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f6f8; color: #1a1a1a; margin: 0; padding: 0; display: flex; height: 100vh; }
+
+        /* 2. 사이드바: 어두운 색을 버리고, 흰색 배경에 둥근 파란색 호버 메뉴로 앱 느낌 강조 */
+        .sidebar { width: 250px; min-height: 100vh; background-color: #ffffff; padding: 24px 20px; box-sizing: border-box; display: flex; flex-direction: column; border-right: 1px solid #ebeef2; }
+        .sidebar h2 { text-align: center; margin-top: 0; margin-bottom: 30px; font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .sidebar a { display: block; padding: 14px 20px; color: #505866; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 15px; transition: all 0.2s ease; margin-bottom: 8px; }
+        .sidebar a:hover { background-color: #f0f4ff; color: #2f6cf6; } /* 팀 앱의 '글쓰기' 파란색과 유사한 포인트 색상 */
+
+        /* 3. 메인 컨텐츠 영역 */
+        .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; }
+        h1 { color: #1a1a1a; font-size: 26px; font-weight: 700; margin-top: 0; margin-bottom: 24px; }
+        h2 { color: #1a1a1a; margin-top: 40px; font-size: 18px; font-weight: 600; margin-bottom: 16px;}
+
+        /* 4. 대시보드 카드: 팀 앱의 게시글/병원 목록 카드와 똑같은 흰색+둥근 모서리+옅은 테두리 */
+        .dashboard-cards { display: flex; gap: 20px; }
+        .card { flex: 1; background-color: #ffffff; padding: 28px 24px; border-radius: 16px; border: 1px solid #ebeef2; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .card h3 { margin: 0 0 12px 0; color: #8b95a1; font-size: 15px; font-weight: 600; }
+        .card .number { font-size: 36px; font-weight: 700; color: #2f6cf6; margin: 0; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(47, 108, 246, 0.08); border-color: #2f6cf6; }
+
+        /* 5. 테이블(표): 투박한 파란색 헤더를 버리고, 연한 회색 헤더와 흰색 본문으로 모던하게 변경 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: #ffffff; border-radius: 16px; border: 1px solid #ebeef2; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        th, td { padding: 16px; text-align: center; border-bottom: 1px solid #ebeef2; font-size: 14px; color: #333d4b; }
+        th { background-color: #f9fafb; color: #6b7684; font-weight: 600; font-size: 13px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8f9fa; }
+
+        /* 6. 링크 및 상태 텍스트 */
+        a.post-link { color: #2f6cf6; text-decoration: none; font-weight: 600; }
+        a.post-link:hover { text-decoration: underline; }
+        .deleted-text { color: #8b95a1; font-weight: 600; }
+
+        /* 7. 버튼(삭제/탈퇴): 위험한 액션은 빨간색 배경의 귀여운 둥근(Pill) 스타일 버튼으로! */
+        button { cursor: pointer; border: none; background-color: #f2f4f6; color: #505866; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        form button[type="submit"] { background-color: #fee2e2; color: #ef4444; } /* 빨간색 경고 버튼 */
+        form button[type="submit"]:hover { background-color: #fecaca; }
+    </style>
 </head>
 <body>
 
@@ -11,70 +51,88 @@
     <a th:href="@{/admin}">📊 대시보드 (메인)</a>
     <a th:href="@{/admin/users}">👥 회원 관리</a>
     <a th:href="@{/admin/posts}">📝 커뮤니티 관리</a>
-    <a th:href="@{/admin/reports}">신고된 게시글/댓글 관리</a>
-    <a href="#">💬 실시간 채팅 관리</a>
+    <a th:href="@{/admin/reports}">🚨 신고된 게시글/댓글 관리</a>
 </div>
 
-<h1>🚨 신고 관리 센터</h1>
+<div class="main-content">
+    <h1>🚨 신고 관리 센터</h1>
 
-<div class="report-section">
-    <h2>📌 신고된 게시글 목록</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>신고번호</th>
-            <th>신고자</th>
-            <th>대상 게시글(ID)</th>
-            <th>신고사유</th>
-            <th>신고일시</th>
-            <th>관리</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="report : ${reportList}" th:if="${report.targetType.name() == 'POST'}">
-            <td th:text="${report.id}">1</td>
+    <div class="report-section">
+        <h2>📌 신고된 게시글 목록</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>신고번호</th>
+                <th>신고자</th>
+                <th>대상 게시글</th>
+                <th>신고사유</th>
+                <th>신고일시</th>
+                <th>상태</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report, iterStat : ${postReportList}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${report.reporterNickname}">신고왕</td>
+                <td>
+                    <a class="post-link"
+                       th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${report.hpid}, postId=${report.targetId})}"
+                       th:text="'게시글 #' + ${report.targetId}">글 보러가기</a>
+                </td>
+                <td th:text="${report.reason}" style="font-weight: bold; color: darkred;"></td>
+                <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <span th:if="${report.isTargetDeleted}" style="color: gray; font-weight: bold;">🔒 숨김 처리됨</span>
+                    <span th:if="${!report.isTargetDeleted}" style="color: green;">✅ 정상 게시 중</span>
+                </td>
+                <td>
+                    <form th:action="@{/admin/reports/{reportId}/delete(reportId=${report.id})}" method="post" th:if="${!report.isTargetDeleted}">
+                        <button type="submit" onclick="return confirm('정말로 강제 삭제하시겠습니까?')">강제삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-            <td th:text="${report.reporterNickname}">신고왕</td>
-
-            <td>
-                <a class="post-link" th:href="@{/admin/posts/{id}(id=${report.targetId})}"
-                   th:text="'게시글 #' + ${report.targetId}">글 보러가기</a>
-            </td>
-
-            <td th:text="${report.reason}" style="font-weight: bold; color: darkred;"></td>
-
-            <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-
-            <td><button style="color: red;">강제삭제</button></td>
-        </tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="report-section">
-    <h2>💬 신고된 댓글 목록</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>신고번호</th>
-            <th>신고자</th>
-            <th>대상 댓글(ID)</th>
-            <th>신고일시</th>
-            <th>관리</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="report : ${reportList}" th:if="${report.targetType.name() == 'COMMENT'}">
-            <td th:text="${report.id}">2</td>
-            <td th:text="${report.reporterNickname}">정의사도</td>
-            <td>
-                <span th:text="'댓글 #' + ${report.targetId}">댓글 번호</span>
-            </td>
-            <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-            <td><button style="color: red;">강제삭제</button></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="report-section">
+        <h2>💬 신고된 댓글 목록</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>신고번호</th>
+                <th>신고자</th>
+                <th>대상 댓글</th>
+                <th>신고사유</th> <th>신고일시</th>
+                <th>상태</th>
+                <th>관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="report, iterStat : ${commentReportList}">
+                <td th:text="${iterStat.count}">1</td>
+                <td th:text="${report.reporterNickname}">정의사도</td>
+                <td>
+                    <a class="post-link"
+                       th:href="@{/hospitals/{hpid}/posts/{postId}(hpid=${report.hpid}, postId=${report.postId})}"
+                       th:text="'댓글 #' + ${report.targetId}">댓글 보러가기</a>
+                </td>
+                <td th:text="${report.reason}" style="font-weight: bold; color: darkred;"></td>
+                <td th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td>
+                    <span th:if="${report.isTargetDeleted}" style="color: gray; font-weight: bold;">🔒 숨김 처리됨</span>
+                    <span th:if="${!report.isTargetDeleted}" style="color: green;">✅ 정상 게시 중</span>
+                </td>
+                <td>
+                    <form th:action="@{/admin/reports/{reportId}/delete(reportId=${report.id})}" method="post" th:if="${!report.isTargetDeleted}">
+                        <button type="submit" onclick="return confirm('정말로 강제 삭제하시겠습니까?')">강제삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 </body>

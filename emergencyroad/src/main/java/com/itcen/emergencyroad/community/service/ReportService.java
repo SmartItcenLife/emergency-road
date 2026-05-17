@@ -17,7 +17,7 @@ public class ReportService {
 
     // 신고받은 게시글, 댓글 DB에 저장하기
     @Transactional
-    public void createReport(Long reporterId, ReportTargetType targetType, Long targetId, String reason){
+    public void createReport(Long reporterId, ReportTargetType targetType, Long targetId, String reason, String hpid){
         boolean alreadyReported = reportRepository.existsByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId);
         if(alreadyReported){
             throw new IllegalArgumentException("이미 신고가 접수된 항목입니다.");
@@ -26,7 +26,7 @@ public class ReportService {
         User reporter = userRepository.findById(reporterId)
                 .orElseThrow(()->new IllegalArgumentException("해당 유저가 존재하지 않습니다"));
 
-        Report newReport = Report.createReport(reporter, targetType, targetId, reason); // 신고자 이름, 신고 대상을 적음
+        Report newReport = Report.createReport(reporter, targetType, targetId, reason, hpid); // 신고자 이름, 신고 대상을 적음
 
         reportRepository.save(newReport); // jpa가 제공하는 메서드
     }

@@ -2,7 +2,7 @@ package com.itcen.emergencyroad.recommend.service;
 
 import com.itcen.emergencyroad.findpath.dto.LocationRequestDto;
 import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
-import com.itcen.emergencyroad.findpath.service.PathService;
+import com.itcen.emergencyroad.findpath.service.TmapService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
@@ -28,7 +28,7 @@ public class HospitalRecommendationService {
     private final HospitalScoreRepository hospitalScoreRepository;
     private final PediatricCongestionCalculator pediatricCongestionCalculator;
     // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
-    private final PathService pathService;
+    private final TmapService tmapService;
 
     @Transactional
     public void calculateAllHospitalScores() {
@@ -97,7 +97,7 @@ public class HospitalRecommendationService {
 
         // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출)
         List<PathResponseDto> paths =
-                pathService.findHospitalsWithDistance(
+                tmapService.findHospitalsWithDistanceTmap(
                         new LocationRequestDto(lat, lon), hospitals);
 
         // 3. 병원 ID 기준 빠른 조회를 위한 Map 생성

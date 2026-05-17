@@ -58,6 +58,15 @@ public class PostController {
       Model model,
       HttpSession session) {
     PostResponseDto post = postService.getPost(postId);
+
+    // 관리자 하이패스 & 일반 유저 차단
+    String loginRole = (String) session.getAttribute("loginRole");
+
+    // 만약 게시글이 삭제 상태(isDeleted)인데, 로그인한 사람이 관리자(ADMIN)가 아니라면 접근 차단
+    if (post.isDeleted() && !"ADMIN".equals(loginRole)) {
+      throw new IllegalArgumentException("삭제된 게시글입니다."); // 또는 에러 페이지로 리다이렉트
+    }
+
     Long loginUserId = (Long) session.getAttribute("loginUser");
     List<CommentResponseDto> comments = commentService.getComments(postId, loginUserId);
 
@@ -148,7 +157,7 @@ public class PostController {
 
     Long reporterId = (Long) session.getAttribute("loginUser");
 
-    reportService.createReport(reporterId, targetType, postId, reason);
+    reportService.createReport(reporterId, targetType, postId, reason, hpid);
 
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }

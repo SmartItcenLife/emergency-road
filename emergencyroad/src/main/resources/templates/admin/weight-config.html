@@ -1,0 +1,163 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>가중치 설정 관리</title>-->
+<!--&lt;!&ndash;    <style>&ndash;&gt;-->
+<!--&lt;!&ndash;        body { font-family: 'Arial', sans-serif; background-color: #f4f7f6; padding: 20px; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }&ndash;&gt;-->
+<!--&lt;!&ndash;        h1 { color: #333; text-align: center; }&ndash;&gt;-->
+
+<!--&lt;!&ndash;        /* 탭 스타일 */&ndash;&gt;-->
+<!--&lt;!&ndash;        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #ddd; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .tab-button { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; font-size: 16px; background: none; border: none; outline: none; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .tab-button.active { color: #007bff; border-bottom: 3px solid #007bff; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .tab-content { display: none; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .tab-content.active { display: block; }&ndash;&gt;-->
+
+<!--&lt;!&ndash;        /* 폼 스타일 */&ndash;&gt;-->
+<!--&lt;!&ndash;        .form-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #eee; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .form-group label { font-weight: bold; color: #555; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .form-group input { width: 100px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; text-align: right; font-size: 16px; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .section-title { margin-top: 30px; margin-bottom: 15px; color: #0056b3; font-size: 18px; border-left: 4px solid #0056b3; padding-left: 10px; }&ndash;&gt;-->
+
+<!--&lt;!&ndash;        .submit-btn { width: 100%; padding: 15px; font-size: 18px; font-weight: bold; color: white; background-color: #28a745; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .submit-btn:hover { background-color: #218838; }&ndash;&gt;-->
+
+<!--&lt;!&ndash;        /* 알림 메시지 */&ndash;&gt;-->
+<!--&lt;!&ndash;        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }&ndash;&gt;-->
+<!--&lt;!&ndash;        .alert-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }&ndash;&gt;-->
+<!--&lt;!&ndash;    </style>&ndash;&gt;-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<div class="container">-->
+<!--    <h1>⚙️ 추천 알고리즘 가중치 설정</h1>-->
+
+<!--    <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>-->
+<!--    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>-->
+
+<!--    <div class="tabs">-->
+<!--        <button class="tab-button active" onclick="openTab('general')">일반 응급 설정</button>-->
+<!--        <button class="tab-button" onclick="openTab('pregnant')">임산부 응급 설정</button>-->
+<!--    </div>-->
+
+<!--    <div id="general" class="tab-content active">-->
+<!--        <form th:action="@{/admin/weights/general}" method="post">-->
+<!--            <h3 class="section-title">기본 가중치</h3>-->
+<!--            <div class="form-group">-->
+<!--                <label>응급실 (Emergency Room)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="emergencyRoomWeight" th:value="${generalWeight.emergencyRoomWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>중증질환 (Severe Disease)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="severeDiseaseWeight" th:value="${generalWeight.severeDiseaseWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>중환자실 (ICU)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="icuWeight" th:value="${generalWeight.icuWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>장비 (Equipment)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="equipmentWeight" th:value="${generalWeight.equipmentWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>응급실 혼잡도 (Congestion)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="congestionWeight" th:value="${generalWeight.congestionWeight}" required>-->
+<!--            </div>-->
+
+<!--            <h3 class="section-title">보너스 점수 (Bonus)</h3>-->
+<!--            <div class="form-group">-->
+<!--                <label>ECMO 장비 보너스</label>-->
+<!--                <input type="number" step="0.1" min="0" name="ecmoBonus" th:value="${generalWeight.ecmoBonus}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>CRRT 장비 보너스</label>-->
+<!--                <input type="number" step="0.1" min="0" name="crrtBonus" th:value="${generalWeight.crrtBonus}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>혈관조영 보너스</label>-->
+<!--                <input type="number" step="0.1" min="0" name="angioBonus" th:value="${generalWeight.angioBonus}" required>-->
+<!--            </div>-->
+<!--            <button type="submit" class="submit-btn" onclick="return confirm('일반 응급 가중치를 변경하시겠습니까?')">일반 응급 가중치 저장</button>-->
+<!--        </form>-->
+<!--    </div>-->
+
+<!--    <div id="pregnant" class="tab-content">-->
+<!--        <form th:action="@{/admin/weights/pregnant}" method="post">-->
+<!--            <h3 class="section-title">기본 & 구조 가중치</h3>-->
+<!--            <div class="form-group">-->
+<!--                <label>분만 가능 (Delivery Available)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="deliveryAvailableWeight" th:value="${pregnantWeight.deliveryAvailableWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>산과 수술 (Obstetric Surgery)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="obstetricSurgeryWeight" th:value="${pregnantWeight.obstetricSurgeryWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>신생아중환자실 (NICU 보유)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="nicuAvailableWeight" th:value="${pregnantWeight.nicuAvailableWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>수술실 기준 개수 (Threshold)</label>-->
+<!--                <input type="number" step="1" min="0" name="operatingRoomThreshold" th:value="${pregnantWeight.operatingRoomThreshold}" required>-->
+<!--            </div>-->
+
+<!--            <h3 class="section-title">실시간 상태 가중치</h3>-->
+<!--            <div class="form-group">-->
+<!--                <label>분만실 여유 (Delivery Room)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="deliveryRoomAvailableWeight" th:value="${pregnantWeight.deliveryRoomAvailableWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>응급실 여유 (Emergency Room)</label>-->
+<!--                <input type="number" step="0.1" min="0" name="emergencyRoomAvailableWeight" th:value="${pregnantWeight.emergencyRoomAvailableWeight}" required>-->
+<!--            </div>-->
+
+<!--            <h3 class="section-title">장비 및 보너스 가중치</h3>-->
+<!--            <div class="form-group">-->
+<!--                <label>인큐베이터 가점</label>-->
+<!--                <input type="number" step="0.1" min="0" name="incubatorWeight" th:value="${pregnantWeight.incubatorWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>조산아 호흡기 가점</label>-->
+<!--                <input type="number" step="0.1" min="0" name="prematureVentilatorWeight" th:value="${pregnantWeight.prematureVentilatorWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>수술실 다수 보너스</label>-->
+<!--                <input type="number" step="0.1" min="0" name="operatingRoomBonusWeight" th:value="${pregnantWeight.operatingRoomBonusWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>NICU 병상 1개당 배율</label>-->
+<!--                <input type="number" step="0.1" min="0" name="nicuScaleWeight" th:value="${pregnantWeight.nicuScaleWeight}" required>-->
+<!--            </div>-->
+<!--            <div class="form-group">-->
+<!--                <label>NICU 스케일 최대 점수</label>-->
+<!--                <input type="number" step="0.1" min="0" name="maxNicuScaleScore" th:value="${pregnantWeight.maxNicuScaleScore}" required>-->
+<!--            </div>-->
+<!--            <button type="submit" class="submit-btn" onclick="return confirm('임산부 응급 가중치를 변경하시겠습니까?')">임산부 응급 가중치 저장</button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<script>-->
+<!--    function openTab(tabName) {-->
+<!--        // 모든 탭 내용 숨기기-->
+<!--        var i, tabcontent, tablinks;-->
+<!--        tabcontent = document.getElementsByClassName("tab-content");-->
+<!--        for (i = 0; i < tabcontent.length; i++) {-->
+<!--            tabcontent[i].style.display = "none";-->
+<!--        }-->
+<!--        // 모든 탭 버튼 색상 초기화-->
+<!--        tablinks = document.getElementsByClassName("tab-button");-->
+<!--        for (i = 0; i < tablinks.length; i++) {-->
+<!--            tablinks[i].className = tablinks[i].className.replace(" active", "");-->
+<!--        }-->
+<!--        // 선택한 탭만 보여주고 색상 강조하기-->
+<!--        document.getElementById(tabName).style.display = "block";-->
+<!--        event.currentTarget.className += " active";-->
+<!--    }-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->

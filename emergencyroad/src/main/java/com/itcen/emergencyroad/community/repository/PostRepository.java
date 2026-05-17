@@ -14,4 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Query("select p from Post p where p.hospital.hpid = :hpid and p.isDeleted = false " +
   "and (p.title like %:keyword% or p.content like %:keyword%)")
   Page<Post> searchByHospitalId(@Param("hpid") String hpid, @Param("keyword") String keyword, Pageable pageable);
+
+  //오늘 생성된 게시글 세기 위한 쿼리
+  long countByCreatedAtAfter(java.time.LocalDateTime startOfDay);
 }
