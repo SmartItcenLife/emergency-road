@@ -59,53 +59,52 @@ public class AdminService {
     // 신고받은 게시글, 댓글 관리하기
     // AdminService.java 내부
     // 신고받은 게시글, 댓글 관리하기 (상태값 포함)
-    public List<ReportResponseDTO> findAllReports(){
+    public List<ReportResponseDTO> findAllReports() {
         List<Report> reports = reportRepository.findAll();
 
         return reports.stream().map(report -> {
             boolean isDeleted = false;
+            Long postId = null;
+            String hpid = report.getHpid(); // 기본값
 
-            // 대상이 게시글이면 PostRepository에서 삭제 여부 확인
             if (report.getTargetType() == ReportTargetType.POST) {
-                isDeleted = postRepository.findById(report.getTargetId())
-                        .map(Post::isDeleted)
-                        .orElse(true); // 만약 게시글이 아예 DB에 없으면 삭제된 것으로 간주
+                Post post = postRepository.findById(report.getTargetId()).orElse(null);
+                isDeleted = (post == null || post.isDeleted());
+                postId = report.getTargetId();
+                if (post != null) hpid = post.getHospital().getHpid(); // 🔥 Post에서 확실하게 hpid 가져오기
             }
-            // 대상이 댓글이면 CommentRepository에서 삭제 여부 확인
             else if (report.getTargetType() == ReportTargetType.COMMENT) {
-                isDeleted = commentRepository.findById(report.getTargetId())
-                        .map(Comment::isDeleted)
-                        .orElse(true);
+                Comment comment = commentRepository.findById(report.getTargetId()).orElse(null);
+                isDeleted = (comment == null || comment.isDeleted());
+                if (comment != null && comment.getPost() != null) {
+                    postId = comment.getPost().getId();
+                    hpid = comment.getPost().getHospital().getHpid(); // 🔥 Comment의 원본 Post에서 hpid 가져오기
+                }
             }
 
-            // ⭐ DTO를 만들 때 방금 확인한 isDeleted 값을 같이 넣어서 포장해줍니다!
-            return new ReportResponseDTO(report, isDeleted);
-
+            // 변경된 생성자에 맞춰 파라미터 4개를 던져줍니다.
+            return new ReportResponseDTO(report, isDeleted, postId, hpid);
         }).collect(Collectors.toList());
     }
+
     @Transactional
     public void deleteReportedTarget(Long reportId) {
-        // 1. 접수된 신고 내역(Report) 찾기
         Report report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 신고 내역을 찾을 수 없습니다."));
 
-        // 2. 신고 대상이 '게시글(POST)'인 경우 -> Post.java의 delete() 호출
         if (report.getTargetType() == ReportTargetType.POST) {
             Post post = postRepository.findById(report.getTargetId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
-
-            post.delete(); // 상태를 isDeleted = true로 변경하여 숨김 처리!
+            post.delete();
         }
-        // 3. 신고 대상이 '댓글(COMMENT)'인 경우 -> Comment.java의 delete() 호출
         else if (report.getTargetType() == ReportTargetType.COMMENT) {
             Comment comment = commentRepository.findById(report.getTargetId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 댓글을 찾을 수 없습니다."));
-
-            comment.delete(); // 상태를 isDeleted = true로 변경하여 숨김 처리!
+            comment.delete();
         }
 
-        // 4. 조치가 끝난 '신고 접수증'은 관리자 목록에서 안 보이게 삭제
-        reportRepository.delete(report);
+        // 🔥 원래 있던 reportRepository.delete(report); 코드를 과감하게 지워주세요!!
+        // 이걸 지워야 관리자 목록에 "🔒 숨김 처리됨" 상태로 예쁘게 남습니다.
     }
 
     @Transactional(readOnly = true)

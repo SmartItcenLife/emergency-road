@@ -17,15 +17,17 @@ public class ReportResponseDTO {
     private String hpid;
 
     private boolean isTargetDeleted;
+    private Long postId;
 
-    public ReportResponseDTO(Report report, boolean isTargetDeleted) {
+    public ReportResponseDTO(Report report, boolean isTargetDeleted, Long postId, String hpid) {
         this.id = report.getId();
         this.reporterNickname = report.getReporter().getNickname();
         this.targetType = report.getTargetType();
         this.targetId = report.getTargetId();
         this.createdAt = report.getCreatedAt();
         this.reason = report.getReason();
-        this.hpid = report.getHpid();
+        this.hpid = hpid;
         this.isTargetDeleted = isTargetDeleted;
+        this.postId = postId;
     }
 }
