@@ -1,6 +1,7 @@
 package com.itcen.emergencyroad.recommend.controller;
 
 import com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto;
+import com.itcen.emergencyroad.recommend.dto.PregnantHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
 import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,13 @@ public class RecommendController {
         }else if(category == HospitalCategory.GENERAL){
             //TODO
         }else if(category == HospitalCategory.PREGNANT) {
-            //TODO
+            List<PregnantHospitalResponseDto> pregnantRankings =
+                    recommendationService.getTop3Pregnant(lat, lon);
+
+            model.addAttribute("rankings", pregnantRankings);
+            model.addAttribute("userLat", lat);           // 카카오 길찾기 시작점 좌표
+            model.addAttribute("userLon", lon);
+            return "recommend/result-pregnant";
         }
         return "result-pediatric";
     }

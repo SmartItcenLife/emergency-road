@@ -154,7 +154,7 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
 
                 // 2. 가중치 차등 부여 (여유로울수록 높은 점수)
                 if (percent >= 50.0) { // '여유' 상태
-                    score += config.getPediatricEmergencyWeight() * 4; // 가중치 1.5배 보너스
+                    score += config.getPediatricEmergencyWeight() * 1.5; // 가중치 1.5배 보너스
                     tags.append("소아병상여유 ");
                 }
                 else if (percent >= 20.0) { // '보통' 상태
