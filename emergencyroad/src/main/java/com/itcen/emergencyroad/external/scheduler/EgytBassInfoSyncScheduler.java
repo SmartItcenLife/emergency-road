@@ -25,12 +25,8 @@ public class EgytBassInfoSyncScheduler {
     private final EgytBassInfoSyncService egytBassInfoSyncService;//공공 api 호출 메서드를 담고 있는 서비스
     private final HospitalSyncService hospitalSyncService;
 
-    //새벽 3시 하루 1회
+    //새벽 3시 하루 1회 -> 변하지 않는 데이터
 //    @Scheduled(cron = "0 0 3 * * *")
-//    @Scheduled(
-//            initialDelay = 6000,
-//            fixedDelay = 3000000
-//    )
     public void sync() {
 
         log.info("EgytBassInfo API 가져오기 시작");
