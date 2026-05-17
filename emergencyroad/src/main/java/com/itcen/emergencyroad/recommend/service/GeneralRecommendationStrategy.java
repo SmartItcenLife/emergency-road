@@ -68,8 +68,8 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
             System.out.println("realtime = " + generalRealTimeAndStandard);
 
             if (generalRealTimeAndStandard != null) {
-                System.out.println("hvec(가용 응급실 수) = " + generalRealTimeAndStandard.getHvec());
-                System.out.println("hvs01(전체 응급실 수) = " + generalRealTimeAndStandard.getHvs01());
+                System.out.println("emergencyAvailableBeds(가용 응급실 수) = " + generalRealTimeAndStandard.getEmergencyAvailableBeds());
+                System.out.println("emergencyTotalBeds(전체 응급실 수) = " + generalRealTimeAndStandard.getEmergencyTotalBeds());
             }
 
             // 기존 점수 조회
@@ -120,8 +120,8 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         System.out.println("realtime = " + realtime);
         // 1. FILTER
         if (realtime == null
-                || realtime.getHvec() == null
-                || realtime.getHvec() <= 0) {
+                || realtime.getEmergencyAvailableBeds() == null
+                || realtime.getEmergencyAvailableBeds() <= 0) {
             System.out.println("FILTER 걸림 - 응급실 만석");
             scoreEntity.updateGeneralScore(0.0, "응급실 만석");
             return;
@@ -171,42 +171,42 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         // 4. ICU
         int icuCount = 0;
 
-        if (realtime.getHvicc() != null
-                && realtime.getHvicc() > 0) icuCount++;
+        if (realtime.getIcuAvailableBeds() != null
+                && realtime.getIcuAvailableBeds() > 0) icuCount++;
 
-        if (realtime.getHvcc() != null
-                && realtime.getHvcc() > 0) icuCount++;
+        if (realtime.getNeuroIcuAvailableBeds() != null
+                && realtime.getNeuroIcuAvailableBeds() > 0) icuCount++;
 
-        if (realtime.getHvccc() != null
-                && realtime.getHvccc() > 0) icuCount++;
+        if (realtime.getChestIcuAvailableBeds() != null
+                && realtime.getChestIcuAvailableBeds() > 0) icuCount++;
 
         score += icuCount * config.getIcuWeight();
         System.out.println("ICU 개수 = " + icuCount);
 
         // 5. 장비
         // CT
-        if (isAvailable(realtime.getHvctayn())) {
+        if (isAvailable(realtime.getCtAvailable())) {
             score += config.getEquipmentWeight();
             tags.append(" | CT");
         }
 
         // MRI
-        if (isAvailable(realtime.getHvmariayn())) {
+        if (isAvailable(realtime.getMriAvailable())) {
             score += config.getEquipmentWeight();
             tags.append(" | MRI");
         }
         // ECMO
-        if (isAvailable(realtime.getHvecmoayn())) {
+        if (isAvailable(realtime.getEcmoAvailable())) {
             score += config.getEcmoBonus();
             tags.append(" | ECMO");
         }
         // CRRT
-        if (isAvailable(realtime.getHvcrrtayn())) {
+        if (isAvailable(realtime.getCrrtAvailable())) {
             score += config.getCrrtBonus();
             tags.append(" | CRRT");
         }
         // 혈관조영
-        if (isAvailable(realtime.getHvangioayn())) {
+        if (isAvailable(realtime.getAngioAvailable())) {
             score += config.getAngioBonus();
             tags.append(" | 혈관조영");
         }
@@ -222,22 +222,22 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         System.out.println("혼잡도 점수 = " + congestionScore);
     }
 
-    //hvec = 실시간 가용 병상
-    //hperyn = 응급실 기준 병상 수 => 가용 병상 / 전체 응급 병상
+    //emergencyAvailableBeds = 실시간 가용 병상
+    //emergencyTotalBeds = 응급실 기준 병상 수 => 가용 병상 / 전체 응급 병상
     //혼잡도 계산
     private double calculateCongestionScore(
             GeneralRealTimeAndStandard realtime,
             WeightGeneralConfiguration config
     ) {
 
-        if (realtime.getHvs01() == null
-                || realtime.getHvs01() <= 0) {
+        if (realtime.getEmergencyTotalBeds() == null
+                || realtime.getEmergencyTotalBeds() <= 0) {
             return 0.0;
         }
 
         double ratio =
-                (double) realtime.getHvec()
-                        / realtime.getHvs01();
+                (double) realtime.getEmergencyAvailableBeds()
+                        / realtime.getEmergencyTotalBeds();
 
         if (ratio > 0.5) {
             return config.getCongestionWeight();
