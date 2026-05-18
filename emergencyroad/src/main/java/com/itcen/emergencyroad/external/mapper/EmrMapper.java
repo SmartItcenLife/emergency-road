@@ -213,43 +213,52 @@ public class EmrMapper {
         return GeneralRealTimeAndStandard.builder()
                 .hospital(hospital)
                 // --- 병상 정보 ---
-                .hvec(dto.getHvec())
-                .hvs01(dto.getHvs01())
-                .hvicc(dto.getHvicc())
-                .hvs17(dto.getHvs17())
-                .hvcc(dto.getHvcc())
-                .hvs11(dto.getHvs11())
-                .hvccc(dto.getHvccc())
-                .hvs16(dto.getHvs16())
-                // --- 응급실 장비 가용 여부 (추가됨) ---
-                .hvctayn(dto.getHvctayn())
-                .hvmariayn(dto.getHvmariayn())
-                .hvventiayn(dto.getHvventiayn())
-                .hvcrrtayn(dto.getHvcrrtayn())
-                .hvecmoayn(dto.getHvecmoayn())
-                .hvangioayn(dto.getHvangioayn())
+                .emergencyAvailableBeds(dto.getHvec())
+                .emergencyTotalBeds(dto.getHvs01())
+
+                .icuAvailableBeds(dto.getHvicc())
+                .icuTotalBeds(dto.getHvs17())
+
+                .neuroIcuAvailableBeds(dto.getHvcc())
+                .neuroIcuTotalBeds(dto.getHvs11())
+
+                .chestIcuAvailableBeds(dto.getHvccc())
+                .chestIcuTotalBeds(dto.getHvs16())
+
+                .ctAvailable(dto.getHvctayn())
+                .mriAvailable(dto.getHvmariayn())
+                .ventilatorAvailable(dto.getHvventiayn())
+                .crrtAvailable(dto.getHvcrrtayn())
+                .ecmoAvailable(dto.getHvecmoayn())
+                .angioAvailable(dto.getHvangioayn())
+
+                .recordedAt(parseDateTime(dto.getHvidate()))
                 .build();
     }
 
     public void updateGeneralEntity(GeneralRealTimeAndStandard entity, EmrDto dto) {
         if (dto == null) return;
 // --- 병상 정보 ---
-        entity.setHvec(dto.getHvec());
-        entity.setHvs01(dto.getHvs01());
-        entity.setHvicc(dto.getHvicc());
-        entity.setHvs17(dto.getHvs17());
-        entity.setHvcc(dto.getHvcc());
-        entity.setHvs11(dto.getHvs11());
-        entity.setHvccc(dto.getHvccc());
-        entity.setHvs16(dto.getHvs16());
+        entity.setEmergencyAvailableBeds(dto.getHvec());
+        entity.setEmergencyTotalBeds(dto.getHvs01());
 
-        // --- 응급실 장비 가용 여부 (추가됨) ---
-        entity.setHvctayn(dto.getHvctayn());
-        entity.setHvmariayn(dto.getHvmariayn());
-        entity.setHvventiayn(dto.getHvventiayn());
-        entity.setHvcrrtayn(dto.getHvcrrtayn());
-        entity.setHvecmoayn(dto.getHvecmoayn());
-        entity.setHvangioayn(dto.getHvangioayn());
+        entity.setIcuAvailableBeds(dto.getHvicc());
+        entity.setIcuTotalBeds(dto.getHvs17());
+
+        entity.setNeuroIcuAvailableBeds(dto.getHvcc());
+        entity.setNeuroIcuTotalBeds(dto.getHvs11());
+
+        entity.setChestIcuAvailableBeds(dto.getHvccc());
+        entity.setChestIcuTotalBeds(dto.getHvs16());
+
+        entity.setCtAvailable(dto.getHvctayn());
+        entity.setMriAvailable(dto.getHvmariayn());
+        entity.setVentilatorAvailable(dto.getHvventiayn());
+        entity.setCrrtAvailable(dto.getHvcrrtayn());
+        entity.setEcmoAvailable(dto.getHvecmoayn());
+        entity.setAngioAvailable(dto.getHvangioayn());
+
+        entity.setRecordedAt(parseDateTime(dto.getHvidate()));
     }
 
     // TODO

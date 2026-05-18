@@ -48,6 +48,8 @@ public class EmrDto {
     private String hvecmoayn;
     private String hvangioayn;
 
+    private String hvidate; // 입력일시
+
     // 중증 질환
     // 일반
     private String MKioskTy1; // 심근경색
