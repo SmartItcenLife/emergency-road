@@ -559,7 +559,7 @@
 
                             <!-- 임시 커뮤니티 페이지 입니다. -->
                             <a class="community-button"
-                               th:href="@{/community(hpid=${hospital.hpid})}"
+                               th:href="@{/hospitals/{hpid}/posts(hpid=${hospital.hpid})}"
                                aria-label="커뮤니티 이동">
                                 <img th:src="@{/images/community.svg}" class="community-icon-img" alt="커뮤니티">
                             </a>
