@@ -3,6 +3,8 @@ package com.itcen.emergencyroad.recommend.service;
 import com.itcen.emergencyroad.findpath.dto.LocationRequestDto;
 import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
 import com.itcen.emergencyroad.findpath.service.TmapService;
+import com.itcen.emergencyroad.findpath.service.cacaoService;
+import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
@@ -15,8 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +30,11 @@ public class HospitalRecommendationService {
     // 모든 추천 전략들을 주입받아서 확장 가능하게 만든 구조
     private final List<RecommendationStrategy> strategies;
     private final HospitalScoreRepository hospitalScoreRepository;
+    //혼잡도 계산
     private final PediatricCongestionCalculator pediatricCongestionCalculator;
     // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
     private final TmapService tmapService;
+    private final cacaoService cacaoService;
 
     @Transactional
     public void calculateAllHospitalScores() {
@@ -95,11 +101,12 @@ public class HospitalRecommendationService {
             hospitals.add(score.getHospital());
         }
 
-        // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출)
-        List<PathResponseDto> paths =
-                tmapService.findHospitalsWithDistanceTmap(
-                        new LocationRequestDto(lat, lon), hospitals);
+        // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출) 티맵
+//        List<PathResponseDto> paths =
+//                tmapService.findHospitalsWithDistanceTmap(
+//                        new LocationRequestDto(lat, lon), hospitals);
 
+        List<PathResponseDto> paths = cacaoService.findHospitalsWithDistance( new LocationRequestDto(lat, lon), hospitals);
         // 3. 병원 ID 기준 빠른 조회를 위한 Map 생성
         // O(N²) 방지 → O(1) 조회 구조로 개선
         Map<String, PathResponseDto> pathMap = new HashMap<>();
@@ -129,7 +136,7 @@ public class HospitalRecommendationService {
              * 카카오 모빌리티 성공
              */
             if (path != null) {
-
+                System.out.println("카카오 모빌리티 성공");
                 distance = path.getDistance();
                 duration = path.getDuration();
 
@@ -138,6 +145,7 @@ public class HospitalRecommendationService {
 
             //카카오 모빌리티 실패 fallback
             else {
+                System.out.println("카카오 모빌리티 실패 fallback");
                 // 위도/경도 없는 병원 제외
                 if (hospital.getLatitude() == null ||
                         hospital.getLongitude() == null) {
@@ -162,6 +170,22 @@ public class HospitalRecommendationService {
             // 일반 응급
             if (category == HospitalCategory.GENERAL) {
 
+                GeneralRealTimeAndStandard realtime = score.getGeneralRealTimeAndStandard();
+
+                Integer availableBed = Optional.ofNullable(realtime)
+                        .map(GeneralRealTimeAndStandard::getEmergencyAvailableBeds)
+                        .orElse(0);
+
+                Integer totalBed = Optional.ofNullable(realtime)
+                        .map(GeneralRealTimeAndStandard::getEmergencyTotalBeds)
+                        .orElse(0);
+
+                double percent = pediatricCongestionCalculator.getPercentage(availableBed, totalBed);
+                String label = pediatricCongestionCalculator.getLabel(availableBed, totalBed);
+
+                LocalDateTime recordedAt = Optional.ofNullable(realtime)
+                        .map(GeneralRealTimeAndStandard::getRecordedAt)
+                        .orElse(null);
                 result.add(
                         GeneralHospitalResponseDto.builder()
                                 .hospitalName(hospital.getHospitalName())
@@ -170,13 +194,20 @@ public class HospitalRecommendationService {
                                 .distance(distance)
                                 .duration(duration)
                                 .address(hospital.getAddress())
-                                .availableBedCount(
-                                        score.getGeneralRealTimeAndStandard()
-                                                .getEmergencyAvailableBeds()
-                                )
+
+                                .availableEmergencyBedCount(availableBed)
+                                .totalEmergencyBedCount(totalBed)
+
+                                .hospitalLatitude(hospital.getLatitude())
+                                .hospitalLongitude(hospital.getLongitude())
+                                .emergencyPhone(hospital.getEmergencyPhone())
+
+                                .recordedAt(recordedAt)
+
+                                .congestionLabel(label)
+                                .availableBedPercentage(percent)
                                 .tags(score.getGeneralTags())
-                                .build()
-                );
+                                .build());
             }
 
             //소아 응급
@@ -193,14 +224,14 @@ public class HospitalRecommendationService {
                 Integer total = Optional.ofNullable(standard)
                         .map(PediatricStandard::getPediatricBedStandard)
                         .orElse(0);
-                 String incubator = realtime != null ? realtime.getIncubatorResourceAvailable() : "N";
+                String incubator = realtime != null ? realtime.getIncubatorResourceAvailable() : "N";
 
                 Hospital h = score.getHospital();
-                Double latitude = Optional.ofNullable(h )
+                Double latitude = Optional.ofNullable(h)
                         .map(Hospital::getLatitude)
                         .orElse(0.0);
 
-                Double longitude = Optional.ofNullable(h )
+                Double longitude = Optional.ofNullable(h)
                         .map(Hospital::getLongitude)
                         .orElse(0.0);
 
@@ -338,7 +369,7 @@ public class HospitalRecommendationService {
                             .availablePediatricBedCount(pDto.getAvailablePediatricBedCount())
                             // ResponseDto에 totalBedCount가 없다면 Score 엔티티 등에서 가져오도록 보완 필요
                             // 만약 Percentage 계산이 이미 ResponseDto에 있다면 그것을 활용
-                           // .recordedAt(LocalDateTime.now()) // 현재 시간 혹은 데이터 업데이트 시간
+                            // .recordedAt(LocalDateTime.now()) // 현재 시간 혹은 데이터 업데이트 시간
                             //.availablePediatricBedCount(pDto.getTotalPediatricBedCount())
                             .totalPediatricBedCount(pDto.getTotalPediatricBedCount())
                             .emergencyPhone(pDto.getEmergencyPhone())
@@ -349,18 +380,6 @@ public class HospitalRecommendationService {
                 })
                 .collect(Collectors.toList());
     }
-    //top3만 보여줌
-//    public List<HospitalResponseDto> getTop3Recommendations(
-//            HospitalCategory category,
-//            Double lat,
-//            Double lon
-//    ) {
-//
-//        return getRecommendations(category, lat, lon)
-//                .stream()
-//                .limit(3)
-//                .toList();
-//    }
 
     //소아 top3 추천
     public List<PediatricHospitalResponseDto> getTop3Pediatric(Double lat, Double lon) {
@@ -372,13 +391,13 @@ public class HospitalRecommendationService {
     }
 
     //TODO 일반 넘겨주기
-//    public List<PediatricHospitalResponseDto> getTop3Pediatric(Double lat, Double lon) {
-//        return getRecommendations(HospitalCategory.PEDIATRIC, lat, lon)
-//                .stream()
-//                .map(r -> (PediatricHospitalResponseDto) r)
-//                .limit(3)
-//                .toList();
-//    }
+    public List<GeneralHospitalResponseDto> getTop3General(Double lat, Double lon) {
+        return getRecommendations(HospitalCategory.GENERAL, lat, lon)
+                .stream()
+                .map(r -> (GeneralHospitalResponseDto) r)
+                .limit(3)
+                .toList();
+    }
 
     //TODO 임산부 넘겨주기
     public List<PregnantHospitalResponseDto> getTop3Pregnant(Double lat, Double lon) {
@@ -388,6 +407,7 @@ public class HospitalRecommendationService {
                 .limit(3)
                 .toList();
     }
+
     //카테고리별 점수 조회
     private List<HospitalScore> getScoresByCategory(
             HospitalCategory category
