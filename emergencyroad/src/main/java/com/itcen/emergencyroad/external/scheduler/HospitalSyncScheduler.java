@@ -28,6 +28,8 @@ public class HospitalSyncScheduler {
 //            initialDelay = 1000,
 //            fixedDelay = 3000000
 //    )
+    // 5분 주기 + 첫 실행은 서버 켜지고 30초 대기 후 시작
+    //@Scheduled(initialDelay = 30000, fixedDelay = 300000)//
     public void sync() {
 
         log.info("EMR API 가져오기 시작");

@@ -147,23 +147,33 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
         score += config.getDeliveryAvailableWeight();
         tags.append("분만가능");
 
+        //수술실 수
         if (detail.getOperatingRoomCount() != null
                 && detail.getOperatingRoomCount() >= config.getOperatingRoomThreshold()) {
 
             score += config.getOperatingRoomBonusWeight();
-            tags.append(" | 수술실다수");
+            //tags.append(" | 수술실");
         }
 
-        // 3. 대응 능력 : 산과 수술 / NICU 보유 여부 기반 추가 점수
+        // 3. 대응 능력 : 산과 수술 가능
         if (isAvailable(pregnant.getObstetricSurgeryAvailable())) {
             score += config.getObstetricSurgeryWeight();
             tags.append(" | 산과수술");
         }
+        //System.out.println("체크 1: 여기까지는 오나?");
 
-        if (isAvailable(pregnant.getNicuAvailable())) {
+        if(realtime!=null){
+//            System.out.println("DEBUG: BedCount = " + realtime.getNicuBedCount());
+
+        if (realtime.getNicuBedCount() != null && realtime.getNicuBedCount() > 0) {
             score += config.getNicuAvailableWeight();
-            tags.append(" | NICU보유");
+            tags.append(" | NICU보유"); // 병상이 있을 때만 기존 태그 유지
+        } else {
+            score += (config.getNicuAvailableWeight() * 0.3); // 인프라 점수만 일부 인정 (30%)
+            tags.append(" | NICU만석"); // 사용자에게 정확한 상태 전달
         }
+        }
+
 
         // 4. 분만실 : 실시간 분만실 가용성 반영 (신뢰도 낮아 60%만 반영)
         if (realtime != null
@@ -183,12 +193,12 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
 
             if (isAvailable(realtime.getIncubatorAvailable())) {
                 score += config.getIncubatorWeight();
-                tags.append(" | 인큐베이터OK");
+                //tags.append(" | 인큐베이터OK");
             }
 
             if (isAvailable(realtime.getPrematureVentilatorAvailable())) {
                 score += config.getPrematureVentilatorWeight();
-                tags.append(" | 조산아호흡기OK");
+                //tags.append(" | 조산아호흡기OK");
             }
         }
 
@@ -196,10 +206,9 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
         double urgencyScore = calculateUrgencyScore(detail, config);
         score += urgencyScore * EMERGENCY_ROOM_WEIGHT_RATIO;
 
-        // 7. NICU 스케일 :  NICU 개수에 따라 점수 증가
-        if (detail.getHpnicuCount() != null
-                && detail.getHpnicuCount() > 0) {
-
+        // 7. NICU 스케일 (수정: 가용 병상 기반으로 가점)
+        // 위에서 'NICU만석'일 경우 여기서 자동으로 점수가 0점이 되어 합리적인 점수가 나옵니다.
+        if (detail.getHpnicuCount() != null && detail.getHpnicuCount() > 0) {
             score += Math.min(
                     detail.getHpnicuCount() * config.getNicuScaleWeight(),
                     config.getMaxNicuScaleScore()

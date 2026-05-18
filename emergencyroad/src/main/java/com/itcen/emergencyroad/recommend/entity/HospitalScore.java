@@ -6,6 +6,7 @@ import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.hospital.entity.HospitalDetail;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
 import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
+import com.itcen.emergencyroad.pregnant.entity.Pregnant;
 import com.itcen.emergencyroad.pregnant.entity.PregnantRealtime;
 import com.itcen.emergencyroad.pregnant.entity.PregnantStandard;
 import jakarta.persistence.*;
@@ -49,6 +50,17 @@ public class HospitalScore extends BaseEntity {
             insertable = false, updatable = false,
             foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private PediatricRealtime pediatricRealtime;
+
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "hpid",
+            referencedColumnName = "hpid",
+            insertable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT)
+    )
+    private Pregnant pregnant;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hpid", referencedColumnName = "hpid",
