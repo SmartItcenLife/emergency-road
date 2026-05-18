@@ -231,6 +231,8 @@ public class EmrMapper {
                 .crrtAvailable(dto.getHvcrrtayn())
                 .ecmoAvailable(dto.getHvecmoayn())
                 .angioAvailable(dto.getHvangioayn())
+
+                .recordedAt(parseDateTime(dto.getHvidate()))
                 .build();
     }
 
@@ -255,6 +257,8 @@ public class EmrMapper {
         entity.setCrrtAvailable(dto.getHvcrrtayn());
         entity.setEcmoAvailable(dto.getHvecmoayn());
         entity.setAngioAvailable(dto.getHvangioayn());
+
+        entity.setRecordedAt(parseDateTime(dto.getHvidate()));
     }
 
     // TODO

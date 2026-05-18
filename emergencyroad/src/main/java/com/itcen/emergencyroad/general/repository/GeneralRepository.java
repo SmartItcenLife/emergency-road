@@ -24,7 +24,8 @@ public interface GeneralRepository extends JpaRepository<GeneralRealTimeAndStand
         h.emergencyPhone,
         h.latitude,
         h.longitude,
-        null
+        null,
+        gr.recordedAt
     )
     from GeneralRealTimeAndStandard gr
     join gr.hospital h
@@ -66,7 +67,9 @@ public interface GeneralRepository extends JpaRepository<GeneralRealTimeAndStand
         gs.MKioskTy11,
         gs.MKioskTy13,
         gs.MKioskTy19,
-        gs.MKioskTy26
+        gs.MKioskTy26,
+        
+        gr.recordedAt
     )
     from GeneralRealTimeAndStandard gr
     join gr.hospital h

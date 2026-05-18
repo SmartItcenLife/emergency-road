@@ -1,14 +1,14 @@
 package com.itcen.emergencyroad.general.controller;
 
 import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
+import com.itcen.emergencyroad.general.dto.GeneralHospitalDetailDto;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalListDto;
 import com.itcen.emergencyroad.general.service.GeneralViewService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +18,14 @@ import java.util.List;
 public class GeneralController {
     private final GeneralViewService generalViewService;
     private final KakaoLocalApiClient kakaoLocalApiClient;
+
+    @GetMapping("/hospitals/{hpid}/detail")
+    @ResponseBody
+    public ResponseEntity<GeneralHospitalDetailDto> getHospitalDetail(@PathVariable String hpid) {
+        GeneralHospitalDetailDto detail =
+                generalViewService.getGeneralHospitalDetail(hpid);
+        return ResponseEntity.ok(detail);
+    }
 
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,

@@ -3,6 +3,8 @@ package com.itcen.emergencyroad.general.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 public class GeneralHospitalDetailDto {
@@ -47,4 +49,6 @@ public class GeneralHospitalDetailDto {
     private String endoscopyBronchialAvailable;
     private String severeBurnsAvailable;
     private String angioAdultAvailable;
+
+    private LocalDateTime realtimeRecordedAt;
 }

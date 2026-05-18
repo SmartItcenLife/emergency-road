@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.general.service;
 
+import com.itcen.emergencyroad.general.dto.GeneralHospitalDetailDto;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalListDto;
 import com.itcen.emergencyroad.general.repository.GeneralRepository;
 import lombok.RequiredArgsConstructor;
@@ -70,5 +71,9 @@ public class GeneralViewService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return earthRadiusKm * c;
+    }
+    public GeneralHospitalDetailDto getGeneralHospitalDetail(String hpid) {
+        return generalRepository.findGeneralHospitalDetail(hpid)
+                .orElseThrow(() -> new IllegalArgumentException("일반 병원 상세 정보가 없습니다. hpid=" + hpid));
     }
 }

@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.hospital.entity.Hospital;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "general_standard_new")
 @Getter
@@ -68,5 +70,8 @@ public class GeneralRealTimeAndStandard extends BaseEntity {
 
     @Column(name = "angio_yn")
     private String angioAvailable; // 혈관조영술 가능 여부
+
+    @Column(name = "recorded_at")
+    private LocalDateTime recordedAt; // hvidate 변환값
 
 }

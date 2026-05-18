@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 // 일반 유형 병원 목록 전용 DTO
 @Getter
 @Builder
@@ -24,6 +26,8 @@ public class GeneralHospitalListDto {
     private Double hospitalLongitude; // 병원 경도
 
     private Double distanceKm; // 사용자 위치 기준 거리
+
+    private LocalDateTime recordedAt; // 입력일시
 
     public void updateDistanceKm(Double distanceKm) {
         this.distanceKm = distanceKm;

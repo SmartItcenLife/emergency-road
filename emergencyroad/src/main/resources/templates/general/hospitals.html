@@ -171,6 +171,31 @@
             height: 14px;
         }
 
+        .detail-toggle {
+            width: 20px;
+            height: 70px;
+            border: none;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            flex: 0 0 auto;
+        }
+
+        .detail-toggle-icon {
+            width: 8px;
+            height: 14px;
+            display: block;
+            opacity: 0.55;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .detail-toggle:hover .detail-toggle-icon {
+            opacity: 1;
+        }
+
         .call-button-disabled {
             opacity: 0.4;
             pointer-events: none;
@@ -242,6 +267,137 @@
             color: #6b7280;
             text-align: center;
             white-space: nowrap;
+        }
+
+        .detail-toggle-open .detail-toggle-icon {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+
+        .hospital-detail-wrapper {
+            margin-top: -4px;
+            margin-bottom: 10px;
+        }
+
+        .hospital-detail-panel {
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .detail-section + .detail-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eef2f7;
+        }
+
+        .detail-title {
+            margin: 0 0 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #4b5563;
+        }
+
+        .detail-label {
+            flex: 0 0 auto;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            min-width: 0;
+            text-align: right;
+            font-weight: 700;
+            color: #1f2937;
+            word-break: keep-all;
+        }
+
+        .detail-resource-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .detail-resource {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .detail-resource-name {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .detail-resource-value {
+            font-size: 13px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .detail-capability-list {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .detail-capability {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .capability-badge {
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .capability-available {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .capability-unavailable {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .capability-unknown {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .detail-loading,
+        .detail-error {
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .detail-error {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fecaca;
         }
 
         .empty {
@@ -339,6 +495,12 @@
                             </a>
                         </div>
                     </div>
+                    <button type="button"
+                            class="detail-toggle"
+                            th:data-hpid="${hospital.hpid}"
+                            aria-label="상세보기">
+                        <img th:src="@{/images/angle-brackets.png}" class="detail-toggle-icon" alt="상세보기">
+                    </button>
                 </div>
             </article>
         </div>
@@ -387,6 +549,184 @@
             window.open(url, "_blank");
         });
     });
+
+    document.querySelectorAll(".detail-toggle").forEach(function(button) {
+        button.addEventListener("click", function() {
+            const hpid = button.dataset.hpid;
+            const card = button.closest(".hospital-card");
+            const currentDetail = card.nextElementSibling;
+
+            if (currentDetail && currentDetail.classList.contains("hospital-detail-wrapper")) {
+                currentDetail.remove();
+                button.classList.remove("detail-toggle-open");
+                return;
+            }
+
+            document.querySelectorAll(".hospital-detail-wrapper").forEach(function(detail) {
+                detail.remove();
+            });
+            document.querySelectorAll(".detail-toggle-open").forEach(function(openButton) {
+                openButton.classList.remove("detail-toggle-open");
+            });
+
+            button.classList.add("detail-toggle-open");
+
+            const loadingWrapper = document.createElement("div");
+            loadingWrapper.className = "hospital-detail-wrapper";
+            loadingWrapper.innerHTML = `<div class="detail-loading">상세 정보를 불러오는 중입니다.</div>`;
+            card.insertAdjacentElement("afterend", loadingWrapper);
+
+            fetch(`/general/hospitals/${hpid}/detail`)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error("상세 정보를 불러오지 못했습니다.");
+                    }
+                    return response.json();
+                })
+                .then(function(detail) {
+                    loadingWrapper.innerHTML = createHospitalDetailHtml(detail);
+                })
+                .catch(function(error) {
+                    loadingWrapper.innerHTML = `<div class="detail-error">${escapeHtml(error.message)}</div>`;
+                });
+        });
+    });
+
+    function createHospitalDetailHtml(detail) {
+        return `
+            <div class="hospital-detail-panel">
+                <div class="detail-section">
+                    <h3 class="detail-title">기본 정보</h3>
+                    ${createDetailRow("주소", detail.address)}
+                    ${createDetailRow("응급실 번호", detail.emergencyPhone)}
+                    ${createDetailRow("대표전화", detail.phone)}
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">응급실 병상</h3>
+                    <div class="detail-resource-grid">
+                        ${createResourceItem("응급실 병상", detail.emergencyAvailableBeds, detail.emergencyTotalBeds)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">중환자실 자원</h3>
+                    <div class="detail-resource-grid">
+                        ${createResourceItem("일반 ICU", detail.icuAvailableBeds, detail.icuTotalBeds)}
+                        ${createResourceItem("신경과 ICU", detail.neuroIcuAvailableBeds, detail.neuroIcuTotalBeds)}
+                        ${createResourceItem("흉부외과 ICU", detail.chestIcuAvailableBeds, detail.chestIcuTotalBeds)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">장비 가능 여부</h3>
+                    <div class="detail-capability-list">
+                        ${createCapabilityItem("CT", detail.ctAvailable)}
+                        ${createCapabilityItem("MRI", detail.mriAvailable)}
+                        ${createCapabilityItem("인공호흡기", detail.ventilatorAvailable)}
+                        ${createCapabilityItem("CRRT", detail.crrtAvailable)}
+                        ${createCapabilityItem("ECMO", detail.ecmoAvailable)}
+                        ${createCapabilityItem("혈관조영", detail.angioAvailable)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">중증질환 수용 가능</h3>
+                    <div class="detail-capability-list">
+                        ${createCapabilityItem("심근경색", detail.myocardialInfarctionAvailable)}
+                        ${createCapabilityItem("뇌경색", detail.cerebralInfarctionAvailable)}
+                        ${createCapabilityItem("거미막하 출혈", detail.subarachnoidHemorrhageAvailable)}
+                        ${createCapabilityItem("기타 출혈", detail.otherHemorrhageAvailable)}
+                        ${createCapabilityItem("대동맥 응급 흉부", detail.aorticChestAvailable)}
+                        ${createCapabilityItem("대동맥 응급 복부", detail.aorticAbdomenAvailable)}
+                        ${createCapabilityItem("응급투석", detail.dialysisAvailable)}
+                        ${createCapabilityItem("폐쇄병동 입원", detail.closedWardAvailable)}
+                        ${createCapabilityItem("응급내시경 위장관", detail.endoscopyGiAvailable)}
+                        ${createCapabilityItem("응급내시경 기관지", detail.endoscopyBronchialAvailable)}
+                        ${createCapabilityItem("중증화상", detail.severeBurnsAvailable)}
+                        ${createCapabilityItem("성인 혈관중재", detail.angioAdultAvailable)}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">갱신 시간</h3>
+                    ${createDetailRow("실시간 정보", formatDateTime(detail.realtimeRecordedAt))}
+                </div>
+            </div>
+        `;
+    }
+
+    function createDetailRow(label, value) {
+        return `
+            <div class="detail-row">
+                <span class="detail-label">${escapeHtml(label)}</span>
+                <span class="detail-value">${escapeHtml(displayValue(value))}</span>
+            </div>
+        `;
+    }
+
+    function createResourceItem(label, current, total) {
+        return `
+            <div class="detail-resource">
+                <span class="detail-resource-name">${escapeHtml(label)}</span>
+                <span class="detail-resource-value">${escapeHtml(formatCount(current, total))}</span>
+            </div>
+        `;
+    }
+
+    function createCapabilityItem(label, value) {
+        const status = normalizeAvailability(value);
+
+        return `
+            <div class="detail-capability">
+                <span>${escapeHtml(label)}</span>
+                <span class="capability-badge ${status.className}">${escapeHtml(status.label)}</span>
+            </div>
+        `;
+    }
+
+    function normalizeAvailability(value) {
+        if (value === true || value === "Y" || value === "가능" || value === "1") {
+            return { label: "가능", className: "capability-available" };
+        }
+        if (value === false || value === "N" || value === "불가" || value === "0") {
+            return { label: "불가", className: "capability-unavailable" };
+        }
+        return { label: displayValue(value), className: "capability-unknown" };
+    }
+
+    function formatCount(current, total) {
+        const currentValue = displayValue(current);
+        const totalValue = displayValue(total);
+
+        if (currentValue === "-" && totalValue === "-") {
+            return "-";
+        }
+        return `${currentValue} / ${totalValue}`;
+    }
+
+    function displayValue(value) {
+        if (value === null || value === undefined || value === "") {
+            return "-";
+        }
+        return value;
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "-";
+        }
+        return String(value).replace("T", " ").slice(0, 16);
+    }
+
+    function escapeHtml(value) {
+        return String(displayValue(value))
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
 </script>
 </body>
 </html>
