@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 )
 public class PediatricStandardSyncScheduler {
     private final PediatricStandardSyncService pediatricStandardSyncService;
-
-   // @Scheduled(fixedDelay = 3000000)
+    //기준
+    //@Scheduled(cron = "0 10 3 * * *") 새벽 3시 10분쯤 하루 1번
     public void sync() {
         log.info("실시간 소아 / 유아 병상 기준 데이터 가져오기 시작");
 

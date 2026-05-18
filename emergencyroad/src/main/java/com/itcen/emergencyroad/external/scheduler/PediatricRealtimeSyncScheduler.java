@@ -19,7 +19,8 @@ public class PediatricRealtimeSyncScheduler {
 
     private final PediatricSyncService pediatricSyncService;
 
-   // @Scheduled(fixedDelay = 3000000)
+    // 3분 주기 + 첫 실행은 서버 켜지고 25초 대기 후 시작 (트래픽 분산)
+    //@Scheduled(initialDelay = 25000, fixedDelay = 180000)
     public void sync() {
         log.info("실시간 소아 / 유아 데이터 가져오기 시작");
 

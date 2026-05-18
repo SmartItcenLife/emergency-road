@@ -420,9 +420,15 @@
             <!-- 댓글 신고 (로그인 + 본인 아닐 때) -->
             <form th:if="${session.loginUser != null && session.loginUser != comment.userId}"
                   th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/report(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
-                  method="post">
+                  method="post" class="d-flex gap-2">
               <input type="hidden" name="targetType" value="COMMENT">
-              <button type="submit" class="btn btn-sm btn-link text-danger p-0"
+              <select name="reason" required class="form-select form-select-sm" style="border-radius: 10px; width: 130px; font-size: 12px;">
+                <option value="">사유 선택</option>
+                <option value="스팸 홍보/도배">스팸 홍보/도배</option>
+                <option value="욕설/혐오/차별">욕설/혐오/차별</option>
+                <option value="부적절한 내용">부적절한 내용</option>
+              </select>
+              <button type="submit" class="btn btn-sm btn-link text-danger p-0 m-0"
                       onclick="return confirm('이 댓글을 신고하시겠습니까?')">
                 <i class="bi bi-flag"></i>
               </button>

@@ -86,7 +86,7 @@ public class PostService {
   public PostResponseDto getPost(Long postId){
     Post post = postRepository.findById(postId).orElseThrow(() -> new CustomException(ExceptionStatus.POST_NOT_FOUND));
 
-    if(post.isDeleted()) throw new CustomException(ExceptionStatus.POST_NOT_FOUND);
+//    if(post.isDeleted()) throw new CustomException(ExceptionStatus.POST_NOT_FOUND);
 
     List<String> imageUrls = postImageService.getImageUrls(postId);
 

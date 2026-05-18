@@ -3,26 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <title>Emergency Road - 관리자 페이지</title>
-<!--    <style>-->
-<!--        body { margin: 0; font-family: 'Malgun Gothic', sans-serif; display: flex; height: 100vh; background-color: #f4f6f9; }-->
+    <style>
+        /* 1. 폰트 및 배경: 팀 디자인처럼 세련된 폰트와 연한 회색 배경 적용 */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; background-color: #f5f6f8; color: #1a1a1a; margin: 0; padding: 0; display: flex; height: 100vh; }
 
-<!--        /* 사이드바 스타일 */-->
-<!--        .sidebar { width: 250px; background-color: #343a40; color: white; display: flex; flex-direction: column; }-->
-<!--        .sidebar h2 { text-align: center; padding: 20px 0; margin: 0; border-bottom: 1px solid #4f5962; font-size: 20px;}-->
-<!--        .sidebar a { color: #c2c7d0; text-decoration: none; padding: 15px 20px; display: block; border-bottom: 1px solid #4f5962; }-->
-<!--        .sidebar a:hover { background-color: #494e53; color: white; }-->
+        /* 2. 사이드바: 어두운 색을 버리고, 흰색 배경에 둥근 파란색 호버 메뉴로 앱 느낌 강조 */
+        .sidebar { width: 250px; min-height: 100vh; background-color: #ffffff; padding: 24px 20px; box-sizing: border-box; display: flex; flex-direction: column; border-right: 1px solid #ebeef2; }
+        .sidebar h2 { text-align: center; margin-top: 0; margin-bottom: 30px; font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .sidebar a { display: block; padding: 14px 20px; color: #505866; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 15px; transition: all 0.2s ease; margin-bottom: 8px; }
+        .sidebar a:hover { background-color: #f0f4ff; color: #2f6cf6; } /* 팀 앱의 '글쓰기' 파란색과 유사한 포인트 색상 */
 
-<!--        /* 메인 컨텐츠 스타일 */-->
-<!--        .main-content { flex: 1; padding: 30px; overflow-y: auto; }-->
-<!--        .header { background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }-->
-<!--        .header h1 { margin: 0; font-size: 24px; color: #333; }-->
+        /* 3. 메인 컨텐츠 영역 */
+        .main-content { flex: 1; padding: 40px 50px; overflow-y: auto; }
+        h1 { color: #1a1a1a; font-size: 26px; font-weight: 700; margin-top: 0; margin-bottom: 24px; }
+        h2 { color: #1a1a1a; margin-top: 40px; font-size: 18px; font-weight: 600; margin-bottom: 16px;}
 
-<!--        /* 대시보드 카드 통계 스타일 */-->
-<!--        .dashboard-cards { display: flex; gap: 20px; }-->
-<!--        .card { flex: 1; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }-->
-<!--        .card h3 { margin: 0 0 10px 0; color: #666; font-size: 16px; }-->
-<!--        .card .number { font-size: 32px; font-weight: bold; color: #007bff; margin: 0; }-->
-<!--    </style>-->
+        /* 4. 대시보드 카드: 팀 앱의 게시글/병원 목록 카드와 똑같은 흰색+둥근 모서리+옅은 테두리 */
+        .dashboard-cards { display: flex; gap: 20px; }
+        .card { flex: 1; background-color: #ffffff; padding: 28px 24px; border-radius: 16px; border: 1px solid #ebeef2; text-align: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .card h3 { margin: 0 0 12px 0; color: #8b95a1; font-size: 15px; font-weight: 600; }
+        .card .number { font-size: 36px; font-weight: 700; color: #2f6cf6; margin: 0; }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(47, 108, 246, 0.08); border-color: #2f6cf6; }
+
+        /* 5. 테이블(표): 투박한 파란색 헤더를 버리고, 연한 회색 헤더와 흰색 본문으로 모던하게 변경 */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; background: #ffffff; border-radius: 16px; border: 1px solid #ebeef2; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        th, td { padding: 16px; text-align: center; border-bottom: 1px solid #ebeef2; font-size: 14px; color: #333d4b; }
+        th { background-color: #f9fafb; color: #6b7684; font-weight: 600; font-size: 13px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8f9fa; }
+
+        /* 6. 링크 및 상태 텍스트 */
+        a.post-link { color: #2f6cf6; text-decoration: none; font-weight: 600; }
+        a.post-link:hover { text-decoration: underline; }
+        .deleted-text { color: #8b95a1; font-weight: 600; }
+
+        /* 7. 버튼(삭제/탈퇴): 위험한 액션은 빨간색 배경의 귀여운 둥근(Pill) 스타일 버튼으로! */
+        button { cursor: pointer; border: none; background-color: #f2f4f6; color: #505866; font-weight: 600; font-size: 13px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s; }
+        form button[type="submit"] { background-color: #fee2e2; color: #ef4444; } /* 빨간색 경고 버튼 */
+        form button[type="submit"]:hover { background-color: #fecaca; }
+    </style>
 </head>
 <body>
 
@@ -32,7 +52,6 @@
     <a th:href="@{/admin/users}">👥 회원 관리</a>
     <a th:href="@{/admin/posts}">📝 커뮤니티 관리</a>
     <a th:href="@{/admin/reports}">신고된 게시글/댓글 관리</a>
-    <a href="#">💬 실시간 채팅 관리</a>
 </div>
 
 <div class="main-content">
@@ -42,21 +61,19 @@
     </div>
 
     <div class="dashboard-cards">
-        <div class="card">
-            <h3>총 가입 회원</h3>
-            <p class="number">1,024</p>
+        <div class="card" onclick="location.href='/admin/users'">
+            <h3>오늘 가입 회원</h3>
+            <p class="number" th:text="${stats.todayUsers}">0</p>
         </div>
-        <div class="card">
+
+        <div class="card" onclick="location.href='/admin/posts'">
             <h3>오늘 새 게시글</h3>
-            <p class="number">42</p>
+            <p class="number" th:text="${stats.todayPosts}">0</p>
         </div>
-        <div class="card">
-            <h3>활성화된 채팅방</h3>
-            <p class="number">5</p>
-        </div>
-        <div class="card">
+
+        <div class="card" onclick="location.href='/admin/reports'">
             <h3>신고 접수 건</h3>
-            <p class="number" style="color: #dc3545;">3</p>
+            <p class="number" style="color: #dc3545;" th:text="${stats.totalReports}">0</p>
         </div>
     </div>
 </div>

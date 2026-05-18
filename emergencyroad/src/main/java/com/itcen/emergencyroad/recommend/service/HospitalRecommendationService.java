@@ -2,7 +2,7 @@ package com.itcen.emergencyroad.recommend.service;
 
 import com.itcen.emergencyroad.findpath.dto.LocationRequestDto;
 import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
-import com.itcen.emergencyroad.findpath.service.PathService;
+import com.itcen.emergencyroad.findpath.service.TmapService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
@@ -28,7 +28,7 @@ public class HospitalRecommendationService {
     private final HospitalScoreRepository hospitalScoreRepository;
     private final PediatricCongestionCalculator pediatricCongestionCalculator;
     // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
-    private final PathService pathService;
+    private final TmapService tmapService;
 
     @Transactional
     public void calculateAllHospitalScores() {
@@ -97,7 +97,7 @@ public class HospitalRecommendationService {
 
         // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출)
         List<PathResponseDto> paths =
-                pathService.findHospitalsWithDistance(
+                tmapService.findHospitalsWithDistanceTmap(
                         new LocationRequestDto(lat, lon), hospitals);
 
         // 3. 병원 ID 기준 빠른 조회를 위한 Map 생성
@@ -185,9 +185,11 @@ public class HospitalRecommendationService {
                 var realtime = score.getPediatricRealtime();
                 var standard = score.getPediatricStandard();
 
+                //실시간 소아 병상 수
                 Integer bed = Optional.ofNullable(realtime)
                         .map(PediatricRealtime::getPediatricBedCount)
                         .orElse(0);
+                //소아 기준 병상 수
                 Integer total = Optional.ofNullable(standard)
                         .map(PediatricStandard::getPediatricBedStandard)
                         .orElse(0);
@@ -213,13 +215,15 @@ public class HospitalRecommendationService {
                                 .distance(distance)
                                 .duration(duration)
                                 .address(hospital.getAddress())
-                                .availablePediatricBedCount(bed)//인큐베이터 가능여부
+                                .availablePediatricBedCount(bed)
+                                //인큐베이터 가능여부
                                 .incubatorAvailable(incubator
                                 )//혼잡도 라벨
                                 .congestionLabel(
                                         label
                                 ) //퍼센트
-                                .availableBedPercentage(percent) //응급실 전화번호
+                                .availableBedPercentage(percent)
+                                //응급실 전화번호
                                 .emergencyPhone(
                                         score.getHospital().getEmergencyPhone()
                                 )
@@ -242,12 +246,54 @@ public class HospitalRecommendationService {
                                 .distance(distance)
                                 .duration(duration)
                                 .address(hospital.getAddress())
-                                .deliveryAvailable(
-                                        score.getPregnantRealtime()
-                                                .getIsDeliveryRoomAvailable()
-                                )
                                 .tags(score.getPregnantTags())
+                                // 가능 여부
+                                .deliveryAvailable(
+                                        score.getPregnant().getDeliveryAvailable()
+                                )
+                                .nicuAvailable(
+                                        score.getPregnant().getNicuAvailable()
+                                )
+                                .obstetricSurgeryAvailable(
+                                        score.getPregnant().getObstetricSurgeryAvailable()
+                                )
+                                .gynecologySurgeryAvailable(
+                                        score.getPregnant().getGynecologySurgeryAvailable()
+                                )
+                                .emergencyDialysisAvailable(
+                                        score.getPregnant().getEmergencyDialysisAvailable()
+                                )
 
+                                // realtime
+                                .nicuBedCount(
+                                        score.getPregnantRealtime().getNicuBedCount()
+                                )
+                                .incubatorAvailable(
+                                        score.getPregnantRealtime().getIncubatorAvailable()
+                                )
+                                .prematureVentilatorAvailable(
+                                        score.getPregnantRealtime().getPrematureVentilatorAvailable()
+                                )
+                                .isDeliveryRoomAvailable(
+                                        score.getPregnantRealtime().getIsDeliveryRoomAvailable()
+                                )
+
+                                // standard
+                                .deliveryRoomStandard(
+                                        score.getPregnantStandard().getDeliveryRoomStandard()
+                                )
+                                .nicuStandard(
+                                        score.getPregnantStandard().getNicuStandard()
+                                )
+                                .ventilatorStandard(
+                                        score.getPregnantStandard().getVentilatorStandard()
+                                )
+                                .incubatorStandard(
+                                        score.getPregnantStandard().getIncubatorStandard()
+                                )
+                                .emergencyPhone(score.getHospital().getEmergencyPhone())
+                                .hospitalLatitude(score.getHospital().getLatitude())
+                                .hospitalLongitude(score.getHospital().getLongitude())
                                 .build()
                 );
             }
@@ -334,14 +380,14 @@ public class HospitalRecommendationService {
 //                .toList();
 //    }
 
-    //TODO 소아 넘겨주기
-//    public List<PediatricHospitalResponseDto> getTop3Pediatric(Double lat, Double lon) {
-//        return getRecommendations(HospitalCategory.PEDIATRIC, lat, lon)
-//                .stream()
-//                .map(r -> (PediatricHospitalResponseDto) r)
-//                .limit(3)
-//                .toList();
-//    }
+    //TODO 임산부 넘겨주기
+    public List<PregnantHospitalResponseDto> getTop3Pregnant(Double lat, Double lon) {
+        return getRecommendations(HospitalCategory.PREGNANT, lat, lon)
+                .stream()
+                .map(r -> (PregnantHospitalResponseDto) r)
+                .limit(3)
+                .toList();
+    }
     //카테고리별 점수 조회
     private List<HospitalScore> getScoresByCategory(
             HospitalCategory category

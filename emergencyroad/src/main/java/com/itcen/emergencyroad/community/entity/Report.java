@@ -18,6 +18,9 @@ public class Report extends BaseEntity {
     @Column(name="report_id")
     private Long id;
 
+    @Column(name="hpid")
+    private String hpid;
+
     // 신고자
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="reporter_id", nullable = false)
@@ -36,12 +39,13 @@ public class Report extends BaseEntity {
     private String reason;
 
     // 신고 생성 메서드
-    public static Report createReport(User reporter,  ReportTargetType targetType, Long targetId, String reason){
+    public static Report createReport(User reporter,  ReportTargetType targetType, Long targetId, String reason, String hpid){
         Report report = new Report();
         report.reporter = reporter;
         report.targetType = targetType;
         report.targetId = targetId;
         report.reason = reason;
+        report.hpid = hpid;
         return report;
     }
 

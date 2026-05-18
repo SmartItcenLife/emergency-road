@@ -14,13 +14,20 @@ public class ReportResponseDTO {
     private Long targetId;
     private LocalDateTime createdAt;
     private String reason;
+    private String hpid;
 
-    public ReportResponseDTO(Report report) {
+    private boolean isTargetDeleted;
+    private Long postId;
+
+    public ReportResponseDTO(Report report, boolean isTargetDeleted, Long postId, String hpid) {
         this.id = report.getId();
         this.reporterNickname = report.getReporter().getNickname();
         this.targetType = report.getTargetType();
         this.targetId = report.getTargetId();
         this.createdAt = report.getCreatedAt();
         this.reason = report.getReason();
+        this.hpid = hpid;
+        this.isTargetDeleted = isTargetDeleted;
+        this.postId = postId;
     }
 }

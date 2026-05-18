@@ -30,7 +30,8 @@ public class EmrSyncScheduler {
     private final PregnantRealtimeSyncService pregnantRealtimeSyncService;
     private  final GeneralService generalService;
 
-//    @Scheduled(fixedDelay = 3000000)
+    // 2분 주기 + 첫 실행은 서버 켜지고 10초 대기 후 시작 (트래픽 분산)
+    //@Scheduled(initialDelay = 10000, fixedDelay = 180000)  //3분
     public void sync() {
 
         log.info("EMR API 가져오기 시작");
