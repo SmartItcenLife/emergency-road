@@ -5,9 +5,6 @@ import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
 import com.itcen.emergencyroad.findpath.service.TmapService;
 import com.itcen.emergencyroad.findpath.service.cacaoService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
-import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
-import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalListDto;
 import com.itcen.emergencyroad.recommend.dto.*;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
@@ -292,41 +289,34 @@ public class HospitalRecommendationService {
 
         return EARTH_RADIUS *
                 (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-    }// getPregnantHospitalList : 임산부 전체 리스트 출력을 위한 함수
-    public List<PregnantHospitalListDto> getPregnantHospitalList(Double lat, Double lon) {
-        // Top3와 동일한 추천 로직을 재사용하되, 전체 목록이므로 limit(3)을 적용하지 않았습니다.
-        List<HospitalResponseDto> recommendations = getRecommendations(HospitalCategory.PREGNANT, lat, lon);
-
-        // 추천 응답 DTO는 화면 목록에 비해 필드가 많으므로 목록 카드에 필요한 값만 변환합니다.
-        return recommendations.stream()
-                .filter(dto -> dto instanceof PregnantHospitalResponseDto)
-                .map(dto -> {
-                    PregnantHospitalResponseDto pDto = (PregnantHospitalResponseDto) dto;
-
-                    return PregnantHospitalListDto.builder()
-                            .hpid(pDto.getHpid())
-                            .hospitalName(pDto.getHospitalName())
-                            .deliveryAvailable(pDto.getDeliveryAvailable())
-                            .isDeliveryRoomAvailable(pDto.getIsDeliveryRoomAvailable())
-                            .nicuBedCount(pDto.getNicuBedCount())
-                            .nicuStandard(pDto.getNicuStandard())
-                            .emergencyPhone(pDto.getEmergencyPhone())
-                            .hospitalLatitude(pDto.getHospitalLatitude())
-                            .hospitalLongitude(pDto.getHospitalLongitude())
-                            .distanceKm(pDto.getDistance())
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 
-    //TODO 임산부 넘겨주기
-    public List<PregnantHospitalResponseDto> getTop3Pregnant(Double lat, Double lon) {
-        return getRecommendations(HospitalCategory.PREGNANT, lat, lon,true)
-                .stream()
-                .map(r -> (PregnantHospitalResponseDto) r)
-                .limit(3)
-                .toList();
-    }
+//    // getPregnantHospitalList : 임산부 전체 리스트 출력을 위한 함수
+//    public List<PregnantHospitalListDto> getPregnantHospitalList(Double lat, Double lon) {
+//        // Top3와 동일한 추천 로직을 재사용하되, 전체 목록이므로 limit(3)을 적용하지 않았습니다.
+//        List<HospitalResponseDto> recommendations = getRecommendations(HospitalCategory.PREGNANT, lat, lon, false);
+//
+//        // 추천 응답 DTO는 화면 목록에 비해 필드가 많으므로 목록 카드에 필요한 값만 변환합니다.
+//        return recommendations.stream()
+//                .filter(dto -> dto instanceof PregnantHospitalResponseDto)
+//                .map(dto -> {
+//                    PregnantHospitalResponseDto pDto = (PregnantHospitalResponseDto) dto;
+//
+//                    return PregnantHospitalListDto.builder()
+//                            .hpid(pDto.getHpid())
+//                            .hospitalName(pDto.getHospitalName())
+//                            .deliveryAvailable(pDto.getDeliveryAvailable())
+//                            .isDeliveryRoomAvailable(pDto.getIsDeliveryRoomAvailable())
+//                            .nicuBedCount(pDto.getNicuBedCount())
+//                            .nicuStandard(pDto.getNicuStandard())
+//                            .emergencyPhone(pDto.getEmergencyPhone())
+//                            .hospitalLatitude(pDto.getHospitalLatitude())
+//                            .hospitalLongitude(pDto.getHospitalLongitude())
+//                            .distanceKm(pDto.getDistance())
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//    }
 
     // 8. DB 조회
     private List<HospitalScore> getScoresByCategory(HospitalCategory category) {

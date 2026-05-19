@@ -34,7 +34,7 @@ public class PregnantController {
         double baseLon = (lon != null && lon != 0.0) ? lon : 126.9780;
 
         List<PregnantHospitalListDto> list =
-                hospitalRecommendationService.getPregnantHospitalList(baseLat, baseLon);
+                pregnantViewService.getPregnantHospitalList(baseLat, baseLon);
 
         String displayLocation = kakaoLocalApiClient.getDisplayLocation(baseLat, baseLon);
 
