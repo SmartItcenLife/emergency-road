@@ -173,7 +173,7 @@ public class HospitalRecommendationService {
                                 .address(hospital.getAddress())
                                 .availableBedCount(
                                         score.getGeneralRealTimeAndStandard()
-                                                .getHvec()
+                                                .getEmergencyAvailableBeds()
                                 )
                                 .tags(score.getGeneralTags())
                                 .build()

@@ -126,6 +126,8 @@ public class EmrSyncService {
                 .hvcrrtayn(getText(item, "hvcrrtayn"))   // CRRT
                 .hvecmoayn(getText(item, "hvecmoayn"))   // ECMO
                 .hvangioayn(getText(item, "hvangioayn")) // 혈관조영술
+
+                .hvidate(getText(item,"hvidate"))
                 .build();
     }
 
