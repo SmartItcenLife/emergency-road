@@ -4,70 +4,277 @@ import com.itcen.emergencyroad.findpath.dto.LocationRequestDto;
 import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
 import com.itcen.emergencyroad.findpath.service.TmapService;
 import com.itcen.emergencyroad.findpath.service.cacaoService;
-import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
-import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
-import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
 import com.itcen.emergencyroad.recommend.dto.*;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
 import com.itcen.emergencyroad.recommend.entity.HospitalScore;
+import com.itcen.emergencyroad.recommend.mapper.GeneralHospitalMapper;
+import com.itcen.emergencyroad.recommend.mapper.PediatricHospitalMapper;
+import com.itcen.emergencyroad.recommend.mapper.PregnantHospitalMapper;
 import com.itcen.emergencyroad.recommend.repository.HospitalScoreRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class HospitalRecommendationService {
 
-    // 모든 추천 전략들을 주입받아서 확장 가능하게 만든 구조
     private final List<RecommendationStrategy> strategies;
     private final HospitalScoreRepository hospitalScoreRepository;
-    //혼잡도 계산
-    private final PediatricCongestionCalculator pediatricCongestionCalculator;
-    // 외부 API (카카오 모빌리티) 기반 거리/시간 계산 서비스
+
     private final TmapService tmapService;
     private final cacaoService cacaoService;
 
+    private final GeneralHospitalMapper generalHospitalMapper;
+    private final PediatricHospitalMapper pediatricHospitalMapper;
+    private final PregnantHospitalMapper pregnantHospitalMapper;
+
+
+    // 1. 점수 계산
     @Transactional
     public void calculateAllHospitalScores() {
-
         for (RecommendationStrategy strategy : strategies) {
             strategy.calculateScores();
         }
     }
 
-    /**
-     * 이동 시간 기반 가중치
-     * 0분 -> 50점
-     * 30분 -> 약 2점
-     */
-    private double calculateTimeWeight(double duration) {
 
-        double weight = 50 - (duration * 1.6);
+    // 2. 핵심 추천 로직
+    public List<HospitalResponseDto> getRecommendations(
+            HospitalCategory category,
+            Double lat,
+            Double lon,
+            boolean useDistance
+    ) {
+        //1. 카테고리별 기본 점수 데이터 조회
+        List<HospitalScore> baseScores = getScoresByCategory(category);
+        List<HospitalScore> targetScores = baseScores;// 기본값은 전체 조회
 
-        return Math.max(0, weight);
+        //외부 API는 useDistance가 true일 때만 조회(false면 빈 맵)
+        Map<String, PathResponseDto> routeMap = Collections.emptyMap();
+        // 2. 사용자 맞춤 추천(Top3) 모드일 때만 반경 필터링 및 외부 API 사용
+        if (useDistance) {
+            // 1차 필터링 => 사용자 위치 기준 직선거리 반경 15.0km 이내의 병원 후보군만 추출
+            targetScores = baseScores.stream()
+                    .filter(score -> {
+                        Hospital h = score.getHospital();
+                        if (h.getLatitude() == null || h.getLongitude() == null) return false;
+
+                        double directDistance = calculateDirectDistance(lat, lon, h.getLatitude(), h.getLongitude());
+                        return directDistance <= 15.0; // ◀ 반경 15km 이내만 필터링 (10~15km 유연하게 조절 가능)
+                    })
+                    .toList();
+
+            // 필터링된 targetScores로만 외부 API(카카오/티맵)를 호출하여 비용/속도 절감
+            routeMap = findDistanceAndDuration(targetScores, lat, lon);
+        }
+
+        List<HospitalResponseDto> result = new ArrayList<>();
+
+        // 3. 루프 대상 분기 (전체보기: baseScores전체 / 맞춤추천: 15km이내 targetScores)
+        for (HospitalScore score : targetScores) {
+
+            double baseScore = category.getScore(score);
+            if (baseScore <= 0) continue;
+
+            Hospital hospital = score.getHospital();
+            double finalScore = baseScore;
+            HospitalRouteInfo routeInfo = null;
+
+            // useDistance가 true일 때만 외부 API 호출, false면 빈 맵
+            if (useDistance) {
+                PathResponseDto routePath = routeMap.get(hospital.getHpid());
+                routeInfo = resolveRouteInfo(hospital, routePath, lat, lon);
+
+                // 위치 정보가 아예 없는 병원 정보라면 스킵
+                if (routeInfo == null) continue;
+                // 실시간 교통 정보 경로가 잡힌 경우에만 시간 가중치 부여
+                if (routePath != null) {
+                    finalScore += routeInfo.durationWeight * 2.5;
+                }
+            }
+            // DTO 변환 (useDistance가 false이면 finalScore=baseScore, routeInfo=null로 전달됨)
+            result.add(mapToCategoryDto(
+                    category,
+                    score,
+                    finalScore,
+                    routeInfo
+            ));
+        }
+        // 4. 최종 점수 기준 내림차순 정렬
+        // (전체보기는 가중치가 더해지지 않아 순수 병원 자체 역량 점수로만 랭킹 구성)
+        result.sort((a, b) ->
+                Double.compare(b.getFinalScore(), a.getFinalScore())
+        );
+
+        logRecommendationResult(result);
+        return result;
     }
 
 
-    /**
-     * Haversine 공식 기반 직선거리 계산
-     */
+    // 3. Top3
+    public <T extends HospitalResponseDto> List<T> getTop3(
+            HospitalCategory category,
+            Double lat,
+            Double lon,
+            Class<T> type
+    ) {
+        // 이미 15km로 필터링되어 계산된 추천 리스트 중 최종 '실제 거리 10km 이내' 상위 3개 추출
+        return getRecommendations(category, lat, lon, true).stream()
+                .filter(dto -> dto.getDistance() <= 10.0)
+                .filter(type::isInstance)
+                .map(type::cast)
+                .limit(3)
+                .toList();
+    }
+
+
+    // 4. 카테고리 매핑
+    private HospitalResponseDto mapToCategoryDto(
+            HospitalCategory category,
+            HospitalScore score,
+            double finalScore,
+            HospitalRouteInfo routeInfo
+    ) {
+        double distance = routeInfo != null ? routeInfo.distance : 0;
+        double duration = routeInfo != null ? routeInfo.duration : 0;
+
+        if (category == HospitalCategory.GENERAL) {
+            return generalHospitalMapper.toDto(
+                    score,
+                    finalScore,
+                    distance,
+                    duration
+            );
+        }
+
+        if (category == HospitalCategory.PEDIATRIC) {
+            return pediatricHospitalMapper.toDto(
+                    score,
+                    finalScore,
+                    distance,
+                    duration
+            );
+        }
+
+        if (category == HospitalCategory.PREGNANT) {
+            return pregnantHospitalMapper.toDto(
+                    score,
+                    finalScore,
+                    distance,
+                    duration
+            );
+        }
+
+        return null;
+    }
+
+
+    // 5. 거리 및 소요시간
+    private Map<String, PathResponseDto> findDistanceAndDuration(
+            List<HospitalScore> baseScores,
+            Double lat,
+            Double lon
+    ) {
+
+        LocationRequestDto userLocation =
+                new LocationRequestDto(lat, lon);
+
+        List<Hospital> hospitals = new ArrayList<>();
+        for (HospitalScore score : baseScores) {
+            hospitals.add(score.getHospital());
+        }
+
+        List<PathResponseDto> paths = null;
+
+        try {
+            paths = cacaoService.findHospitalsWithDistance(
+                    userLocation,
+                    hospitals
+            );
+        } catch (Exception e) {
+            log.error("카카오 실패: {}", e.getMessage());
+        }
+
+        if (paths == null || paths.isEmpty()) {
+            try {
+                paths = tmapService.findHospitalsWithDistanceTmap(
+                        userLocation,
+                        hospitals
+                );
+            } catch (Exception e) {
+                log.error("티맵 실패: {}", e.getMessage());
+            }
+        }
+
+        Map<String, PathResponseDto> map = new HashMap<>();
+
+        if (paths != null) {
+            for (PathResponseDto p : paths) {
+                map.put(p.getHpid(), p);
+            }
+        }
+
+        return map;
+    }
+
+
+    // 6. 거리/시간 계산
+    private HospitalRouteInfo resolveRouteInfo(
+            Hospital hospital,
+            PathResponseDto path,
+            Double userLat,
+            Double userLon
+    ) {
+
+        if (path != null) {
+            return new HospitalRouteInfo(
+                    path.getDistance(),
+                    path.getDuration(),
+                    calculateTimeWeight(path.getDuration())
+            );
+        }
+
+        if (hospital.getLatitude() == null ||
+                hospital.getLongitude() == null) {
+            return null;
+        }
+
+        double distance = calculateDirectDistance(
+                userLat,
+                userLon,
+                hospital.getLatitude(),
+                hospital.getLongitude()
+        );
+
+        double duration = (distance / 40.0) * 60.0;
+
+        return new HospitalRouteInfo(
+                distance,
+                duration,
+                calculateTimeWeight(duration)
+        );
+    }
+
+    // 7. util
+    private double calculateTimeWeight(double duration) {
+        double weight = 50 - (duration * 1.6);
+        return Math.max(weight, 0);
+    }
+
     private double calculateDirectDistance(
             double lat1,
             double lon1,
             double lat2,
             double lon2
     ) {
-
-        final int EARTH_RADIUS = 6371; // km
+        final int EARTH_RADIUS = 6371;
 
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
@@ -79,339 +286,12 @@ public class HospitalRecommendationService {
                         * Math.sin(dLon / 2)
                         * Math.sin(dLon / 2);
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return EARTH_RADIUS * c;
+        return EARTH_RADIUS *
+                (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }
 
-    //전체 정렬 리스트
-    public List<HospitalResponseDto> getRecommendations(
-            HospitalCategory category,
-            Double lat,
-            Double lon
-    ) {
-
-        // 1. DB에서 미리 계산된 병원 점수 가져오기
-        List<HospitalScore> baseScores = getScoresByCategory(category);
-
-        // 병원 리스트 추출
-        List<Hospital> hospitals = new ArrayList<>();
-
-        for (HospitalScore score : baseScores) {
-            hospitals.add(score.getHospital());
-        }
-
-        // 2. 사용자 기준 거리/시간 계산 (API 1번만 호출) 티맵
-//        List<PathResponseDto> paths =
-//                tmapService.findHospitalsWithDistanceTmap(
-//                        new LocationRequestDto(lat, lon), hospitals);
-
-        List<PathResponseDto> paths = cacaoService.findHospitalsWithDistance( new LocationRequestDto(lat, lon), hospitals);
-        // 3. 병원 ID 기준 빠른 조회를 위한 Map 생성
-        // O(N²) 방지 → O(1) 조회 구조로 개선
-        Map<String, PathResponseDto> pathMap = new HashMap<>();
-
-        for (PathResponseDto p : paths) {
-            pathMap.put(p.getHpid(), p);
-        }
-
-        List<HospitalResponseDto> result = new ArrayList<>();
-
-        // 4. 병원별 최종 점수 계산
-        for (HospitalScore score : baseScores) {
-            // 기본 점수 (DB 저장된 점수)
-            double baseScore = getScoreByCategory(score, category);
-            // 추천 불가 병원 제외
-            if (baseScore <= 0) continue;
-
-            Hospital hospital = score.getHospital();
-            // 해당 병원의 거리 정보 조회 (Map 기반 O(1))
-            PathResponseDto path = pathMap.get(hospital.getHpid());
-
-            double distance = 999;   // 기본값 (거리 정보 없을 때)
-            double duration = 999;   // 기본값 (시간 정보 없을 때)
-            double durationWeight = 0;
-
-            /**
-             * 카카오 모빌리티 성공
-             */
-            if (path != null) {
-                System.out.println("카카오 모빌리티 성공");
-                distance = path.getDistance();
-                duration = path.getDuration();
-
-                durationWeight = calculateTimeWeight(duration);
-            }
-
-            //카카오 모빌리티 실패 fallback
-            else {
-                System.out.println("카카오 모빌리티 실패 fallback");
-                // 위도/경도 없는 병원 제외
-                if (hospital.getLatitude() == null ||
-                        hospital.getLongitude() == null) {
-                    continue;
-                }
-
-                distance = calculateDirectDistance(
-                        lat,
-                        lon,
-                        hospital.getLatitude(),
-                        hospital.getLongitude()
-                );
-                // 평균 시속 40km 기준 예상 시간(분)
-                duration = (distance / 40.0) * 60.0;
-
-                durationWeight = calculateTimeWeight(duration);
-            }
-
-            // 최종 점수
-            double finalScore = baseScore + (durationWeight * 2.5);
-
-            // 일반 응급
-            if (category == HospitalCategory.GENERAL) {
-
-                GeneralRealTimeAndStandard realtime = score.getGeneralRealTimeAndStandard();
-
-                Integer availableBed = Optional.ofNullable(realtime)
-                        .map(GeneralRealTimeAndStandard::getEmergencyAvailableBeds)
-                        .orElse(0);
-
-                Integer totalBed = Optional.ofNullable(realtime)
-                        .map(GeneralRealTimeAndStandard::getEmergencyTotalBeds)
-                        .orElse(0);
-
-                double percent = pediatricCongestionCalculator.getPercentage(availableBed, totalBed);
-                String label = pediatricCongestionCalculator.getLabel(availableBed, totalBed);
-
-                LocalDateTime recordedAt = Optional.ofNullable(realtime)
-                        .map(GeneralRealTimeAndStandard::getRecordedAt)
-                        .orElse(null);
-                result.add(
-                        GeneralHospitalResponseDto.builder()
-                                .hospitalName(hospital.getHospitalName())
-                                .hpid(hospital.getHpid())
-                                .finalScore(finalScore)
-                                .distance(distance)
-                                .duration(duration)
-                                .address(hospital.getAddress())
-
-                                .availableEmergencyBedCount(availableBed)
-                                .totalEmergencyBedCount(totalBed)
-
-                                .hospitalLatitude(hospital.getLatitude())
-                                .hospitalLongitude(hospital.getLongitude())
-                                .emergencyPhone(hospital.getEmergencyPhone())
-
-                                .recordedAt(recordedAt)
-
-                                .congestionLabel(label)
-                                .availableBedPercentage(percent)
-                                .tags(score.getGeneralTags())
-                                .build());
-            }
-
-            //소아 응급
-            else if (category == HospitalCategory.PEDIATRIC) {
-
-                var realtime = score.getPediatricRealtime();
-                var standard = score.getPediatricStandard();
-
-                //실시간 소아 병상 수
-                Integer bed = Optional.ofNullable(realtime)
-                        .map(PediatricRealtime::getPediatricBedCount)
-                        .orElse(0);
-                //소아 기준 병상 수
-                Integer total = Optional.ofNullable(standard)
-                        .map(PediatricStandard::getPediatricBedStandard)
-                        .orElse(0);
-                String incubator = realtime != null ? realtime.getIncubatorResourceAvailable() : "N";
-
-                Hospital h = score.getHospital();
-                Double latitude = Optional.ofNullable(h)
-                        .map(Hospital::getLatitude)
-                        .orElse(0.0);
-
-                Double longitude = Optional.ofNullable(h)
-                        .map(Hospital::getLongitude)
-                        .orElse(0.0);
-
-                double percent = pediatricCongestionCalculator.getPercentage(bed, total);
-                String label = pediatricCongestionCalculator.getLabel(bed, total);
-
-                result.add(
-                        PediatricHospitalResponseDto.builder()
-                                .hospitalName(hospital.getHospitalName())
-                                .hpid(hospital.getHpid())
-                                .finalScore(finalScore)
-                                .distance(distance)
-                                .duration(duration)
-                                .address(hospital.getAddress())
-                                .availablePediatricBedCount(bed)
-                                //인큐베이터 가능여부
-                                .incubatorAvailable(incubator
-                                )//혼잡도 라벨
-                                .congestionLabel(
-                                        label
-                                ) //퍼센트
-                                .availableBedPercentage(percent)
-                                //응급실 전화번호
-                                .emergencyPhone(
-                                        score.getHospital().getEmergencyPhone()
-                                )
-                                .totalPediatricBedCount(total)
-                                .hospitalLatitude(latitude)
-                                .hospitalLongitude(longitude)
-                                .tags(score.getPediatricTags())
-                                .build()
-                );
-            }
-
-            //임산부 응급
-            else if (category == HospitalCategory.PREGNANT) {
-
-                result.add(
-                        PregnantHospitalResponseDto.builder()
-                                .hospitalName(hospital.getHospitalName())
-                                .hpid(hospital.getHpid())
-                                .finalScore(finalScore)
-                                .distance(distance)
-                                .duration(duration)
-                                .address(hospital.getAddress())
-                                .tags(score.getPregnantTags())
-                                // 가능 여부
-                                .deliveryAvailable(
-                                        score.getPregnant().getDeliveryAvailable()
-                                )
-                                .nicuAvailable(
-                                        score.getPregnant().getNicuAvailable()
-                                )
-                                .obstetricSurgeryAvailable(
-                                        score.getPregnant().getObstetricSurgeryAvailable()
-                                )
-                                .gynecologySurgeryAvailable(
-                                        score.getPregnant().getGynecologySurgeryAvailable()
-                                )
-                                .emergencyDialysisAvailable(
-                                        score.getPregnant().getEmergencyDialysisAvailable()
-                                )
-
-                                // realtime
-                                .nicuBedCount(
-                                        score.getPregnantRealtime().getNicuBedCount()
-                                )
-                                .incubatorAvailable(
-                                        score.getPregnantRealtime().getIncubatorAvailable()
-                                )
-                                .prematureVentilatorAvailable(
-                                        score.getPregnantRealtime().getPrematureVentilatorAvailable()
-                                )
-                                .isDeliveryRoomAvailable(
-                                        score.getPregnantRealtime().getIsDeliveryRoomAvailable()
-                                )
-
-                                // standard
-                                .deliveryRoomStandard(
-                                        score.getPregnantStandard().getDeliveryRoomStandard()
-                                )
-                                .nicuStandard(
-                                        score.getPregnantStandard().getNicuStandard()
-                                )
-                                .ventilatorStandard(
-                                        score.getPregnantStandard().getVentilatorStandard()
-                                )
-                                .incubatorStandard(
-                                        score.getPregnantStandard().getIncubatorStandard()
-                                )
-                                .emergencyPhone(score.getHospital().getEmergencyPhone())
-                                .hospitalLatitude(score.getHospital().getLatitude())
-                                .hospitalLongitude(score.getHospital().getLongitude())
-                                .build()
-                );
-            }
-        }
-
-        // 5. 점수 기준 내림차순 정렬
-        result.sort((a, b) ->
-                Double.compare(
-                        b.getFinalScore(),
-                        a.getFinalScore()
-                )
-        );
-        // 로그 확인용 코드
-        System.out.println("====== [병원 추천 결과 리스트] ======");
-        for (int i = 0; i < result.size(); i++) {
-            HospitalResponseDto dto = result.get(i);
-            System.out.printf("[%d위] 병원명: %s | 최종점수: %.2f | 거리: %.2fkm | 소요시간: %.1f분%n",
-                    i + 1,
-                    dto.getHospitalName(),
-                    dto.getFinalScore(),
-                    dto.getDistance(),
-                    dto.getDuration());
-        }
-        System.out.println("==================================");
-        return result;
-    }
-
-    //전체 리스트에 보여줄 애들
-    public List<PediatricHospitalListDto> getPediatricHospitalList(Double lat, Double lon) {
-        // 1. 기존 추천 로직 호출 (카테고리를 PEDIATRIC으로 지정)
-        List<HospitalResponseDto> recommendations = getRecommendations(HospitalCategory.PEDIATRIC, lat, lon);
-
-        // 2. PediatricHospitalResponseDto -> PediatricHospitalListDto 변환
-        return recommendations.stream()
-                .filter(dto -> dto instanceof PediatricHospitalResponseDto) // 소아 응급 타입만 필터링
-                .map(dto -> {
-                    PediatricHospitalResponseDto pDto = (PediatricHospitalResponseDto) dto;
-
-                    return PediatricHospitalListDto.builder()
-                            .hpid(pDto.getHpid())
-                            .hospitalName(pDto.getHospitalName())
-                            .availablePediatricBedCount(pDto.getAvailablePediatricBedCount())
-                            // ResponseDto에 totalBedCount가 없다면 Score 엔티티 등에서 가져오도록 보완 필요
-                            // 만약 Percentage 계산이 이미 ResponseDto에 있다면 그것을 활용
-                            // .recordedAt(LocalDateTime.now()) // 현재 시간 혹은 데이터 업데이트 시간
-                            //.availablePediatricBedCount(pDto.getTotalPediatricBedCount())
-                            .totalPediatricBedCount(pDto.getTotalPediatricBedCount())
-                            .emergencyPhone(pDto.getEmergencyPhone())
-                            .hospitalLatitude(pDto.getHospitalLatitude())
-                            .hospitalLongitude(pDto.getHospitalLongitude())
-                            .distanceKm(pDto.getDistance())
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
-
-    //소아 top3 추천
-    public List<PediatricHospitalResponseDto> getTop3Pediatric(Double lat, Double lon) {
-        return getRecommendations(HospitalCategory.PEDIATRIC, lat, lon)
-                .stream()
-                .map(r -> (PediatricHospitalResponseDto) r)
-                .limit(3)
-                .toList();
-    }
-
-    //TODO 일반 넘겨주기
-    public List<GeneralHospitalResponseDto> getTop3General(Double lat, Double lon) {
-        return getRecommendations(HospitalCategory.GENERAL, lat, lon)
-                .stream()
-                .map(r -> (GeneralHospitalResponseDto) r)
-                .limit(3)
-                .toList();
-    }
-
-    //TODO 임산부 넘겨주기
-    public List<PregnantHospitalResponseDto> getTop3Pregnant(Double lat, Double lon) {
-        return getRecommendations(HospitalCategory.PREGNANT, lat, lon)
-                .stream()
-                .map(r -> (PregnantHospitalResponseDto) r)
-                .limit(3)
-                .toList();
-    }
-
-    //카테고리별 점수 조회
-    private List<HospitalScore> getScoresByCategory(
-            HospitalCategory category
-    ) {
+    // 8. DB 조회
+    private List<HospitalScore> getScoresByCategory(HospitalCategory category) {
 
         if (category == HospitalCategory.PREGNANT) {
             return hospitalScoreRepository
@@ -428,27 +308,49 @@ public class HospitalRecommendationService {
                     .findAllByGeneralScoreGreaterThan(0.0);
         }
 
-        return List.of();
+        return new ArrayList<>();
     }
 
-    //카테고리별 점수 반환
-    private double getScoreByCategory(
-            HospitalScore score,
-            HospitalCategory category
+
+    // 9. 결과 출력 로그
+    private void logRecommendationResult(
+            List<HospitalResponseDto> result
     ) {
 
-        if (category == HospitalCategory.PREGNANT) {
-            return score.getPregnantScore();
+        log.info("====== [병원 추천 결과] ======");
+
+        for (int i = 0; i < result.size(); i++) {
+
+            HospitalResponseDto dto = result.get(i);
+
+            log.info("[{}위] {} | 점수:{} | 거리:{}km | 시간:{}분",
+                    i + 1,
+                    dto.getHospitalName(),
+                    String.format("%.2f", dto.getFinalScore()),
+                    String.format("%.2f", dto.getDistance()),
+                    String.format("%.1f", dto.getDuration())
+            );
         }
 
-        if (category == HospitalCategory.PEDIATRIC) {
-            return score.getPediatricScore();
-        }
-
-        if (category == HospitalCategory.GENERAL) {
-            return score.getGeneralScore();
-        }
-
-        return 0.0;
+        log.info("=============================");
     }
+
+    // inner class
+    private static class HospitalRouteInfo {
+
+        double distance;
+        double duration;
+        double durationWeight;
+
+        HospitalRouteInfo(
+                double distance,
+                double duration,
+                double durationWeight
+        ) {
+            this.distance = distance;
+            this.duration = duration;
+            this.durationWeight = durationWeight;
+        }
+    }
+
 }
