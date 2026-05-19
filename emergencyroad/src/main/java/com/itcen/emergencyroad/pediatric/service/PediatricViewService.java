@@ -3,71 +3,58 @@ package com.itcen.emergencyroad.pediatric.service;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.repository.PediatricRealtimeRepository;
+import com.itcen.emergencyroad.recommend.dto.HospitalResponseDto;
+import com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto;
+import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
+import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PediatricViewService {
     private final PediatricRealtimeRepository pediatricRealtimeRepository;
+    private final HospitalRecommendationService hospitalRecommendationService;
 
     public PediatricHospitalDetailDto getPediatricHospitalDetail(String hpid) {
         return pediatricRealtimeRepository.findPediatricHospitalDetail(hpid)
                 .orElseThrow(() -> new IllegalArgumentException("소아 병원 상세 정보가 없습니다. hpid=" + hpid));
     }
 
-    // 기본 위치 지정
-//    private static final double DEFAULT_LAT = 37.5665;
-//    private static final double DEFAULT_LON = 126.9780;
+    public List<PediatricHospitalListDto> getPediatricHospitalList(Double lat, Double lon) {
 
-    // Query 결과 조회
-//    public List<PediatricHospitalListDto> getPediatricHospitalList(Double lat, Double lon){
-//        List<PediatricHospitalListDto> hospitals =
-//            pediatricRealtimeRepository.findPediatricHospitalList();
-//
-//        double baseLat = lat != null ? lat : DEFAULT_LAT;
-//        double baseLon = lon != null ? lon : DEFAULT_LON;
-//
-//        for (PediatricHospitalListDto hospital : hospitals) {
-//            if(hospital.getHospitalLatitude() == null || hospital.getHospitalLongitude() == null){
-//                continue;
-//            }
-//            double distanceKm = calculateDistanceKm(baseLat, baseLon, hospital.getHospitalLatitude(),hospital.getHospitalLongitude());
-//            hospital.updateDistanceKm(Math.round(distanceKm * 10) / 10.0);
-//        }
-//        hospitals.sort(Comparator.comparing(
-//                hospital -> hospital.getDistanceKm(),
-//                Comparator.nullsLast((d1,d2) -> d1.compareTo(d2))
-//            )
-//        );
-//        return hospitals;
-//    }
+        List<HospitalResponseDto> recommendations =
+                hospitalRecommendationService.getRecommendations(
+                        HospitalCategory.PEDIATRIC,
+                        lat,
+                        lon,
+                        false
+                );
 
+        recommendations.forEach(dto ->
+                System.out.println(dto.getClass().getName())
+        );
 
-    // 거리 계산 메서드
-//    private double calculateDistanceKm(
-//            double userLat,
-//            double userLon,
-//            double hospitalLat,
-//            double hospitalLon
-//    ){
-//        final double earthRadiusKm = 6371.0;
-//
-//        double latDistance = Math.toRadians(hospitalLat - userLat);
-//        double lonDistance = Math.toRadians(hospitalLon - userLon);
-//
-//        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-//                + Math.cos(Math.toRadians(userLat))
-//                * Math.cos(Math.toRadians(hospitalLat))
-//                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-//
-//        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//
-//        return earthRadiusKm * c;
-//    }
+        return recommendations.stream()
+                .filter(dto -> dto instanceof PediatricHospitalResponseDto)
+                .map(dto -> (PediatricHospitalResponseDto) dto)
+                .map(p -> PediatricHospitalListDto.builder()
+                        .hpid(p.getHpid())
+                        .hospitalName(p.getHospitalName())
+                        .availablePediatricBedCount(p.getAvailablePediatricBedCount())
+                        .totalPediatricBedCount(p.getTotalPediatricBedCount())
+                        .emergencyPhone(p.getEmergencyPhone())
+                        .hospitalLatitude(p.getHospitalLatitude())
+                        .hospitalLongitude(p.getHospitalLongitude())
+                        .distanceKm(p.getDistance())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
 }

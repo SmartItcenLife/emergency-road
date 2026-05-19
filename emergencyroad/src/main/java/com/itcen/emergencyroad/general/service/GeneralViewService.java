@@ -33,7 +33,7 @@ public class GeneralViewService {
                 hospitalRecommendationService.getRecommendations(
                         HospitalCategory.GENERAL,
                         lat,
-                        lon
+                        lon,false
                 );
         recommendations.forEach(dto ->
                 System.out.println(
