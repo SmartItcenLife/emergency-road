@@ -15,6 +15,7 @@ public class RecommendationScheduler {
 
 
     @Scheduled(cron = "0 37 12 * * *")
+//    @Scheduled(cron = "0 */1 * * * *") // 테스트용
     public void updateBaseHospitalScores() {
 
         recommendationService.calculateAllHospitalScores();
