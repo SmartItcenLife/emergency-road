@@ -6,9 +6,26 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum HospitalCategory {
-    PEDIATRIC("소아 응급"),
-    PREGNANT("임산부 응급"),
-    GENERAL("일반 응급");
+    GENERAL {
+        @Override
+        public double getScore(HospitalScore score) {
+            return score.getGeneralScore();
+        }
+    },
 
-    private final String description; // 타임리프의 ${category.description}과 연결됨
+    PEDIATRIC {
+        @Override
+        public double getScore(HospitalScore score) {
+            return score.getPediatricScore();
+        }
+    },
+
+    PREGNANT {
+        @Override
+        public double getScore(HospitalScore score) {
+            return score.getPregnantScore();
+        }
+    };
+
+    public abstract double getScore(HospitalScore score);
 }

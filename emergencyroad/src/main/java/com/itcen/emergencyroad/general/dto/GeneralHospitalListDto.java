@@ -26,6 +26,7 @@ public class GeneralHospitalListDto {
     private Double hospitalLongitude; // 병원 경도
 
     private Double distanceKm; // 사용자 위치 기준 거리
+    private Double duration; //소요 시간
 
     private LocalDateTime recordedAt; // 입력일시
 

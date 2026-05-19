@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.recommend.controller;
 
+import com.itcen.emergencyroad.recommend.dto.GeneralHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.dto.PregnantHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import java.util.List;
 
 @Controller
@@ -23,10 +25,9 @@ public class RecommendController {
     public String getRankings(@RequestParam HospitalCategory category,
                               @RequestParam Double lat,
                               @RequestParam Double lon,
-                                  Model model) {
+                              Model model) {
 
-//        List<HospitalResponseDto> rankings =
-//                recommendationService.getTop3Recommendations(category, lat, lon);
+
         model.addAttribute("category", category);
         model.addAttribute("locationProvided", true);
         model.addAttribute("displayLocation", "서울특별시 성동구");
@@ -35,17 +36,41 @@ public class RecommendController {
         if (category == HospitalCategory.PEDIATRIC) {
 
             List<PediatricHospitalResponseDto> pediatricRankings =
-                    recommendationService.getTop3Pediatric(lat, lon);
-
+                    recommendationService.getTop3(
+                            HospitalCategory.PEDIATRIC,
+                            lat,
+                            lon,
+                            PediatricHospitalResponseDto.class
+                    );
             model.addAttribute("rankings", pediatricRankings);
-            model.addAttribute("userLat", lat);           // 카카오 길찾기 시작점 좌표
+            model.addAttribute("userLat", lat);
             model.addAttribute("userLon", lon);
             return "recommend/result-pediatric";
-        }else if(category == HospitalCategory.GENERAL){
-            //TODO
-        }else if(category == HospitalCategory.PREGNANT) {
+        } else if (category == HospitalCategory.GENERAL) {
+
+
+            List<GeneralHospitalResponseDto> generalRankings =
+                    recommendationService.getTop3(
+                            HospitalCategory.GENERAL,
+                            lat,
+                            lon,
+                            GeneralHospitalResponseDto.class
+                    );
+            model.addAttribute("rankings", generalRankings);
+            model.addAttribute("userLat", lat);
+            model.addAttribute("userLon", lon);
+            return "recommend/result-general";
+
+        } else if (category == HospitalCategory.PREGNANT) {
+
+
             List<PregnantHospitalResponseDto> pregnantRankings =
-                    recommendationService.getTop3Pregnant(lat, lon);
+                    recommendationService.getTop3(
+                            HospitalCategory.PREGNANT,
+                            lat,
+                            lon,
+                            PregnantHospitalResponseDto.class
+                    );
 
             model.addAttribute("rankings", pregnantRankings);
             model.addAttribute("userLat", lat);           // 카카오 길찾기 시작점 좌표
@@ -55,7 +80,6 @@ public class RecommendController {
         return "result-pediatric";
     }
 }
-
 
 
 // 더미 데이터 리스트 생성

@@ -21,7 +21,7 @@ public class PediatricController {
     private final PediatricViewService pediatricViewService;
     private final KakaoLocalApiClient kakaoLocalApiClient;
     private final HospitalRecommendationService hospitalRecommendationService;
-
+    private final PediatricViewService viewService;
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,
                                @RequestParam(required = false) Double lon,
@@ -29,11 +29,9 @@ public class PediatricController {
         // 1. 먼저 null 체크를 해서 기본값을 확정짓습니다.
         double baseLat = (lat != null && lat != 0.0) ? lat : 37.5665;
         double baseLon = (lon != null && lon != 0.0) ? lon : 126.9780;
-//
-//        List<PediatricHospitalListDto> hospitals =
-//                pediatricViewService.getPediatricHospitalList(lat,lon);
+
           // 서울특별시 중구, 기본값
-        List<PediatricHospitalListDto> list = hospitalRecommendationService.getPediatricHospitalList(baseLat, baseLon);
+        List<PediatricHospitalListDto> list = viewService.getPediatricHospitalList(baseLat, baseLon);
 
         System.out.println("전달된 lat: " + lat + ", 결정된 baseLat: " + baseLat);
 
