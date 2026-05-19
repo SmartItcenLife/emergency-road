@@ -95,9 +95,8 @@ public class HospitalRecommendationService {
                 // 위치 정보가 아예 없는 병원 정보라면 스킵
                 if (routeInfo == null) continue;
                 // 실시간 교통 정보 경로가 잡힌 경우에만 시간 가중치 부여
-                if (routePath != null) {
-                    finalScore += routeInfo.durationWeight * 2.5;
-                }
+                finalScore += routeInfo.durationWeight * 2.5;
+
             }
             // DTO 변환 (useDistance가 false이면 finalScore=baseScore, routeInfo=null로 전달됨)
             result.add(mapToCategoryDto(
