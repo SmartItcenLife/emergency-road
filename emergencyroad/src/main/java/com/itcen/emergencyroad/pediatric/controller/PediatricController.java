@@ -4,6 +4,7 @@ import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalListDto;
 import com.itcen.emergencyroad.pediatric.service.PediatricViewService;
+import com.itcen.emergencyroad.recommend.entity.HospitalSortType;
 import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +26,13 @@ public class PediatricController {
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,
                                @RequestParam(required = false) Double lon,
+                               @RequestParam(required = false, defaultValue = "SCORE") String sort,
                                Model model){
         // 1. 먼저 null 체크를 해서 기본값을 확정짓습니다.
         double baseLat = (lat != null && lat != 0.0) ? lat : 37.5665;
         double baseLon = (lon != null && lon != 0.0) ? lon : 126.9780;
+
+        HospitalSortType sortType = HospitalSortType.from(sort);
 
           // 서울특별시 중구, 기본값
         List<PediatricHospitalListDto> list = viewService.getPediatricHospitalList(baseLat, baseLon);
@@ -42,6 +46,7 @@ public class PediatricController {
         model.addAttribute("displayLocation", displayLocation); //뺄 예정
         model.addAttribute("userLat", baseLat);
         model.addAttribute("userLon", baseLon);
+        model.addAttribute("sort", sortType.name());
 
         return "pediatric/hospitals";
     }

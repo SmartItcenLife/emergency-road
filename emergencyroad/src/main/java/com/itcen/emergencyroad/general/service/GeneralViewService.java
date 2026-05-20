@@ -5,8 +5,8 @@ import com.itcen.emergencyroad.general.dto.GeneralHospitalListDto;
 import com.itcen.emergencyroad.general.repository.GeneralRepository;
 import com.itcen.emergencyroad.recommend.dto.GeneralHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.dto.HospitalResponseDto;
-import com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
+import com.itcen.emergencyroad.recommend.entity.HospitalSortType;
 import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +23,14 @@ public class GeneralViewService {
     private final GeneralRepository generalRepository;
     private final HospitalRecommendationService hospitalRecommendationService;
 
-    // 현재 일반 유형 대상 추천 로직 미구현 상태로 임시로 구현하였습니다.
+    /*
+        기존 코드 : 추천 결과 목록을 만들자마자 반환 ( sort 할 수 없음 )
+        변경 코드 : 추천결과 조회 -> DTO 목록으로 변환 -> sortType 기준으로 정렬 -> 반환
+     */
     public List<GeneralHospitalListDto> getGeneralHospitalList(
             Double lat,
-            Double lon
+            Double lon,
+            HospitalSortType sortType
     ) {
 
         List<HospitalResponseDto> recommendations =
@@ -39,8 +43,11 @@ public class GeneralViewService {
                 System.out.println(
                         dto.getClass().getName()
                 ));
-
-        return recommendations.stream()
+        /*
+            기존 코드 : DTO 변환이 끝나면 바로 반환하여 정렬을 적용할 수 없음
+            이에 따라 리스트 변수에 담은 뒤 정렬 후처리를 진행 후 반환 하도록 로직 변경
+         */
+        List<GeneralHospitalListDto> hospitals = recommendations.stream()
                 .filter(dto ->
                         dto instanceof GeneralHospitalResponseDto)
                 .map(dto -> {
@@ -88,6 +95,24 @@ public class GeneralViewService {
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        sortGeneralHospitals(hospitals, sortType);
+
+        return hospitals;
+    }
+    // 정렬 기준에 따른 정렬 메서드
+    private void sortGeneralHospitals(
+            List<GeneralHospitalListDto> hospitals,
+            HospitalSortType sortType
+    ) {
+        if (sortType == HospitalSortType.BED) {
+            hospitals.sort(
+                    Comparator.comparing(
+                            hospital -> hospital.getAvailableBedPercentage(),
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    )
+            );
+        }
     }
 
     public GeneralHospitalDetailDto getGeneralHospitalDetail(String hpid) {

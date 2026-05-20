@@ -4,6 +4,7 @@ import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalDetailDto;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalListDto;
 import com.itcen.emergencyroad.general.service.GeneralViewService;
+import com.itcen.emergencyroad.recommend.entity.HospitalSortType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -30,12 +31,15 @@ public class GeneralController {
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,
                                @RequestParam(required = false) Double lon,
+                               @RequestParam(required = false, defaultValue = "SCORE") String sort,
                                Model model) {
 
         double baseLat = (lat != null && lat != 0.0) ? lat : 37.5665;
         double baseLon = (lon != null && lon != 0.0) ? lon : 126.9780;
 
-        List<GeneralHospitalListDto> hospitals = generalViewService.getGeneralHospitalList(baseLat, baseLon);
+        HospitalSortType sortType = HospitalSortType.from(sort);
+
+        List<GeneralHospitalListDto> hospitals = generalViewService.getGeneralHospitalList(baseLat, baseLon, sortType);
 
         String displayLocation =
                 kakaoLocalApiClient.getDisplayLocation(baseLat, baseLon);
@@ -45,6 +49,7 @@ public class GeneralController {
         model.addAttribute("displayLocation", displayLocation);
         model.addAttribute("userLat", baseLat);
         model.addAttribute("userLon", baseLon);
+        model.addAttribute("sort", sortType.name());
 
         return "general/hospitals";
     }

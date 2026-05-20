@@ -48,6 +48,29 @@
             margin: 18px 0 10px;
         }
 
+        .sort-filter {
+            display: flex;
+            gap: 8px;
+            margin: 0 0 12px;
+        }
+
+        .sort-filter a {
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .sort-filter a.active {
+            border-color: #2563eb;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
         .hospital-list {
             display: flex;
             flex-direction: column;
@@ -424,6 +447,18 @@
     <section>
         <h2 class="section-title">전체 병원 목록</h2>
 
+        <div class="sort-filter">
+            <a th:href="@{/general/hospitals(lat=${userLat}, lon=${userLon}, sort='SCORE')}"
+               th:classappend="${sort == 'SCORE'} ? ' active'">
+                점수순
+            </a>
+
+            <a th:href="@{/general/hospitals(lat=${userLat}, lon=${userLon}, sort='BED')}"
+               th:classappend="${sort == 'BED'} ? ' active'">
+                병상여유순
+            </a>
+        </div>
+
         <div class="empty" th:if="${#lists.isEmpty(hospitals)}">
             표시할 병원 정보가 없습니다.
         </div>
@@ -513,6 +548,7 @@
 
 <script th:inline="javascript">
     const locationProvided = [[${locationProvided}]];
+    const currentSort = [[${sort}]];
 
     if (!locationProvided && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -520,7 +556,8 @@
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
 
-                window.location.href = `/general/hospitals?lat=${lat}&lon=${lon}`;
+                // window.location.href = `/general/hospitals?lat=${lat}&lon=${lon}`;
+                window.location.href = `/general/hospitals?lat=${lat}&lon=${lon}&sort=${currentSort}`;
             },
             function () {
                 console.log("위치 정보 제공이 거부되었습니다.");
