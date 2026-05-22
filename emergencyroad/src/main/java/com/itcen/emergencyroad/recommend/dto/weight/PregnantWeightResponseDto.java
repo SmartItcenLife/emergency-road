@@ -16,19 +16,19 @@ public class PregnantWeightResponseDto {
     private Double operatingRoomBonusWeight;
     private Double nicuScaleWeight;
     private Double maxNicuScaleScore;
-
-    public PregnantWeightResponseDto(WeightPregnantConfiguration entity){
-        this.deliveryAvailableWeight = entity.getDeliveryAvailableWeight();
-        this.obstetricSurgeryWeight = entity.getObstetricSurgeryWeight();
-        this.nicuAvailableWeight = entity.getNicuAvailableWeight();
-        this.deliveryRoomAvailableWeight = entity.getDeliveryRoomAvailableWeight();
-        this.emergencyRoomAvailableWeight = entity.getEmergencyRoomAvailableWeight();
-        this.operatingRoomThreshold = entity.getOperatingRoomThreshold();
-        this.incubatorWeight = entity.getIncubatorWeight();
-        this.prematureVentilatorWeight = entity.getPrematureVentilatorWeight();
-        this.operatingRoomBonusWeight = entity.getOperatingRoomBonusWeight();
-        this.nicuScaleWeight = entity.getNicuScaleWeight();
-        this.maxNicuScaleScore = entity.getMaxNicuScaleScore();
-    }
+//
+//    public PregnantWeightResponseDto(WeightPregnantConfiguration entity){
+//        this.deliveryAvailableWeight = entity.getDeliveryAvailableWeight();
+//        this.obstetricSurgeryWeight = entity.getObstetricSurgeryWeight();
+//        this.nicuAvailableWeight = entity.getNicuAvailableWeight();
+//        this.deliveryRoomAvailableWeight = entity.getDeliveryRoomAvailableWeight();
+//        this.emergencyRoomAvailableWeight = entity.getEmergencyRoomAvailableWeight();
+//        this.operatingRoomThreshold = entity.getOperatingRoomThreshold();
+//        this.incubatorWeight = entity.getIncubatorWeight();
+//        this.prematureVentilatorWeight = entity.getPrematureVentilatorWeight();
+//        this.operatingRoomBonusWeight = entity.getOperatingRoomBonusWeight();
+//        this.nicuScaleWeight = entity.getNicuScaleWeight();
+//        this.maxNicuScaleScore = entity.getMaxNicuScaleScore();
+//    }
 
 }

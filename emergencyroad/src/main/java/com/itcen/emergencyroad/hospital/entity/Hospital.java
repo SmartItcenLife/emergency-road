@@ -64,4 +64,12 @@ public class Hospital {
         this.longitude = dto.getWgs84Lon();
         this.hasEmergency = dto.getDutyEryn();
     }
+
+    //위도 경도 null 확인
+    public boolean isValidLocation(){
+        if(this.latitude == null || this.longitude == null){
+            return false;
+        }
+        return true;
+    }
 }

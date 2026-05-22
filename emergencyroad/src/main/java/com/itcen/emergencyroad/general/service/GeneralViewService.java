@@ -23,7 +23,7 @@ public class GeneralViewService {
     private final GeneralRepository generalRepository;
     private final HospitalRecommendationService hospitalRecommendationService;
 
-    // 현재 일반 유형 대상 추천 로직 미구현 상태로 임시로 구현하였습니다.
+
     public List<GeneralHospitalListDto> getGeneralHospitalList(
             Double lat,
             Double lon

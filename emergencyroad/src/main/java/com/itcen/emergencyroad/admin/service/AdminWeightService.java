@@ -38,50 +38,50 @@ public class AdminWeightService {
         WeightGeneralConfiguration config = generalRepository.findById(HospitalCategory.GENERAL)
                 .orElseThrow(()->new IllegalArgumentException("일반 응급 가중치 설정이 존재하지 않습니다."));
 
-        config.updateGeneralWeights(
-                dto.getEmergencyRoomWeight(),
-                dto.getSevereDiseaseWeight(),
-                dto.getIcuWeight(),
-                dto.getEquipmentWeight(),
-                dto.getCongestionWeight(),
-                dto.getEcmoBonus(),
-                dto.getCrrtBonus(),
-                dto.getAngioBonus()
-        );
+//        config.updateGeneralWeights(
+//                dto.getEmergencyRoomWeight(),
+//                dto.getSevereDiseaseWeight(),
+//                dto.getIcuWeight(),
+//                dto.getEquipmentWeight(),
+//                dto.getCongestionWeight(),
+//                dto.getEcmoBonus(),
+//                dto.getCrrtBonus(),
+//                dto.getAngioBonus()
+//        );
     }
 
     // 화면에 보여줄 임산부 응급 가중치 조회
-    @Transactional
-    public PregnantWeightResponseDto getPregnantWeight(){
-        WeightPregnantConfiguration config = pregnantRepository.findById(HospitalCategory.PREGNANT)
-                .orElseGet(()->{
-                    // 데이터가 아예 없다면 기본값으로 새로 만들어서 DB에 저장해둠 (에러 방지)
-                    WeightPregnantConfiguration newConfig = WeightPregnantConfiguration.builder()
-                            .category(HospitalCategory.PREGNANT)
-                            .build();
-                    return pregnantRepository.save(newConfig);
-                });
-        return new PregnantWeightResponseDto(config);
-    }
+//    @Transactional
+//    public PregnantWeightResponseDto getPregnantWeight(){
+//        WeightPregnantConfiguration config = pregnantRepository.findById(HospitalCategory.PREGNANT)
+//                .orElseGet(()->{
+//                    // 데이터가 아예 없다면 기본값으로 새로 만들어서 DB에 저장해둠 (에러 방지)
+//                    WeightPregnantConfiguration newConfig = WeightPregnantConfiguration.builder()
+//                            .category(HospitalCategory.PREGNANT)
+//                            .build();
+//                    return pregnantRepository.save(newConfig);
+//                });
+//        return new PregnantWeightResponseDto(config);
+//    }
     // 관리자가 입력한 임산부 응급 가중치 저장
-    @Transactional
-    public void updatePregnantWeight(PregnantWeightRequestDto dto){
-        WeightPregnantConfiguration config = pregnantRepository.findById(HospitalCategory.PREGNANT)
-                .orElseThrow(()->new IllegalArgumentException("일반 응급 가중치 설정이 존재하지 않습니다."));
-
-        config.updatePregnantWeights(
-                dto.getDeliveryAvailableWeight(),
-                dto.getObstetricSurgeryWeight(),
-                dto.getNicuAvailableWeight(),
-                dto.getDeliveryRoomAvailableWeight(),
-                dto.getEmergencyRoomAvailableWeight(),
-                dto.getOperatingRoomThreshold(),
-                dto.getIncubatorWeight(),
-                dto.getPrematureVentilatorWeight(),
-                dto.getOperatingRoomBonusWeight(),
-                dto.getNicuScaleWeight(),
-                dto.getMaxNicuScaleScore()
-        );
-    }
+//    @Transactional
+//    public void updatePregnantWeight(PregnantWeightRequestDto dto){
+//        WeightPregnantConfiguration config = pregnantRepository.findById(HospitalCategory.PREGNANT)
+//                .orElseThrow(()->new IllegalArgumentException("일반 응급 가중치 설정이 존재하지 않습니다."));
+//
+//        config.updatePregnantWeights(
+//                dto.getDeliveryAvailableWeight(),
+//                dto.getObstetricSurgeryWeight(),
+//                dto.getNicuAvailableWeight(),
+//                dto.getDeliveryRoomAvailableWeight(),
+//                dto.getEmergencyRoomAvailableWeight(),
+//                dto.getOperatingRoomThreshold(),
+//                dto.getIncubatorWeight(),
+//                dto.getPrematureVentilatorWeight(),
+//                dto.getOperatingRoomBonusWeight(),
+//                dto.getNicuScaleWeight(),
+//                dto.getMaxNicuScaleScore()
+//        );
+   // }
 
 }
