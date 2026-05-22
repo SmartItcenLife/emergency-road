@@ -48,27 +48,29 @@
             margin: 18px 0 10px;
         }
 
-        .sort-filter {
+        .sort-form {
             display: flex;
+            align-items: center;
+            justify-content: flex-end;
             gap: 8px;
             margin: 0 0 12px;
         }
 
-        .sort-filter a {
-            padding: 7px 10px;
+        .sort-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        .sort-select {
+            height: 32px;
+            padding: 0 28px 0 10px;
             border: 1px solid #d1d5db;
             border-radius: 6px;
             background: #ffffff;
             color: #374151;
             font-size: 12px;
             font-weight: 700;
-            text-decoration: none;
-        }
-
-        .sort-filter a.active {
-            border-color: #2563eb;
-            background: #eff6ff;
-            color: #2563eb;
         }
 
         .hospital-list {
@@ -447,17 +449,17 @@
     <section>
         <h2 class="section-title">전체 병원 목록</h2>
 
-        <div class="sort-filter">
-            <a th:href="@{/general/hospitals(lat=${userLat}, lon=${userLon}, sort='SCORE')}"
-               th:classappend="${sort == 'SCORE'} ? ' active'">
-                점수순
-            </a>
+        <form class="sort-form" th:action="@{/general/hospitals}" method="get">
+            <input type="hidden" name="lat" th:value="${userLat}">
+            <input type="hidden" name="lon" th:value="${userLon}">
 
-            <a th:href="@{/general/hospitals(lat=${userLat}, lon=${userLon}, sort='BED')}"
-               th:classappend="${sort == 'BED'} ? ' active'">
-                병상여유순
-            </a>
-        </div>
+            <label class="sort-label" for="sort">정렬</label>
+            <select id="sort" name="sort" class="sort-select" onchange="this.form.submit()">
+                <option value="SCORE" th:selected="${sort == 'SCORE'}">점수순</option>
+                <option value="BED" th:selected="${sort == 'BED'}">병상여유순</option>
+                <option value="DISTANCE" th:selected="${sort == 'DISTANCE'}">거리순</option>
+            </select>
+        </form>
 
         <div class="empty" th:if="${#lists.isEmpty(hospitals)}">
             표시할 병원 정보가 없습니다.

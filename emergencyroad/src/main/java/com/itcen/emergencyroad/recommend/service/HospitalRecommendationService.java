@@ -178,12 +178,62 @@ public class HospitalRecommendationService {
 
 
     // 5. 거리 및 소요시간
+//    private Map<String, PathResponseDto> findDistanceAndDuration(
+//            List<HospitalScore> baseScores,
+//            Double lat,
+//            Double lon
+//    ) {
+//
+//        LocationRequestDto userLocation =
+//                new LocationRequestDto(lat, lon);
+//
+//        List<Hospital> hospitals = new ArrayList<>();
+//        for (HospitalScore score : baseScores) {
+//            hospitals.add(score.getHospital());
+//        }
+//
+//        List<PathResponseDto> paths = null;
+//
+//        try {
+//            paths = cacaoService.findHospitalsWithDistance(
+//                    userLocation,
+//                    hospitals
+//            );
+//        } catch (Exception e) {
+//            log.error("카카오 실패: {}", e.getMessage());
+//        }
+//
+//        if (paths == null || paths.isEmpty()) {
+//            try {
+//                paths = tmapService.findHospitalsWithDistanceTmap(
+//                        userLocation,
+//                        hospitals
+//                );
+//            } catch (Exception e) {
+//                log.error("티맵 실패: {}", e.getMessage());
+//            }
+//        }
+//
+//        Map<String, PathResponseDto> map = new HashMap<>();
+//
+//        if (paths != null) {
+//            for (PathResponseDto p : paths) {
+//                map.put(p.getHpid(), p);
+//            }
+//        }
+//
+//        return map;
+//    }
+    /*
+     5. 거리계산 함수 v2
+     기존 코드 : API 호출 실패 시 다음 API 호출 로직과정에서 모든 결과가 실패일 경우에만 동작됨
+     신규 코드 : 단계별 API 호출 결과를 담아 단계별로 진행 후 리턴
+     */
     private Map<String, PathResponseDto> findDistanceAndDuration(
             List<HospitalScore> baseScores,
             Double lat,
             Double lon
     ) {
-
         LocationRequestDto userLocation =
                 new LocationRequestDto(lat, lon);
 
@@ -192,37 +242,49 @@ public class HospitalRecommendationService {
             hospitals.add(score.getHospital());
         }
 
-        List<PathResponseDto> paths = null;
+        Map<String, PathResponseDto> routeMap = new HashMap<>();
 
         try {
-            paths = cacaoService.findHospitalsWithDistance(
-                    userLocation,
-                    hospitals
-            );
+            // 1차로 카카오 다중 목적지 API를 호출하고, 성공한 병원만 routeMap에 저장
+            List<PathResponseDto> kakaoPaths =
+                    cacaoService.findHospitalsWithDistance(
+                            userLocation,
+                            hospitals
+                    );
+            if (kakaoPaths != null) {
+                for (PathResponseDto path : kakaoPaths) {
+                    routeMap.put(path.getHpid(), path);
+                }
+            }
         } catch (Exception e) {
-            log.error("카카오 실패: {}", e.getMessage());
+            log.error("카카오 길찾기 실패 : {}", e.getMessage());
         }
 
-        if (paths == null || paths.isEmpty()) {
+        // 카카오가 일부만 혹은 전부 실패한 경우 Tmap을 이용하여 실패/누락 병원의 거리 및 시간을 계산
+        List<Hospital> missingHospitals = hospitals.stream()
+                .filter(hospital -> hospital.getLatitude() != null)
+                .filter(hospital -> hospital.getLongitude() != null)
+                .filter(hospital -> !routeMap.containsKey(hospital.getHpid()))
+                .toList();
+
+        if (!missingHospitals.isEmpty()) {
             try {
-                paths = tmapService.findHospitalsWithDistanceTmap(
-                        userLocation,
-                        hospitals
-                );
+                // 2차로 Tmap은 카카오에서 누락된 병원만 호출한다.
+                List<PathResponseDto> tmapPaths =
+                        tmapService.findHospitalsWithDistanceTmap(
+                                userLocation,
+                                missingHospitals
+                        );
+                if (tmapPaths != null) {
+                    for (PathResponseDto path : tmapPaths) {
+                        routeMap.put(path.getHpid(), path);
+                    }
+                }
             } catch (Exception e) {
-                log.error("티맵 실패: {}", e.getMessage());
+                log.error("티맵 길찾기 실패: {}", e.getMessage());
             }
         }
-
-        Map<String, PathResponseDto> map = new HashMap<>();
-
-        if (paths != null) {
-            for (PathResponseDto p : paths) {
-                map.put(p.getHpid(), p);
-            }
-        }
-
-        return map;
+        return routeMap;
     }
 
 
@@ -262,8 +324,73 @@ public class HospitalRecommendationService {
                 calculateTimeWeight(duration)
         );
     }
+    // 7. 전체보기 병원 리스트
+    public Map<String, PathResponseDto> getDistanceAndDurationMap(
+            HospitalCategory category,
+            Double lat,
+            Double lon,
+            int limit
+    ){
+        // 전체보기 목록은 유지해야 하므로 좌표가 있는 전체 후보를 먼저 보관한다.
+        // limit은 외부 API 호출 대상에만 적용하고, 직선거리 fallback은 전체 후보에 적용한다.
+        List<HospitalScore> allScores = getScoresByCategory(category).stream()
+                .filter(score -> score.getHospital().getLatitude() != null)
+                .filter(score -> score.getHospital().getLongitude() != null)
+                .toList();
 
-    // 7. util
+        // 외부 API 호출량을 줄이기 위해 사용자 위치 기준 직선거리로 가까운 병원만 선별한다.
+        // 실제 도로거리/소요시간은 이 선별된 병원에 대해서만 카카오/Tmap으로 보완한다.
+        List<HospitalScore> apiTargetScores = allScores.stream()
+                .sorted(Comparator.comparing(score ->
+                        calculateDirectDistance(
+                                lat,
+                                lon,
+                                score.getHospital().getLatitude(),
+                                score.getHospital().getLongitude()
+                        )
+                ))
+                .limit(limit)
+                .toList();
+        Map<String, PathResponseDto> routeMap =
+                findDistanceAndDuration(apiTargetScores, lat, lon);
+
+        // API 대상 밖이거나 두 API 모두 실패한 병원은 직선거리로 보완한다.
+        // 전체보기 거리순에서 병원이 누락되지 않게 하기 위한 fallback이며, 시간은 아직 계산하지 않는다.
+        for (HospitalScore score : allScores) {
+            Hospital hospital = score.getHospital();
+
+            if (routeMap.containsKey(hospital.getHpid())) {
+                continue;
+            }
+
+            HospitalRouteInfo routeInfo =
+                    resolveRouteInfo(
+                            hospital,
+                            // API 결과가 없음을 명시해서 resolveRouteInfo 내부의 직선거리 계산 경로를 사용한다.
+                            null,
+                            lat,
+                            lon
+                    );
+
+            if (routeInfo == null) {
+                continue;
+            }
+
+            routeMap.put(
+                    hospital.getHpid(),
+                    PathResponseDto.builder()
+                            .hospitalName(hospital.getHospitalName())
+                            .hpid(hospital.getHpid())
+                            .distance(Math.round(routeInfo.distance * 10) / 10.0)
+                            .duration(0)
+                            .build()
+            );
+        }
+
+        return routeMap;
+    }
+
+    // 8. util
     private double calculateTimeWeight(double duration) {
         double weight = 50 - (duration * 1.6);
         return Math.max(weight, 0);

@@ -1,5 +1,6 @@
 package com.itcen.emergencyroad.general.service;
 
+import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalDetailDto;
 import com.itcen.emergencyroad.general.dto.GeneralHospitalListDto;
 import com.itcen.emergencyroad.general.repository.GeneralRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -96,20 +98,53 @@ public class GeneralViewService {
                 })
                 .collect(Collectors.toList());
 
-        sortGeneralHospitals(hospitals, sortType);
+        sortGeneralHospitals(hospitals, sortType,lat, lon);
 
         return hospitals;
     }
     // 정렬 기준에 따른 정렬 메서드
     private void sortGeneralHospitals(
             List<GeneralHospitalListDto> hospitals,
-            HospitalSortType sortType
+            HospitalSortType sortType,
+            Double lat,
+            Double lon
     ) {
         if (sortType == HospitalSortType.BED) {
+            // 병상 여유순은 가용 병상 비율이 높은 병원부터 보여줌
             hospitals.sort(
                     Comparator.comparing(
                             hospital -> hospital.getAvailableBedPercentage(),
                             Comparator.nullsLast(Comparator.reverseOrder())
+                    )
+            );
+        }
+        if (sortType == HospitalSortType.DISTANCE){
+            // 거리순은 API 호출 비용을 제한하기 위해 가까운 일부 병원만 도로거리/시간을 조회
+            // API 결과가 없는 병원은 HospitalRecommendationService의 resolveRouteInfo 로 계산진행
+            Map<String, PathResponseDto> routeMap =
+                    hospitalRecommendationService.getDistanceAndDurationMap(
+                            HospitalCategory.GENERAL,
+                            lat,
+                            lon,
+                            30
+                    );
+            hospitals.forEach(hospital -> {
+                PathResponseDto path = routeMap.get(hospital.getHpid());
+
+                if ( path != null ) {
+                    // routeMap의 결과를 목록 DTO에 반영해야 화면의 거리/시간 표시와 정렬이 같은 값을 사용한다.
+                    hospital.updateRouteInfo(
+                            path.getDistance(),
+                            path.getDuration()
+                    );
+                }
+            });
+
+            // 가까운 병원부터 보여주기 위해 거리 오름차순으로 정렬
+            hospitals.sort(
+                    Comparator.comparing(
+                            hospital -> hospital.getDistanceKm(),
+                            Comparator.nullsLast(Comparator.naturalOrder())
                     )
             );
         }
