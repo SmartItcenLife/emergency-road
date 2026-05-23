@@ -1,7 +1,6 @@
 package com.itcen.emergencyroad.pregnant.controller;
 
 import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
-import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalDetailDto;
 import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalListDto;
 import com.itcen.emergencyroad.pregnant.service.PregnantViewService;
@@ -21,8 +20,7 @@ import java.util.List;
 public class PregnantController {
 
     private final PregnantViewService pregnantViewService;
-
-    private final HospitalRecommendationService hospitalRecommendationService;
+    
     private final KakaoLocalApiClient kakaoLocalApiClient;
 
     // 전체 병원 목록 출력
@@ -38,7 +36,7 @@ public class PregnantController {
         HospitalSortType sortType = HospitalSortType.from(sort);
 
         List<PregnantHospitalListDto> list =
-                pregnantViewService.getPregnantHospitalList(baseLat, baseLon);
+                pregnantViewService.getPregnantHospitalList(baseLat, baseLon, sortType);
 
         String displayLocation = kakaoLocalApiClient.getDisplayLocation(baseLat, baseLon);
 

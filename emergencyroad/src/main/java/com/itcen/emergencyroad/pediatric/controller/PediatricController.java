@@ -35,7 +35,7 @@ public class PediatricController {
         HospitalSortType sortType = HospitalSortType.from(sort);
 
           // 서울특별시 중구, 기본값
-        List<PediatricHospitalListDto> list = viewService.getPediatricHospitalList(baseLat, baseLon);
+        List<PediatricHospitalListDto> list = viewService.getPediatricHospitalList(baseLat, baseLon, sortType);
 
         System.out.println("전달된 lat: " + lat + ", 결정된 baseLat: " + baseLat);
 

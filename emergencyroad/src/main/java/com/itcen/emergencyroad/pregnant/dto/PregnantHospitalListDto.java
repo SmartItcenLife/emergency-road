@@ -39,6 +39,9 @@ public class PregnantHospitalListDto {
     // NICU 기준 병상 수
     private Integer nicuStandard;
 
+    // 시간
+    private Double duration;
+
     public String getDeliveryAvailableLabel() {
         return toAvailabilityLabel(deliveryAvailable);
     }
@@ -93,5 +96,10 @@ public class PregnantHospitalListDto {
         }
 
         return normalized;
+    }
+
+    public void updateRouteInfo(Double distanceKm, Integer duration){
+        this.distanceKm = distanceKm;
+        this.duration = duration != null ? duration.doubleValue() : null;
     }
 }
