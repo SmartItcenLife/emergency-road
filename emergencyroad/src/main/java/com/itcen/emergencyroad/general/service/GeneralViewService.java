@@ -25,6 +25,7 @@ public class GeneralViewService {
     private final GeneralRepository generalRepository;
     private final HospitalRecommendationService hospitalRecommendationService;
 
+
     /*
         기존 코드 : 추천 결과 목록을 만들자마자 반환 ( sort 할 수 없음 )
         변경 코드 : 추천결과 조회 -> DTO 목록으로 변환 -> sortType 기준으로 정렬 -> 반환

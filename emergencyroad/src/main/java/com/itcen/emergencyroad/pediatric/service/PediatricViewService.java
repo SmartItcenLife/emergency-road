@@ -6,6 +6,7 @@ import com.itcen.emergencyroad.pediatric.repository.PediatricRealtimeRepository;
 import com.itcen.emergencyroad.recommend.dto.HospitalResponseDto;
 import com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
+import com.itcen.emergencyroad.recommend.entity.HospitalSortType;
 import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class PediatricViewService {
                 .orElseThrow(() -> new IllegalArgumentException("소아 병원 상세 정보가 없습니다. hpid=" + hpid));
     }
 
-    public List<PediatricHospitalListDto> getPediatricHospitalList(Double lat, Double lon) {
+    public List<PediatricHospitalListDto> getPediatricHospitalList(Double lat, Double lon, HospitalSortType sortType) {
 
         List<HospitalResponseDto> recommendations =
                 hospitalRecommendationService.getRecommendations(

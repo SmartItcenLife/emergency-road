@@ -1,34 +1,30 @@
 package com.itcen.emergencyroad.recommend.service;
 
-import com.itcen.emergencyroad.general.entity.GeneralRealTimeAndStandard;
-import com.itcen.emergencyroad.general.entity.GeneralSrsIll;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import com.itcen.emergencyroad.hospital.entity.HospitalDetail;
 import com.itcen.emergencyroad.hospital.repository.HospitalRepository;
-import com.itcen.emergencyroad.pediatric.entity.PediatricMkioskty;
-import com.itcen.emergencyroad.pediatric.entity.PediatricRealtime;
-import com.itcen.emergencyroad.pediatric.entity.PediatricStandard;
+import com.itcen.emergencyroad.pediatric.entity.*;
 import com.itcen.emergencyroad.recommend.dto.projection.PediatricHospitalProjection;
-import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
-import com.itcen.emergencyroad.recommend.entity.HospitalScore;
-import com.itcen.emergencyroad.recommend.entity.WeightGeneralConfiguration;
-import com.itcen.emergencyroad.recommend.entity.WeightPediatricConfiguration;
+import com.itcen.emergencyroad.recommend.entity.*;
 import com.itcen.emergencyroad.recommend.repository.HospitalScoreRepository;
 import com.itcen.emergencyroad.recommend.repository.WeightPediatricConfigurationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class PediatricRecommendationStrategy implements RecommendationStrategy {
+
     private final HospitalScoreRepository hospitalScoreRepository;
     private final HospitalRepository hospitalRepository;
     private final WeightPediatricConfigurationRepository weightRepository;
-     // 특수질환 기본 가산 개수 기준
-    private static final int MIN_AVAILABLE_COUNT = 0;
 
+    private static final int MIN_AVAILABLE_COUNT = 0;
 
     @Override
     public HospitalCategory getCategory() {
@@ -36,258 +32,141 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
     }
 
     @Override
+    @Transactional
     public void calculateScores() {
-        System.out.println("=====  응급 점수 계산 시작 =====");
+        log.info("===== 소아 응급 점수 계산 시작 =====");
 
-        // 1. 일반 응급 가중치 조회
-        WeightPediatricConfiguration config =
-                weightRepository
-                        .findTopByCategoryOrderByCreatedAtDesc(
-                                HospitalCategory.PEDIATRIC
-                        )
-                        .orElseThrow(() ->
-                                new RuntimeException("소아 응급 가중치 설정이 없습니다.")
-                        );
+        WeightPediatricConfiguration config = weightRepository
+                .findTopByCategoryOrderByCreatedAtDesc(HospitalCategory.PEDIATRIC)
+                .orElseThrow(() -> new RuntimeException("소아 응급 가중치 설정이 없습니다."));
 
-        // 2. 일반 응급 병원 데이터 조회
-        List<PediatricHospitalProjection> results =
-                hospitalRepository.findAllHospitalPediatricData();
-
-        System.out.println("조회 병원 수 = " + results.size());
+        List<PediatricHospitalProjection> results = hospitalRepository.findAllHospitalPediatricData();
+        log.info("조회 병원 수 = {}", results.size());
 
         for (PediatricHospitalProjection row : results) {
-
             Hospital hospital = row.getHospital();
-            HospitalDetail detail = row.getDetail();
-            PediatricMkioskty pediatricMkioskty = row.getPediatricMkioskty();
-            PediatricRealtime pediatricRealtime = row.getPediatricRealtime();
-            PediatricStandard pediatricStandard = row.getPediatricStandard();
 
+            HospitalScore scoreEntity = hospitalScoreRepository.findByHospital_Hpid(hospital.getHpid())
+                    .orElse(HospitalScore.builder().hospital(hospital).build());
 
-            System.out.println("=================================");
-            System.out.println("병원명 = " + hospital.getHospitalName());
-            System.out.println("HPID = " + hospital.getHpid());
-
-            System.out.println("detail = " + detail);
-            System.out.println("pediatricMkioskty = " + pediatricMkioskty);
-            System.out.println("pediatricRealtime = " + pediatricRealtime);
-            System.out.println("pediatricStandard = " + pediatricStandard);
-
-            // 기존 점수 조회
-            HospitalScore scoreEntity =
-                    hospitalScoreRepository.findByHospital_Hpid(hospital.getHpid())
-                            .orElse(null);
-
-            // 없으면 생성
-            if (scoreEntity == null) {
-                System.out.println("HospitalScore 신규 생성");
-                scoreEntity = HospitalScore.builder()
-                        .hospital(hospital)
-                        .build();
-            }
-            // 점수 계산
-            calculatePediatricScore(
-                    pediatricRealtime,
-                    pediatricStandard,
-                    pediatricMkioskty,
-                    detail,
-                    scoreEntity,
-                    config
-            );
-            System.out.println("최종 pediatricScore = "
-                    + scoreEntity.getPediatricScore());
-
-            System.out.println("최종 pediatricTags = "
-                    + scoreEntity.getPediatricTags());
+            calculatePediatricScore(row, scoreEntity, config);
 
             hospitalScoreRepository.save(scoreEntity);
-
-            System.out.println("DB 저장 완료");
         }
-        System.out.println("===== 소아 응급 점수 계산 종료 =====");
+        log.info("===== 소아 응급 점수 계산 종료 =====");
     }
 
-    //점수 계산
-    // 소아 점수 계산
     public void calculatePediatricScore(
-            PediatricRealtime realtime,
-            PediatricStandard standard,
-            PediatricMkioskty mkiosk,
-            HospitalDetail detail,
+            PediatricHospitalProjection row,
             HospitalScore scoreEntity,
             WeightPediatricConfiguration config
     ) {
-
-        double score = 0.0;
-        StringBuilder tags = new StringBuilder();
-
-        System.out.println("----- 소아 점수 계산 시작 -----");
-
-        // 1. FILTER
-        if (realtime == null) {
-
-            scoreEntity.updatePediatricScore(
-                    0.0,
-                    "소아 실시간 정보 없음"
-            );
-
+        if (row.getPediatricRealtime() == null) {
+            scoreEntity.updatePediatricScore(0.0, "소아 실시간 정보 없음");
             return;
         }
 
-        //TODO : 여기가 응급 가능하면서 병상수 퍼센트가 여유일 때로 해야할듯
-        // 2. 기본 소아 응급 가능
-//        if (realtime.getPediatricBedCount() != null
-//                && realtime.getPediatricBedCount() > MIN_AVAILABLE_COUNT) {
-//
-//            score += config.getPediatricEmergencyWeight();
-//            tags.append("소아병상");
-//        }
-        // 추천 전략 클래스(RecommendationStrategy) 내부 가정
-        if (realtime.getPediatricBedCount() != null && standard.getPediatricBedStandard() != null) {
+        List<String> tags = new ArrayList<>();
 
-            int available = realtime.getPediatricBedCount();
-            int total = standard.getPediatricBedStandard();
+        double availabilityScore = calculateAvailabilityScore(row, config, tags);
+        double medicalScore = calculateMedicalScore(row.getPediatricRealtime(), config, tags);
+        double specialScore = calculateSpecialScore(row.getPediatricMkioskty(), config, tags);
 
-            if (total > 0) {
-                // 1. 퍼센트 계산 (PediatricCongestionCalculator 활용 권장)
-                double percent = (available * 100.0) / total;
+        double finalScore = Math.min( availabilityScore + medicalScore + specialScore, 100.0);
 
-                // 2. 가중치 차등 부여 (여유로울수록 높은 점수)
-                if (percent >= 50.0) { // '여유' 상태
-                    score += config.getPediatricEmergencyWeight() * 1.5; // 가중치 1.5배 보너스
-                    tags.append("소아병상여유 ");
-                }
-                else if (percent >= 20.0) { // '보통' 상태
-                    score += config.getPediatricEmergencyWeight();
-                    tags.append("소아병상 ");
-                }
-                else if (available > 0) { // '혼잡'하지만 병상은 있음
-                    score += config.getPediatricEmergencyWeight() * 0.5; // 가중치 절반만 부여
-                    tags.append("소아병상부족 ");
-                }
-            }
+        log.debug("병원: {}, 최종 점수: {}, 태그: {}", row.getHospital().getHospitalName(), finalScore, tags);
+        scoreEntity.updatePediatricScore(finalScore, String.join(" | ", tags));
+    }
+
+
+    private double calculateAvailabilityScore(PediatricHospitalProjection row, WeightPediatricConfiguration config, List<String> tags) {
+        PediatricRealtime realtime = row.getPediatricRealtime();
+        PediatricStandard standard = row.getPediatricStandard();
+
+        double bedRatio = 0;
+        if (realtime.getPediatricBedCount() != null
+                && standard.getPediatricBedStandard() != null
+                && standard.getPediatricBedStandard() > 0) {
+
+            bedRatio = (double) realtime.getPediatricBedCount() / standard.getPediatricBedStandard();
+            bedRatio = Math.min(bedRatio, 1.0);
+            tags.add("소아병상");
         }
 
-        // 3. 소아 ICU
-        if (realtime.getPediatricIcuCount() != null
-                && realtime.getPediatricIcuCount() > MIN_AVAILABLE_COUNT) {
+        // 2. ICU 점수 계산
+        double icuScore = 0.0;
 
-            score += config.getPediatricIcuWeight();
-            tags.append(" | 소아중환자실");
+        if (realtime.getPediatricIcuCount() != null && realtime.getPediatricIcuCount() > MIN_AVAILABLE_COUNT) {
+            icuScore += 0.5;
+            tags.add("소아 중환자실");
         }
-
-        // 4. 응급전용 소아 ICU
-        if (realtime.getPediatricEmergencyIcuCount() != null
-                && realtime.getPediatricEmergencyIcuCount() > MIN_AVAILABLE_COUNT) {
-
-            score += config.getPediatricEmergencyIcuWeight();
-            tags.append(" | 응급소아ICU");
+        if (realtime.getPediatricEmergencyIcuCount() != null && realtime.getPediatricEmergencyIcuCount() > MIN_AVAILABLE_COUNT) {
+            icuScore += 0.5;
+            tags.add("응급 소아 중환자실");
         }
+        double score = (bedRatio * 0.7) + (Math.min(icuScore, 1.0) * 0.3);
 
-        // 5. 인큐베이터
+        return score * config.getAvailabilityWeight();
+
+    }
+
+    private double calculateMedicalScore(PediatricRealtime realtime, WeightPediatricConfiguration config, List<String> tags) {
+        double score=0;
+
         if (isAvailable(realtime.getIncubatorResourceAvailable())) {
-
-            score += config.getIncubatorWeight();
-            tags.append(" | 인큐베이터");
+            score += config.getMedicalWeight() * 0.30;
+            tags.add("인큐베이터");
         }
-
-        // 6. 조산아 인공호흡기
         if (isAvailable(realtime.getPreemieVentiAvailable())) {
-
-            score += config.getPreemieVentiWeight();
-            tags.append(" | 조산아호흡기");
+            score += config.getMedicalWeight() * 0.30;
+            tags.add("조산아호흡기");
         }
-
-        // 7. 소아 인공호흡기
         if (isAvailable(realtime.getPediatricVentiAvailable())) {
-
-            score += config.getPediatricVentiWeight();
-            tags.append(" | 소아호흡기");
+            score += config.getMedicalWeight() * 0.20;
+            tags.add("소아호흡기");
+        }
+        if (realtime.getPediatricNegativeIsolationCount() != null && realtime.getPediatricNegativeIsolationCount() > MIN_AVAILABLE_COUNT) {
+            score += config.getMedicalWeight() * 0.10;
+            tags.add("음압격리");
+        }
+        if (realtime.getPediatricGeneralIsolationCount() != null && realtime.getPediatricGeneralIsolationCount() > MIN_AVAILABLE_COUNT) {
+            score += config.getMedicalWeight() * 0.10;
+            tags.add("일반격리");
         }
 
-        // 8. 음압격리
-        if (realtime.getPediatricNegativeIsolationCount() != null
-                && realtime.getPediatricNegativeIsolationCount() > MIN_AVAILABLE_COUNT) {
+        return score;
+    }
 
-            score += config.getNegativeIsolationWeight();
-            tags.append(" | 음압격리");
+    private double calculateSpecialScore(PediatricMkioskty mkiosk, WeightPediatricConfiguration config, List<String> tags) {
+        if (mkiosk == null) return 0.0;
+        double score=0;
+
+
+        if (isAvailable(mkiosk.getLowBirthWeightInfantAvailable())) {
+            score += config.getSpecialTreatmentWeight() * 0.32;
+            tags.add("저체중출생아");
+        }
+        if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyBronchialAvailable())) {
+            score += config.getSpecialTreatmentWeight() * 0.24;
+            tags.add("기관지내시경");
+        }
+        if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyGastroAvailable())) {
+            score += config.getSpecialTreatmentWeight() * 0.16;
+            tags.add("소아위장관내시경");
+        }
+        if (isAvailable(mkiosk.getPediatricVascularInterventionAvailable())) {
+            score += config.getSpecialTreatmentWeight() * 0.16;
+            tags.add("소아혈관중재");
+        }
+        if (isAvailable(mkiosk.getPediatricBowelObstructionAvailable())) {
+            score += config.getSpecialTreatmentWeight() * 0.12;
+            tags.add("장중첩");
         }
 
-        // 9. 일반격리
-        if (realtime.getPediatricGeneralIsolationCount() != null
-                && realtime.getPediatricGeneralIsolationCount() > MIN_AVAILABLE_COUNT) {
-
-            score += config.getIsolationWeight();
-            tags.append(" | 일반격리");
-        }
-
-        // 10. 특수 소아 질환 대응
-        int specialCount = 0;
-
-        if (mkiosk != null) {
-
-            // 장중첩
-            if (isAvailable(mkiosk.getPediatricBowelObstructionAvailable())) {
-
-                specialCount++;
-                score += config.getSpecialTreatmentWeight();
-
-                tags.append(" | 장중첩");
-            }
-
-            // 소아 위장관 내시경
-            if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyGastroAvailable())) {
-
-                specialCount++;
-                score += config.getSpecialTreatmentWeight();
-
-                tags.append(" | 소아위장관내시경");
-            }
-
-            // 기관지 내시경
-            if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyBronchialAvailable())) {
-
-                specialCount++;
-                score += config.getSpecialTreatmentWeight();
-
-                tags.append(" | 기관지내시경");
-            }
-
-            // 저체중 출생아
-            if (isAvailable(mkiosk.getLowBirthWeightInfantAvailable())) {
-
-                specialCount++;
-
-                score += config.getSpecialTreatmentWeight();
-                score += config.getLowBirthWeightBonus();
-
-                tags.append(" | 저체중출생아");
-            }
-
-            // 혈관중재
-            if (isAvailable(mkiosk.getPediatricVascularInterventionAvailable())) {
-
-                specialCount++;
-                score += config.getSpecialTreatmentWeight();
-
-                tags.append(" | 소아혈관중재");
-            }
-        }
-
-        System.out.println("특수질환 대응 수 = " + specialCount);
-
-        System.out.println("최종 pediatricScore = " + score);
-        System.out.println("최종 tags = " + tags);
-
-        scoreEntity.updatePediatricScore(
-                score,
-                tags.toString()
-        );
+        return score;
     }
 
     private boolean isAvailable(String value) {
-
-        return value != null
-                && "Y".equalsIgnoreCase(value.trim());
+        return value != null && "Y".equalsIgnoreCase(value.trim());
     }
 }

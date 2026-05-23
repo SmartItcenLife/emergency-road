@@ -21,9 +21,9 @@ public class GeneralWeightResponseDto {
         this.icuWeight = entity.getIcuWeight();
         this.equipmentWeight = entity.getEquipmentWeight();
         this.congestionWeight = entity.getCongestionWeight();
-        this.ecmoBonus = entity.getEcmoBonus();
-        this.crrtBonus = entity.getCrrtBonus();
-        this.angioBonus = entity.getAngioBonus();
+//        this.ecmoBonus = entity.getEcmoBonus();
+//        this.crrtBonus = entity.getCrrtBonus();
+//        this.angioBonus = entity.getAngioBonus();
     }
 
 }

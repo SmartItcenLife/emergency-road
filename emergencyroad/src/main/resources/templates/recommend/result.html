@@ -4,19 +4,71 @@
     <meta charset="UTF-8">
     <title>실시간 추천 병원 TOP3</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #f5f6f8; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .card { background: white; padding: 16px; margin-bottom: 12px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); border-left: 5px solid #007bff; }
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #f5f6f8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #007bff;
+        }
 
         /* 카테고리별 강조 색상 */
-        .card.pediatric { border-left-color: #ff9800; } /* 소아: 주황 */
-        .card.pregnant { border-left-color: #e91e63; }  /* 임산부: 핑크 */
+        .card.pediatric {
+            border-left-color: #ff9800;
+        }
 
-        .title { font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; }
-        .score { color: #2c3e50; font-weight: bold; margin-top: 8px; font-size: 14px; }
-        .info { font-size: 14px; color: #666; margin-top: 4px; }
-        .badge { background: #eee; padding: 2px 8px; border-radius: 4px; font-size: 12px; color: #333; margin-right: 4px; }
-        .highlight { color: #d32f2f; font-weight: bold; }
+        /* 소아: 주황 */
+        .card.pregnant {
+            border-left-color: #e91e63;
+        }
+
+        /* 임산부: 핑크 */
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .score {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .badge {
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #333;
+            margin-right: 4px;
+        }
+
+        .highlight {
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -32,7 +84,7 @@
 
         <div class="title">
             <span th:text="${item.hospitalName}">병원 이름</span>
-<!--            <span class="score" th:text="${#numbers.formatDecimal(item.finalScore, 1, 1)} + '점'">0점</span>-->
+            <!--            <span class="score" th:text="${#numbers.formatDecimal(item.finalScore, 1, 1)} + '점'">0점</span>-->
         </div>
 
         <div class="info">
@@ -50,7 +102,8 @@
             <!-- 1. 소아과 전용 정보 (PediatricHospitalResponseDto 인지 확인) -->
             <div th:if="${item instanceof T(com.itcen.emergencyroad.recommend.dto.PediatricHospitalResponseDto)}">
         <span class="badge">실시간 소아 가용 병상:
-            <b class="highlight" th:text="${item.availablePediatricBedCount != null ? item.availablePediatricBedCount : 0}">0</b>
+            <b class="highlight"
+               th:text="${item.availablePediatricBedCount != null ? item.availablePediatricBedCount : 0}">0</b>
         </span>
                 <span class="badge">인큐베이터 가능:
             <b th:text="${item.incubatorAvailable != null ? item.incubatorAvailable : '불가능'}">0</b>
