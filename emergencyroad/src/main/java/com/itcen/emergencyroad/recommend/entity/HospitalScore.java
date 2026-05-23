@@ -95,13 +95,13 @@ public class HospitalScore extends BaseEntity {
 
     // --- 화면 노출용 상태 요약 정보 (반정규화) ---
 
-    @Column(name = "pregnant_tag", length = 100)
+    @Column(name = "pregnant_tag", length = 1000)
     private String pregnantTags; // 예: "분만 가능 | NICU 보유"
 
-    @Column(name = "pediatric_tag", length = 100)
+    @Column(name = "pediatric_tag", length = 1000)
     private String pediatricTags; // 예: "소아 전문의 상주"
 
-    @Column(name = "general_tag", length = 100)
+    @Column(name = "general_tag", length = 1000)
     private String generalTags;   // 예: "응급실 여유"
 
     // --- 데이터 신뢰도 관리 ---

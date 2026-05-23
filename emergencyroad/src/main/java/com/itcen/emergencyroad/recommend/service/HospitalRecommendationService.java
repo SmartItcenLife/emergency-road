@@ -5,7 +5,6 @@ import com.itcen.emergencyroad.findpath.dto.PathResponseDto;
 import com.itcen.emergencyroad.findpath.service.TmapService;
 import com.itcen.emergencyroad.findpath.service.cacaoService;
 import com.itcen.emergencyroad.hospital.entity.Hospital;
-import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalListDto;
 import com.itcen.emergencyroad.recommend.dto.*;
 import com.itcen.emergencyroad.recommend.entity.HospitalCategory;
 import com.itcen.emergencyroad.recommend.entity.HospitalScore;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +35,10 @@ public class HospitalRecommendationService {
     private final PediatricHospitalMapper pediatricHospitalMapper;
     private final PregnantHospitalMapper pregnantHospitalMapper;
 
+    //상수
+    private static final double MAX_RADIUS_KM = 25.0;  //후보군 거리
+    private static final double AVG_SPEED_KMH = 50.0; // 직선거리 계산 시 시속 km
+    private static final double DURATION_WEIGHT_FACTOR = 1.6; //소요시간 가중치
 
     // 1. 점수 계산
     @Transactional
@@ -47,6 +49,45 @@ public class HospitalRecommendationService {
     }
 
 
+    // 후보군 필터링
+    private List<HospitalScore> filterCandidates(List<HospitalScore> hospitalScores, Double lat, Double lon, boolean useDistance) {
+        if(!useDistance) {
+            return hospitalScores;
+        }
+        return hospitalScores.stream()
+                .filter(s -> s.getHospital().isValidLocation())
+                .filter(s -> calculateDirectDistance(lat,lon, s.getHospital().getLatitude(), s.getHospital().getLongitude()) <= MAX_RADIUS_KM)
+                .toList();
+
+    }
+    // 개별 병원 점수 가중치 적용 및 DTO 변환 책임
+    private List<HospitalResponseDto> calculateAndMapResults(HospitalCategory category, List<HospitalScore> candidates, Map<String, PathResponseDto> routeMap, Double lat, Double lon, boolean useDistance) {
+        List<HospitalResponseDto> result = new ArrayList<>();
+
+        for (HospitalScore score : candidates) {
+            double baseScore = category.getScore(score);
+            if (baseScore <= 0) continue;
+
+            double finalScore = baseScore;
+            HospitalRouteInfo routeInfo = null;
+
+            if (useDistance) {
+                routeInfo = resolveRouteInfo(score.getHospital(), routeMap.get(score.getHospital().getHpid()), lat, lon);
+                if (routeInfo == null) continue;
+                // 시간이 오래 걸리면 점수를 깎는 방식
+                // 20분이 넘어가면 점수가 깎이기 시작함
+                double timePenalty = Math.max(0, (routeInfo.duration - 20) * 0.1);
+                finalScore = Math.max(0, finalScore - timePenalty);
+                // 10km 이내의 가까운 병원에는 보너스 점수 부여
+                if (routeInfo.distance <= 10.0) {
+                    finalScore += 5.0;
+                }
+            }
+
+            result.add(mapToCategoryDto(category, score, finalScore, routeInfo));
+        }
+        return result;
+    }
     // 2. 핵심 추천 로직
     public List<HospitalResponseDto> getRecommendations(
             HospitalCategory category,
@@ -54,70 +95,27 @@ public class HospitalRecommendationService {
             Double lon,
             boolean useDistance
     ) {
+
         //1. 카테고리별 기본 점수 데이터 조회
         List<HospitalScore> baseScores = getScoresByCategory(category);
-        List<HospitalScore> targetScores = baseScores;// 기본값은 전체 조회
 
-        //외부 API는 useDistance가 true일 때만 조회(false면 빈 맵)
-        Map<String, PathResponseDto> routeMap = Collections.emptyMap();
-        // 2. 사용자 맞춤 추천(Top3) 모드일 때만 반경 필터링 및 외부 API 사용
-        if (useDistance) {
-            // 1차 필터링 => 사용자 위치 기준 직선거리 반경 15.0km 이내의 병원 후보군만 추출
-            targetScores = baseScores.stream()
-                    .filter(score -> {
-                        Hospital h = score.getHospital();
-                        if (h.getLatitude() == null || h.getLongitude() == null) return false;
+        //1. 후보군 필터링(반경 15km)
+        List<HospitalScore> targetScores = filterCandidates(baseScores, lat, lon , useDistance);
 
-                        double directDistance = calculateDirectDistance(lat, lon, h.getLatitude(), h.getLongitude());
-                        return directDistance <= 15.0; // ◀ 반경 15km 이내만 필터링 (10~15km 유연하게 조절 가능)
-                    })
-                    .toList();
+        //2. 경로 데이터 수집(useDistance가 true일 때만)
+        Map<String, PathResponseDto> routeMap = useDistance ? findDistanceAndDuration(targetScores, lat, lon) : Collections.emptyMap();
 
-            // 필터링된 targetScores로만 외부 API(카카오/티맵)를 호출하여 비용/속도 절감
-            routeMap = findDistanceAndDuration(targetScores, lat, lon);
-        }
+        // 3. 점수 계산 및 DTO 변환
+        List<HospitalResponseDto> result = calculateAndMapResults(category, targetScores, routeMap, lat, lon, useDistance);
 
-        List<HospitalResponseDto> result = new ArrayList<>();
-
-        // 3. 루프 대상 분기 (전체보기: baseScores전체 / 맞춤추천: 15km이내 targetScores)
-        for (HospitalScore score : targetScores) {
-
-            double baseScore = category.getScore(score);
-            if (baseScore <= 0) continue;
-
-            Hospital hospital = score.getHospital();
-            double finalScore = baseScore;
-            HospitalRouteInfo routeInfo = null;
-
-            // useDistance가 true일 때만 외부 API 호출, false면 빈 맵
-            if (useDistance) {
-                PathResponseDto routePath = routeMap.get(hospital.getHpid());
-                routeInfo = resolveRouteInfo(hospital, routePath, lat, lon);
-
-                // 위치 정보가 아예 없는 병원 정보라면 스킵
-                if (routeInfo == null) continue;
-                // 실시간 교통 정보 경로가 잡힌 경우에만 시간 가중치 부여
-                finalScore += routeInfo.durationWeight * 2.5;
-
-            }
-            // DTO 변환 (useDistance가 false이면 finalScore=baseScore, routeInfo=null로 전달됨)
-            result.add(mapToCategoryDto(
-                    category,
-                    score,
-                    finalScore,
-                    routeInfo
-            ));
-        }
-        // 4. 최종 점수 기준 내림차순 정렬
-        // (전체보기는 가중치가 더해지지 않아 순수 병원 자체 역량 점수로만 랭킹 구성)
-        result.sort((a, b) ->
-                Double.compare(b.getFinalScore(), a.getFinalScore())
+        // 4. 정렬 및 로깅
+       result.sort((a, b) ->
+               Double.compare(b.getFinalScore(), a.getFinalScore())
         );
-
         logRecommendationResult(result);
+
         return result;
     }
-
 
     // 3. Top3
     public <T extends HospitalResponseDto> List<T> getTop3(
@@ -126,7 +124,7 @@ public class HospitalRecommendationService {
             Double lon,
             Class<T> type
     ) {
-        // 이미 15km로 필터링되어 계산된 추천 리스트 중 최종 '실제 거리 10km 이내' 상위 3개 추출
+        // 이미 15km로 필터링되어 계산된 추천 리스트 중 최종 거리 10km 이내' 상위 3개 추출
         return getRecommendations(category, lat, lon, true).stream()
                 .filter(dto -> dto.getDistance() <= 10.0)
                 .filter(type::isInstance)
@@ -254,7 +252,7 @@ public class HospitalRecommendationService {
                 hospital.getLongitude()
         );
 
-        double duration = (distance / 40.0) * 60.0;
+        double duration = (distance /AVG_SPEED_KMH) * 60.0;
 
         return new HospitalRouteInfo(
                 distance,
@@ -265,7 +263,7 @@ public class HospitalRecommendationService {
 
     // 7. util
     private double calculateTimeWeight(double duration) {
-        double weight = 50 - (duration * 1.6);
+        double weight = 20 - (duration * DURATION_WEIGHT_FACTOR);
         return Math.max(weight, 0);
     }
 
@@ -291,32 +289,6 @@ public class HospitalRecommendationService {
                 (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
     }
 
-//    // getPregnantHospitalList : 임산부 전체 리스트 출력을 위한 함수
-//    public List<PregnantHospitalListDto> getPregnantHospitalList(Double lat, Double lon) {
-//        // Top3와 동일한 추천 로직을 재사용하되, 전체 목록이므로 limit(3)을 적용하지 않았습니다.
-//        List<HospitalResponseDto> recommendations = getRecommendations(HospitalCategory.PREGNANT, lat, lon, false);
-//
-//        // 추천 응답 DTO는 화면 목록에 비해 필드가 많으므로 목록 카드에 필요한 값만 변환합니다.
-//        return recommendations.stream()
-//                .filter(dto -> dto instanceof PregnantHospitalResponseDto)
-//                .map(dto -> {
-//                    PregnantHospitalResponseDto pDto = (PregnantHospitalResponseDto) dto;
-//
-//                    return PregnantHospitalListDto.builder()
-//                            .hpid(pDto.getHpid())
-//                            .hospitalName(pDto.getHospitalName())
-//                            .deliveryAvailable(pDto.getDeliveryAvailable())
-//                            .isDeliveryRoomAvailable(pDto.getIsDeliveryRoomAvailable())
-//                            .nicuBedCount(pDto.getNicuBedCount())
-//                            .nicuStandard(pDto.getNicuStandard())
-//                            .emergencyPhone(pDto.getEmergencyPhone())
-//                            .hospitalLatitude(pDto.getHospitalLatitude())
-//                            .hospitalLongitude(pDto.getHospitalLongitude())
-//                            .distanceKm(pDto.getDistance())
-//                            .build();
-//                })
-//                .collect(Collectors.toList());
-//    }
 
     // 8. DB 조회
     private List<HospitalScore> getScoresByCategory(HospitalCategory category) {
@@ -336,7 +308,7 @@ public class HospitalRecommendationService {
                     .findAllByGeneralScoreGreaterThan(0.0);
         }
 
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
 

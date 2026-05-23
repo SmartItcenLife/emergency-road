@@ -21,16 +21,16 @@ public class AdminWeightController {
     private final AdminWeightService adminWeightService;
 
     // 가중치 설정 페이지 조회
-    @GetMapping
-    public String getWeightConfigPage(Model model){
-        GeneralWeightResponseDto generalWeight = adminWeightService.getGeneralWeight();
-        PregnantWeightResponseDto pregnantWeight = adminWeightService.getPregnantWeight();
-
-        model.addAttribute("generalWeight", generalWeight);
-        model.addAttribute("pregnantWeight", pregnantWeight);
-
-        return "admin/weight-config";
-    }
+//    @GetMapping
+//    public String getWeightConfigPage(Model model){
+//        GeneralWeightResponseDto generalWeight = adminWeightService.getGeneralWeight();
+//        PregnantWeightResponseDto pregnantWeight = adminWeightService.getPregnantWeight();
+//
+//        model.addAttribute("generalWeight", generalWeight);
+//        model.addAttribute("pregnantWeight", pregnantWeight);
+//
+//        return "admin/weight-config";
+//    }
 
     // 일반 응급 가중치 수정 요청 처리
     @PostMapping("/general")
