@@ -114,7 +114,10 @@ public class GeneralViewService {
             // 병상 여유순은 가용 병상 비율이 높은 병원부터 보여줌
             hospitals.sort(
                     Comparator.comparing(
-                            hospital -> hospital.getAvailableBedPercentage(),
+                            (GeneralHospitalListDto hospital) -> hospital.getAvailableBedPercentage(),
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    ).thenComparing(
+                            (GeneralHospitalListDto hospital) -> hospital.getAvailableEmergencyBedCount(),
                             Comparator.nullsLast(Comparator.reverseOrder())
                     )
             );

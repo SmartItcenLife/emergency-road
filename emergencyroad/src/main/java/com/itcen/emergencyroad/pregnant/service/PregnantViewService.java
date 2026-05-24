@@ -90,7 +90,10 @@ public class PregnantViewService {
         if (sortType == HospitalSortType.BED) {
             hospitals.sort(
                     Comparator.comparing(
-                            hospital -> hospital.getNicuAvailablePercentage(),
+                            (PregnantHospitalListDto hospital) -> hospital.getNicuAvailablePercentage(),
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    ).thenComparing(
+                            (PregnantHospitalListDto hospital) -> hospital.getNicuBedCount(),
                             Comparator.nullsLast(Comparator.reverseOrder())
                     )
             );

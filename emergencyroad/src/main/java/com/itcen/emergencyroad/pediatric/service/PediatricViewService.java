@@ -75,7 +75,10 @@ public class PediatricViewService {
             // 소아 병상 여유순은 가용 소아 병상 비율이 높은 병원부터 보여준다.
             hospitals.sort(
                     Comparator.comparing(
-                            hospital -> hospital.getAvailableBedPercentage(),
+                            (PediatricHospitalListDto hospital) -> hospital.getAvailableBedPercentage(),
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    ).thenComparing(
+                            (PediatricHospitalListDto hospital) -> hospital.getAvailablePediatricBedCount(),
                             Comparator.nullsLast(Comparator.reverseOrder())
                     )
             );
