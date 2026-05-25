@@ -612,7 +612,7 @@
                             <a class="route-button" href="#" th:data-hospital-name="${hospital.hospitalName}" th:data-lat="${hospital.hospitalLatitude}" th:data-lon="${hospital.hospitalLongitude}">
                                 <img th:src="@{/images/finder.svg}" class="finder-icon-img" alt="길찾기">
                             </a>
-                            <a class="community-button" th:href="@{/community(hpid=${hospital.hpid})}">
+                            <a class="community-button" th:href="@{'/hospitals/' + ${hospital.hpid} + '/posts'}">
                                 <img th:src="@{/images/community.svg}" class="community-icon-img" alt="커뮤니티">
                             </a>
                         </div>

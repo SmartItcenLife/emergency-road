@@ -556,8 +556,8 @@
                                th:data-lat="${hospital.hospitalLatitude}" th:data-lon="${hospital.hospitalLongitude}">
                                 <img th:src="@{/images/finder.svg}" class="icon-img" alt="길찾기">
                             </a>
-                            <a class="community-button" th:href="@{/community(hpid=${hospital.hpid})}">
-                                <img th:src="@{/images/community.svg}" class="icon-img" alt="톡">
+                            <a class="community-button" th:href="@{'/hospitals/' + ${hospital.hpid} + '/posts'}">
+                                <img th:src="@{/images/community.svg}" class="icon-img" alt="커뮤니티">
                             </a>
                         </div>
                     </div>
@@ -567,6 +567,17 @@
                     </button>
                 </div>
             </article>
+            <div style="text-align: center; margin: 24px 0 40px; padding: 20px; background: #f8fafc; border-radius: 16px;">
+                <p style="font-size: 14px; color: #64748b; margin-bottom: 12px;">
+                    원하는 병원을 찾지 못하셨나요?<br>
+                    더 넓은 범위의 병원 정보를 확인해보세요.
+                </p>
+                <a href="/pregnant/hospitals"
+                   style="display: inline-block; padding: 12px 24px; background: #db2777; color: #ffffff;
+              text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 14px;">
+                    전체 병원 보기
+                </a>
+            </div>
         </div>
     </section>
 </div>
