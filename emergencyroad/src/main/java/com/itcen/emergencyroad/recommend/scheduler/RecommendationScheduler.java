@@ -13,7 +13,7 @@ public class RecommendationScheduler {
 
     private final HospitalRecommendationService recommendationService;
 
-    @Scheduled(cron = "0 14 17 * * *")
+    @Scheduled(cron = "0 46 14 * * *")
 //    @Scheduled(cron = "0 */1 * * * *") // 테스트용
     public void updateBaseHospitalScores() {
 

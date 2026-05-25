@@ -57,15 +57,20 @@
 
         .hospital-card {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 10px 12px;
+            align-items: flex-start;
+            padding: 20px;
             background: #ffffff;
+            border-radius: 20px;
             border: 1px solid #fce7f3;
-            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.04);
+            transition: transform .2s;
         }
-
+        /* TOP 1 카드 강조 (배경색 추가) */
+        .hospital-card.top1 {
+            background: #f8fafc;
+            border: 1px solid #fdf2f8;
+        }
 
         .hospital-left {
             display: flex;
@@ -91,22 +96,17 @@
 
 
         .hospital-info {
-            min-width: 0;
-            flex: 1;
-            padding-right: 4px;
+            font-size:14px;
+            color:#64748b;
+            gap:8px;
         }
 
 
         .hospital-name {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
-            line-height: 1.4;
-            color: #111827;
-
-            display: block;
-            word-break: keep-all;
-            overflow-wrap: break-word;
-            white-space: normal;
+            color: #0f172a;
+            margin-bottom: 8px;
         }
 
         .hospital-meta {
@@ -120,7 +120,7 @@
         }
 
         .badge {
-            padding: 2px 6px;
+            padding: 4px 7px;
             border-radius: 999px;
             font-size: 11px;
             font-weight: 700;
@@ -222,12 +222,18 @@
             border-radius: 50%;
             background: #fff1f2;
             color: #db2777;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            border: 1px solid #fecdd3;
-            flex: 0 0 auto;
+            border:1px solid #fbcfe8;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            transition:.2s;
+        }
+        .call-button:hover,
+        .route-button:hover,
+        .community-button:hover{
+            background:#fdf2f8;
         }
 
         .icon-img {
@@ -286,9 +292,9 @@
         }
 
         .detail-title {
-            margin: 0 0 10px;
-            font-size: 13px;
-            font-weight: 800;
+            font-size:13px;
+            font-weight:800;
+            margin-bottom:8px;
             color: #db2777;
         }
 
@@ -370,14 +376,20 @@
             color: #6b7280;
         }
 
-        /*.tag-wrapper { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }*/
+        .tag-wrapper {
+            margin-top: 8px;
+
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
         .tag-badge {
             background: #fdf2f8;
             color: #db2777;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 8px;
             border: 1px solid #fbcfe8;
         }
 
@@ -398,6 +410,7 @@
             border: 1px solid #e5e7eb;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -419,13 +432,13 @@
 
         <div class="hospital-list" th:unless="${#lists.isEmpty(rankings)}">
             <article class="hospital-card" th:each="hospital, iter : ${rankings}"
-                     th:style="${iter.index == 0} ? 'border:2px solid #2563eb;background:#eff6ff;' : ''">
+                     th:style="${iter.index == 0} ? 'border:2px solid #db2777;background:#eff6ff;' : ''">
 
                 <div class="hospital-left">
                     <div class="hospital-icon">P</div>
                     <div class="hospital-info">
-                        <div style="margin-bottom:4px;">
-                            <span class="badge" style="background:#2563eb;color:white;"
+                        <div style="margin-bottom:10px; margin-top:10px;">
+                            <span class="badge" style="background:#db2777;color:white;"
                                   th:text="|TOP ${iter.index + 1}|">TOP 1</span>
                         </div>
                         <div class="hospital-name" th:text="${hospital.hospitalName}">병원명</div>
@@ -450,8 +463,9 @@
                 <div class="hospital-right">
                     <div class="hospital-status">
                         <!-- 도넛 그래프 (가용 NICU 병상 기준 예시) -->
-                        <div class="donut donut-normal" th:style="|--rate: 50|">
-                            <span>NICU</span>
+                        <div class="donut-container"
+                             style="width:80px;height:80px;position:relative;">
+                            <canvas th:id="'chart-' + ${hospital.hpid}"></canvas>
                         </div>
                         <div class="bed-text">
                             <div th:text="|NICU ${hospital.nicuBedCount ?: 0}병상|">NICU 0병상</div>
@@ -464,7 +478,7 @@
                                th:classappend="${hospital.emergencyPhone == null} ? ' call-button-disabled'">
                                 <img th:src="@{/images/phone.svg}" class="icon-img" alt="전화">
                             </a>
-                            <a class="route-button" href="#" th:data-hospital-name="${hospital.hospitalName}"
+                            <a class="route-button"  th:data-hospital-name="${hospital.hospitalName}"
                                th:data-lat="${hospital.hospitalLatitude}" th:data-lon="${hospital.hospitalLongitude}">
                                 <img th:src="@{/images/finder.svg}" class="icon-img" alt="길찾기">
                             </a>
@@ -638,13 +652,13 @@ ${createResourceItem("인큐베이터", detail.incubatorCount, detail.incubatorS
         const v = String(value).trim().toUpperCase();
 
         if (v === "Y" || v === "YES" || v === "TRUE" || v === "1" || v === "가능") {
-            return { label: "가능", className: "capability-available" };
+            return {label: "가능", className: "capability-available"};
         }
 
         if (v === "N" || v === "NO" || v === "FALSE" || v === "0" || v === "불가") {
-            return { label: "불가", className: "capability-unavailable" };
+            return {label: "불가", className: "capability-unavailable"};
         }
-        return { label: displayValue(value), className: "capability-unknown" };
+        return {label: displayValue(value), className: "capability-unknown"};
     }
 
     // 빈 문자열을 "-" 로 표기
@@ -654,6 +668,7 @@ ${createResourceItem("인큐베이터", detail.incubatorCount, detail.incubatorS
         }
         return value;
     }
+
     // 문자열을 HTML 로 바로 넣을 때 발생하는 문제를 방지하기 위한 함수.
     function escapeHtml(value) {
         return String(displayValue(value))
@@ -663,6 +678,68 @@ ${createResourceItem("인큐베이터", detail.incubatorCount, detail.incubatorS
             .replaceAll('"', "&quot;")
             .replaceAll("'", "&#039;");
     }
+    const rankings = /*[[${rankings}]]*/ [];
+
+    rankings.forEach(hospital => {
+
+        const canvas = document.getElementById('chart-' + hospital.hpid);
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        // 임산부 핵심 기준: "분만 가능 여부"
+        console.log("deliveryAvailable:", hospital.deliveryAvailable+'/');
+        const isAvailable =  hospital.deliveryAvailable.trim() === 'Y';
+        const value = isAvailable ? 100 : 0;
+        const label = isAvailable ? '가능' : '불가능';
+        const color = isAvailable ? '#db2777' : '#db2777';
+
+        new Chart(ctx, {
+            type: 'doughnut',
+
+            data: {
+                datasets: [{
+                    data: [
+                        value,
+                        100 - value
+                    ],
+                    backgroundColor: [
+                        isAvailable ? '#fbcfe8' : '#db2777', // 가능/불가 색
+                        '#fbcfe8' // 배경
+                    ],
+                    cutout: '70%'
+                }]
+            },
+
+            options: {
+                plugins: {
+                    tooltip: {
+                        enabled: false
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            },   plugins: [{
+                id: 'centerText',
+                beforeDraw(chart) {
+                    const { width, height, ctx } = chart;
+
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    ctx.font = "bold 16px Arial";
+                    ctx.fillStyle = color;
+
+                    ctx.fillText(label, width / 2, height / 2);
+
+                    ctx.restore();
+                }
+            }]
+        });
+
+    });
 </script>
 </body>
 </html>

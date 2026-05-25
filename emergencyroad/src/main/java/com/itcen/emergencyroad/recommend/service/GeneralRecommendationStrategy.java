@@ -93,23 +93,23 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         double maxScore = 32.0; // 총 중요도 합 (8+5+7+8+4)
         if (isAvailable(severe.getMKioskTy1())) {
             score+=8;
-            tags.add("뇌출혈 대응 가능");
+            tags.add("뇌출혈");
         }
         if (isAvailable(severe.getMKioskTy2())) {
             score += 5;
-            tags.add("뇌경색 대응 가능");
+            tags.add("뇌경색");
         }
         if (isAvailable(severe.getMKioskTy3())) {
             score+=7;
-            tags.add("심근경색 대응 가능");
+            tags.add("심근경색");
         }
         if (isAvailable(severe.getMKioskTy5())) {
             score+=8;
-            tags.add("화상 대응 가능");
+            tags.add("화상");
         }
         if (isAvailable(severe.getMKioskTy23())) {
             score += 4;
-            tags.add("응급투석 가능");
+            tags.add("응급투석");
         }
         return (score / maxScore) * config.getSevereDiseaseWeight();
     }
@@ -147,11 +147,11 @@ public class GeneralRecommendationStrategy implements RecommendationStrategy {
         }
         if (isAvailable(realtime.getCrrtAvailable())) {
             score += 7;
-            tags.add("CRRT");
+            //tags.add("CRRT");
         }
         if (isAvailable(realtime.getAngioAvailable())) {
             score += 3;
-            tags.add("혈관조영");
+            //tags.add("혈관조영");
         }
         return (score / maxScore) * config.getEquipmentWeight();
     }

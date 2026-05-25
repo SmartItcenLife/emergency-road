@@ -113,7 +113,7 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
 
         if (isAvailable(pregnant.getDeliveryAvailable())) {
             score += config.getDeliveryWeight();
-            tags.add("분만가능");
+            tags.add("분만 가능");
         }
 
         score += calculateAvailabilityScore(detail, config)
@@ -122,7 +122,7 @@ public class PregnantRecommendationStrategy implements RecommendationStrategy {
 
         if (realtime != null && isAvailable(realtime.getIsDeliveryRoomAvailable())) {
             score += config.getDeliveryRoomWeight();
-            tags.add("분만실여유");
+            tags.add("분만실");
         }
 
         return score;
