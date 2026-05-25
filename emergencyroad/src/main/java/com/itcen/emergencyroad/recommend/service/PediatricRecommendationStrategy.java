@@ -90,7 +90,7 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
 
             bedRatio = (double) realtime.getPediatricBedCount() / standard.getPediatricBedStandard();
             bedRatio = Math.min(bedRatio, 1.0);
-            tags.add("소아병상");
+            tags.add("입원가능");
         }
 
         // 2. ICU 점수 계산
@@ -98,11 +98,11 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
 
         if (realtime.getPediatricIcuCount() != null && realtime.getPediatricIcuCount() > MIN_AVAILABLE_COUNT) {
             icuScore += 0.5;
-            tags.add("소아 중환자실");
+            tags.add("소아ICU");
         }
         if (realtime.getPediatricEmergencyIcuCount() != null && realtime.getPediatricEmergencyIcuCount() > MIN_AVAILABLE_COUNT) {
             icuScore += 0.5;
-            tags.add("응급 소아 중환자실");
+            //tags.add("응급 소아 중환자실");
         }
         double score = (bedRatio * 0.7) + (Math.min(icuScore, 1.0) * 0.3);
 
@@ -115,23 +115,23 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
 
         if (isAvailable(realtime.getIncubatorResourceAvailable())) {
             score += config.getMedicalWeight() * 0.30;
-            tags.add("인큐베이터");
+            //tags.add("인큐베이터");
         }
         if (isAvailable(realtime.getPreemieVentiAvailable())) {
             score += config.getMedicalWeight() * 0.30;
-            tags.add("조산아호흡기");
+           // tags.add("조산아호흡기");
         }
         if (isAvailable(realtime.getPediatricVentiAvailable())) {
             score += config.getMedicalWeight() * 0.20;
-            tags.add("소아호흡기");
+           // tags.add("소아호흡기");
         }
         if (realtime.getPediatricNegativeIsolationCount() != null && realtime.getPediatricNegativeIsolationCount() > MIN_AVAILABLE_COUNT) {
             score += config.getMedicalWeight() * 0.10;
-            tags.add("음압격리");
+            //tags.add("음압격리");
         }
         if (realtime.getPediatricGeneralIsolationCount() != null && realtime.getPediatricGeneralIsolationCount() > MIN_AVAILABLE_COUNT) {
             score += config.getMedicalWeight() * 0.10;
-            tags.add("일반격리");
+            //tags.add("일반격리");
         }
 
         return score;
@@ -144,23 +144,23 @@ public class PediatricRecommendationStrategy implements RecommendationStrategy {
 
         if (isAvailable(mkiosk.getLowBirthWeightInfantAvailable())) {
             score += config.getSpecialTreatmentWeight() * 0.32;
-            tags.add("저체중출생아");
+            //tags.add("저체중출생아");
         }
         if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyBronchialAvailable())) {
             score += config.getSpecialTreatmentWeight() * 0.24;
-            tags.add("기관지내시경");
+            //tags.add("기관지내시경");
         }
         if (isAvailable(mkiosk.getPediatricEmergencyEndoscopyGastroAvailable())) {
             score += config.getSpecialTreatmentWeight() * 0.16;
-            tags.add("소아위장관내시경");
+            //.add("소아위장관내시경");
         }
         if (isAvailable(mkiosk.getPediatricVascularInterventionAvailable())) {
             score += config.getSpecialTreatmentWeight() * 0.16;
-            tags.add("소아혈관중재");
+            //tags.add("소아혈관중재");
         }
         if (isAvailable(mkiosk.getPediatricBowelObstructionAvailable())) {
             score += config.getSpecialTreatmentWeight() * 0.12;
-            tags.add("장중첩");
+            //tags.add("장중첩");
         }
 
         return score;
