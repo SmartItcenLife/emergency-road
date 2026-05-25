@@ -6,15 +6,29 @@
     <title>일반 응급 추천 결과</title>
 
     <style>
-        @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+        /* 전체 기본 세팅 */
 
+        /* 페이지 전체 기본 스타일 */
         body {
             margin: 0;
             background: #f5f7fb;
-            font-family: "Pretendard Variable", Pretendard, -apple-system, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
             color: #1f2937;
         }
 
+        /* 전체 컨테이너 (모바일 기준 화면) */
         .page {
             width: 100%;
             min-height: 100vh;
@@ -23,12 +37,15 @@
             box-sizing: border-box;
         }
 
+        /* 데스크탑일 때 중앙 정렬 + 최대 너비 제한 */
         @media (min-width: 768px) {
             .page {
                 max-width: 430px;
                 margin: 0 auto;
             }
         }
+
+        /*  헤더 영역 */
 
         .header {
             margin-bottom: 16px;
@@ -45,40 +62,22 @@
             color: #16a34a;
         }
 
-        .hospital-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .bed-text {
-            font-size: 10px;
-            color: #6b7280;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .hospital-actions {
-            display: flex;
-            flex-direction: row;
-            gap: 5px;
-            align-items: center;
-            justify-content: center;
-        }
-
+        /*  섹션 제목 / 리스트 */
         .section-title {
             font-size: 15px;
             font-weight: 700;
             margin: 18px 0 10px;
         }
 
+        /* 병원 카드 리스트 세로 정렬 */
         .hospital-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
+        /*  병원 카드 UI */
+        /* 개별 병원 카드 */
         .hospital-card {
             display: flex;
             justify-content: space-between;
@@ -91,19 +90,24 @@
             transition: transform 0.2s;
         }
 
-        /* TOP 1 카드 강조 (배경색 추가) */
+        /* TOP 1 강조 스타일 */
         .hospital-card.top1 {
             background: #f8fafc;
             border: 1px solid #dbeafe;
         }
+
+
+
+        /* 왼쪽 정보 영역 */
         .hospital-left {
             display: flex;
             align-items: center;
             gap: 10px;
             min-width: 0;
             flex: 1;
+            margin-right: 10px;
         }
-
+        /* 병원 아이콘 (G 표시) */
         .hospital-icon {
             width: 30px;
             height: 30px;
@@ -117,7 +121,7 @@
             font-size: 16px;
             flex: 0 0 auto;
         }
-
+        /* 병원 정보 텍스트 */
         .hospital-info {
             font-size: 14px;
             color: #64748b;
@@ -125,20 +129,21 @@
             min-width: 0;
             flex: 1;
         }
-
+        /* 병원 이름 */
         .hospital-name {
-            font-size: 15px;
+            font-size: 17px;
             font-weight: 700;
+            color: #0f172a;
             word-break: keep-all;
         }
-
+        /* 거리 / 시간 / 상태 메타 정보 */
         .hospital-meta {
             margin-top: 5px;
             font-size: 13px;
             color: #6b7280;
             display: block;
         }
-
+        /* 상태 배지 (분만 가능 등) */
         .badge {
             padding: 4px 7px;
             border-radius: 999px;
@@ -165,14 +170,14 @@
             background: #e5e7eb;
             color: #6b7280;
         }
-
+        /* 오른쪽 영역 (차트 + 버튼) */
         .hospital-right {
             display: flex;
             align-items: center;
             gap: 8px;
             flex: 0 0 auto;
         }
-
+        /* 도넛 그래프 (Chart.js)*/
         .donut {
             --rate: 0;
             --donut-color: #9ca3af;
@@ -186,7 +191,7 @@
             justify-content: center;
             position: relative;
         }
-
+        /* 도넛 가운데 흰 원 */
         .donut::before {
             content: "";
             position: absolute;
@@ -203,6 +208,16 @@
             color: var(--donut-color);
         }
 
+        /* 병상수 텍스트 */
+        .bed-text {
+            font-size: 10px;
+            color: #6b7280;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+
+
         .donut-free {
             --donut-color: #22c55e;
         }
@@ -218,30 +233,80 @@
         .donut-unknown {
             --donut-color: #9ca3af;
         }
-
-        .hospital-actions a {
-            margin: 0 3px;
-            font-size: 12px;
-            text-decoration: none;
+        /*  액션 버튼 (전화/길찾기/커뮤니티) */
+        .hospital-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
         }
 
+        .hospital-actions a {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between; /* 양 끝으로 벌리거나 간격 조절 */
+            width: 100%;                  /* 부모의 너비를 꽉 채움 */
+            max-width: 120px;             /* 필요에 따라 최대 너비 제한 (예: 120px) */
+            margin-top: 16px;             /* 도넛과의 간격 */
+            padding: 0 5px;               /* 미세한 여백 */
+        }
+
+        /* 원형 버튼 공통 스타일 */
+        .call-icon-img,
+        .finder-icon-img,
+        .community-icon-img {
+            width: 14px;
+            height: 14px;
+        }
+        /* hover 효과 */
+        .call-button,
+        .route-button,
+        .community-button {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ffff;
+            color: #16a34a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 1px solid #16a34a;
+        }
+
+        /* hover 효과 */
+        .call-button:hover,
+        .route-button:hover,
+        .community-button:hover{
+            background:#dcfce7;
+        }
+
+        /*  상세보기 토글 버튼*/
         .detail-toggle {
-            width: 20px;
-            height: 70px;
-            border: none;
-            background: transparent;
+            width: 25px;          /* 20px -> 40px로 확대 (클릭 영역 확보) */
+            height: 25px;         /* 70px -> 40px로 축소 (비율 조정) */
+            border: 1px solid #e5e7eb; /* 테두리를 추가해 영역을 명확히 함 */
+            background: #f8fafc;  /* 배경색 추가 */
+            border-radius: 10px;  /* 둥근 모서리 */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             padding: 0;
             flex: 0 0 auto;
+            transition: background 0.2s;
+        }
+
+        .detail-toggle:hover {
+            background: #f1f5f9; /* 마우스 오버 시 효과 */
         }
 
         .detail-toggle-icon {
-            width: 8px;
-            height: 14px;
-            opacity: 0.55;
+            width: 12px;          /* 아이콘도 조금 더 키움 */
+            height: 20px;         /* 비율 유지 */
+            opacity: 0.6;
             transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
@@ -256,23 +321,23 @@
         }
 
         .hospital-detail-panel {
-            padding: 12px;
+            padding: 14px;
             background: #ffffff;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
         }
 
         .detail-section + .detail-section {
-            margin-top: 12px;
-            padding-top: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
             border-top: 1px solid #eef2f7;
         }
 
         .detail-title {
             font-size: 13px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: #111827;
         }
 
@@ -297,60 +362,54 @@
             color: #1f2937;
             word-break: keep-all;
         }
-        .detail-loading,
-        .detail-error {
-            padding: 12px;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #dc2626;
-            background: #fef2f2;
-        }
 
-        .detail-error {
-            color: #dc2626;
-            background: #fef2f2;
-            border-color: #fecaca;
-        }
 
-        .empty {
-            padding: 24px;
-            text-align: center;
-            color: #6b7280;
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
+        /*  자원 카드 */
         .detail-resource-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
         }
 
         .detail-resource {
-            padding: 8px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            text-align: center;
         }
 
         .detail-resource-name {
             font-size: 11px;
             color: #6b7280;
+            display: block;
+            margin-bottom: 4px;
         }
 
         .detail-resource-value {
             font-size: 13px;
             font-weight: 800;
+            color: #111827;
         }
 
+        /* 진료 가능 여부 리스트 */
+        .detail-capability-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
         .detail-capability {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 12px;
-            margin-top: 6px;
         }
-
+        /* 가능/불가 배지 */
         .capability-badge {
             padding: 3px 7px;
             border-radius: 999px;
@@ -358,27 +417,6 @@
             font-weight: 800;
         }
 
-        .call-icon-img,
-        .finder-icon-img,
-        .community-icon-img {
-            width: 14px;
-            height: 14px;
-        }
-
-        .call-button,
-        .route-button,
-        .community-button {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #eff6ff;
-            color: #2563eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            border: 1px solid #bfdbfe;
-        }
 
         .capability-available {
             background: #dcfce7;
@@ -403,32 +441,64 @@
         .more-link {
             display: inline-block;
             font-size: 12px;
-            color: #2563eb;
+            color: #16a34a;
             text-decoration: none;
             font-weight: 600;
             padding: 6px 10px;
             border-radius: 8px;
             background: #eff6ff;
-            border: 1px solid #bfdbfe;
+            border: 1px solid #dcfce7;
         }
 
         .more-link:hover {
-            background: #dbeafe;
+            background: #dcfce7;
         }
-        .tag-wrapper {
-            margin-top: 8px;
 
+        /* 태그 영역*/
+
+        .tag-wrapper {
             display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+            flex-wrap: wrap; /* 내용이 넘치면 다음 줄로 이동 */
+            gap: 8px;        /* 태그 사이의 일정한 간격 */
+            margin-top: 10px;
         }
 
         .tag-badge {
-            background: #eff6ff; /* 더 진한 파란색 톤 */
-            color: #1e40af;
+            display: inline-block;
+            font-size: 10px;
             font-weight: 600;
+            white-space: nowrap;     /* 텍스트 줄바꿈 방지 */
+            background: #dcfce7; /* 더 진한 파란색 톤 */
+            color: #16a34a;
             padding: 4px 10px;
             border-radius: 8px; /* 둥근 사각형 */
+            border: 1px solid #16a34a;
+        }
+
+        /*로딩 / empty 상태 */
+        .detail-loading,
+        .detail-error {
+            padding: 12px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .detail-error {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            color: #6b7280;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -463,7 +533,7 @@
         <article class="hospital-card"
                  th:each="hospital, iter : ${rankings}"
                  th:style="${iter.index == 0} ?
-                     'border:2px solid #2563eb;background:#eff6ff;' : ''">
+                     'border:2px solid #16a34a;background:#eff6ff;' : ''">
 
             <div class="hospital-left">
 
@@ -516,7 +586,7 @@
             <!-- RIGHT (소아랑 동일 구조로 변경) -->
             <div class="hospital-right" style="display: flex; align-items: center; gap: 8px;">
 
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
 
                     <div class="donut-container" style="width: 80px; height: 80px; position: relative;">
                         <canvas th:id="'chart-' + ${hospital.hpid}"></canvas>
