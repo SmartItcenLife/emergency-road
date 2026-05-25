@@ -6,13 +6,29 @@
     <title>임산부 응급 추천 결과</title>
 
     <style>
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Pretendard';
+            src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Bold.woff') format('woff');
+            font-weight: 700;
+            font-style: normal;
+        }
+        /* 전체 기본 세팅 */
+
+        /* 페이지 전체 기본 스타일 */
         body {
             margin: 0;
             background: #fdfafb;
-            font-family: Arial, sans-serif;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
             color: #1f2937;
         }
 
+        /* 전체 컨테이너 (모바일 기준 화면) */
         .page {
             width: 100%;
             min-height: 100vh;
@@ -21,12 +37,15 @@
             box-sizing: border-box;
         }
 
+        /* 데스크탑일 때 중앙 정렬 + 최대 너비 제한 */
         @media (min-width: 768px) {
             .page {
                 max-width: 430px;
                 margin: 0 auto;
             }
         }
+
+        /*  헤더 영역 */
 
         .header {
             margin-bottom: 16px;
@@ -43,18 +62,24 @@
             color: #db2777;
         }
 
+        /*  섹션 제목 / 리스트 */
+
         .section-title {
             font-size: 15px;
             font-weight: 700;
             margin: 18px 0 10px;
         }
 
+        /* 병원 카드 리스트 세로 정렬 */
         .hospital-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
+        /*  병원 카드 UI */
+
+        /* 개별 병원 카드 */
         .hospital-card {
             display: flex;
             justify-content: space-between;
@@ -66,20 +91,24 @@
             box-shadow: 0 4px 16px rgba(0,0,0,.04);
             transition: transform .2s;
         }
-        /* TOP 1 카드 강조 (배경색 추가) */
+
+        /* TOP 1 강조 스타일 */
         .hospital-card.top1 {
             background: #f8fafc;
             border: 1px solid #fdf2f8;
         }
 
+        /* 왼쪽 정보 영역 */
         .hospital-left {
             display: flex;
             align-items: center;
             gap: 10px;
             min-width: 0;
             flex: 1;
+            margin-right: 10px;
         }
 
+        /* 병원 아이콘 (P 표시) */
         .hospital-icon {
             width: 30px;
             height: 30px;
@@ -94,14 +123,14 @@
             flex: 0 0 auto;
         }
 
-
+        /* 병원 정보 텍스트 */
         .hospital-info {
             font-size:14px;
             color:#64748b;
             gap:8px;
         }
 
-
+        /* 병원 이름 */
         .hospital-name {
             font-size: 17px;
             font-weight: 700;
@@ -109,6 +138,7 @@
             margin-bottom: 8px;
         }
 
+        /* 거리 / 시간 / 상태 메타 정보 */
         .hospital-meta {
             margin-top: 5px;
             display: flex;
@@ -119,10 +149,12 @@
             flex-wrap: wrap;
         }
 
+        /* 상태 배지 (분만 가능 등) */
+
         .badge {
             padding: 4px 7px;
             border-radius: 999px;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 700;
         }
 
@@ -141,6 +173,8 @@
             color: #6b7280;
         }
 
+        /* 오른쪽 영역 (차트 + 버튼) */
+
         .hospital-right {
             display: flex;
             align-items: center;
@@ -148,14 +182,9 @@
             flex: 0 0 auto;
         }
 
-        .hospital-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
 
-        /* Donut Graph */
+        /* 도넛 그래프 (Chart.js)*/
+
         .donut {
             --rate: 0;
             --donut-color: #f472b6;
@@ -169,22 +198,12 @@
             position: relative;
         }
 
-        .donut-free {
-            --donut-color: #22c55e;
-        }
+        .donut-free { --donut-color: #22c55e; }
+        .donut-normal { --donut-color: #facc15; }
+        .donut-busy { --donut-color: #ef4444; }
+        .donut-unknown { --donut-color: #9ca3af; }
 
-        .donut-normal {
-            --donut-color: #facc15;
-        }
-
-        .donut-busy {
-            --donut-color: #ef4444;
-        }
-
-        .donut-unknown {
-            --donut-color: #9ca3af;
-        }
-
+        /* 도넛 가운데 흰 원 */
         .donut::before {
             content: "";
             position: absolute;
@@ -201,12 +220,15 @@
             color: #db2777;
         }
 
+        /* NICU 텍스트 */
         .bed-text {
             font-size: 10px;
             color: #9ca3af;
             text-align: center;
             white-space: nowrap;
         }
+
+        /*  액션 버튼 (전화/길찾기/커뮤니티) */
 
         .hospital-actions {
             display: flex;
@@ -216,6 +238,18 @@
             justify-content: center;
         }
 
+        .hospital-actions a{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 120px;
+            margin-top: 16px;
+            padding: 0 5px;
+        }
+
+        /* 원형 버튼 공통 스타일 */
         .call-button, .route-button, .community-button {
             width: 28px;
             height: 28px;
@@ -230,6 +264,8 @@
 
             transition:.2s;
         }
+
+        /* hover 효과 */
         .call-button:hover,
         .route-button:hover,
         .community-button:hover{
@@ -241,29 +277,40 @@
             height: 14px;
         }
 
+        /* 전화 불가능 상태 */
         .call-button-disabled {
             opacity: 0.4;
             pointer-events: none;
         }
 
+        /*  상세보기 토글 버튼*/
+
         .detail-toggle {
-            width: 20px;
-            height: 70px;
-            border: none;
-            background: transparent;
+            width: 25px;
+            height: 25px;
+            border: 1px solid #e5e7eb;
+            background: #f8fafc;
+            border-radius: 10px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             cursor: pointer;
             padding: 0;
             flex: 0 0 auto;
+            transition: background 0.2s;
+        }
+
+        .detail-toggle:hover {
+            background: #f1f5f9;
         }
 
         .detail-toggle-icon {
-            width: 8px;
-            height: 14px;
-            opacity: 0.55;
-            transition: transform 0.2s ease;
+            width: 12px;
+            height: 20px;
+            opacity: 0.6;
+            transition: transform 0.2s ease, opacity 0.2s ease;
         }
 
         .detail-toggle-open .detail-toggle-icon {
@@ -271,7 +318,6 @@
             opacity: 1;
         }
 
-        /* Detail Panel */
         .hospital-detail-wrapper {
             margin-top: -4px;
             margin-bottom: 10px;
@@ -314,6 +360,8 @@
             color: #1f2937;
         }
 
+        /*  자원 카드 (NICU 등) */
+
         .detail-resource-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -340,25 +388,36 @@
             color: #111827;
         }
 
+        /* 진료 가능 여부 리스트 */
+
         .detail-capability-list {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
         }
 
         .detail-capability {
             display: flex;
+            flex-direction: row;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+
+            padding: 10px 12px;
+            border: 1px solid #fce7f3;
+            border-radius: 10px;
+            background: #fffafa;
+
             font-size: 12px;
+            color: #4b5563;
+            gap: 8px;
         }
 
+        /* 가능/불가 배지 */
         .capability-badge {
-            padding: 3px 7px;
+            padding: 3px 8px;
             border-radius: 999px;
-            font-size: 11px;
-            font-weight: 800;
+            font-size: 10px;
+            font-weight: 700;
         }
 
         .capability-available {
@@ -376,9 +435,10 @@
             color: #6b7280;
         }
 
+        /* 태그 영역*/
+
         .tag-wrapper {
             margin-top: 8px;
-
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
@@ -392,6 +452,8 @@
             border-radius: 8px;
             border: 1px solid #fbcfe8;
         }
+
+        /*로딩 / empty 상태 */
 
         .detail-loading {
             padding: 15px;
@@ -415,14 +477,25 @@
 
 <body>
 <div class="page">
-    <header class="header">
+    <div class="header">
         <h1 class="title">임산부 응급 추천 결과</h1>
         <div class="location">
             <span th:text="${locationProvided ? '현재 위치' : '기본 위치'}">현재 위치</span> :
             <span th:text="${displayLocation}"></span>
         </div>
-    </header>
+    </div>
+    <div style="margin: 18px 0 10px;">
+        <h2 class="section-title" style="margin-bottom: 4px;">추천 병원 TOP 3</h2>
+        <p style="font-size: 13px; color: #64748b; margin: 0;">
+            현재 위치로부터 10km 이내,<br/>
+            <span style="color: #2563eb; font-weight: 700;">진료 가능 여부와 실시간 상황</span>을 종합 분석한 추천 결과입니다.
+        </p>
+    </div>
 
+    <div class="empty" th:if="${#lists.isEmpty(rankings)}">
+        10km 반경 내에 추천 가능한 병원이 없습니다.<br>
+        아래 버튼을 눌러 전체 병원 목록을 확인해보세요.
+    </div>
     <section>
         <h2 class="section-title">추천 병원 TOP 3</h2>
 
@@ -461,8 +534,9 @@
                 </div>
 
                 <div class="hospital-right">
-                    <div class="hospital-status">
-                        <!-- 도넛 그래프 (가용 NICU 병상 기준 예시) -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+
+                    <!-- 도넛 그래프 (가용 NICU 병상 기준 예시) -->
                         <div class="donut-container"
                              style="width:80px;height:80px;position:relative;">
                             <canvas th:id="'chart-' + ${hospital.hpid}"></canvas>
@@ -573,11 +647,11 @@ ${createResourceItem("인큐베이터", detail.incubatorCount, detail.incubatorS
                 <h3 class="detail-title">진료 가능 여부</h3>
                 <div class="detail-capability-list">
 
-                    ${createCapabilityItem("분만실 사용 가능", detail.isDeliveryRoomAvailable)}
-                    ${createCapabilityItem("인큐베이터 사용 가능", detail.incubatorAvailable)}
-                    ${createCapabilityItem("조산아 인공호흡기 사용 가능", detail.prematureVentilatorAvailable)}
+                    ${createCapabilityItem("분만실 사용", detail.isDeliveryRoomAvailable)}
+                    ${createCapabilityItem("인큐베이터 사용", detail.incubatorAvailable)}
+                    ${createCapabilityItem("조산아 인공호흡기 사용", detail.prematureVentilatorAvailable)}
                     ${createCapabilityItem("NICU 치료", detail.nicuAvailable)}
-                    ${createCapabilityItem("응급 분만 가능", detail.deliveryAvailable)}
+                    ${createCapabilityItem("응급 분만", detail.deliveryAvailable)}
                     ${createCapabilityItem("산과 수술", detail.obstetricSurgeryAvailable)}
                     ${createCapabilityItem("부인과 수술", detail.gynecologySurgeryAvailable)}
                     ${createCapabilityItem("응급 투석", detail.emergencyDialysisAvailable)}
