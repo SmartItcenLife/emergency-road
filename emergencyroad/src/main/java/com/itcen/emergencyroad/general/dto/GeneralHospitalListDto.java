@@ -63,4 +63,9 @@ public class GeneralHospitalListDto {
 
         return "혼잡";
     }
+
+    public void updateRouteInfo(Double distanceKm, Integer duration){
+        this.distanceKm = distanceKm;
+        this.duration = duration != null ? duration.doubleValue() : null;
+    };
 }
