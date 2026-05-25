@@ -19,7 +19,32 @@ public class PediatricHospitalListDto {
 
     private Double hospitalLatitude; // 병원 위도
     private Double hospitalLongitude; // 병원 경도
-    private Double distanceKm;
+    private Double distanceKm; // 사용자 위치 기준 거리
+    private Double duration; //소요 시간
+
+    // Repository의 JPQL constructor projection은 기존 9개 인자로 생성하므로
+    // duration 필드 추가 후에도 기존 쿼리 검증이 통과되도록 호환 생성자를 둔다.
+    public PediatricHospitalListDto(
+            String hpid,
+            String hospitalName,
+            Integer availablePediatricBedCount,
+            Integer totalPediatricBedCount,
+            LocalDateTime recordedAt,
+            String emergencyPhone,
+            Double hospitalLatitude,
+            Double hospitalLongitude,
+            Double distanceKm
+    ) {
+        this.hpid = hpid;
+        this.hospitalName = hospitalName;
+        this.availablePediatricBedCount = availablePediatricBedCount;
+        this.totalPediatricBedCount = totalPediatricBedCount;
+        this.recordedAt = recordedAt;
+        this.emergencyPhone = emergencyPhone;
+        this.hospitalLatitude = hospitalLatitude;
+        this.hospitalLongitude = hospitalLongitude;
+        this.distanceKm = distanceKm;
+    }
 
     public void updateDistanceKm(Double distanceKm){
         this.distanceKm = distanceKm;
@@ -55,5 +80,9 @@ public class PediatricHospitalListDto {
 
         return "혼잡";
     }
-}
 
+    public void updateRouteInfo(Double distanceKm, Integer duration){
+        this.distanceKm = distanceKm;
+        this.duration = duration != null ? duration.doubleValue() : null;
+    }
+}

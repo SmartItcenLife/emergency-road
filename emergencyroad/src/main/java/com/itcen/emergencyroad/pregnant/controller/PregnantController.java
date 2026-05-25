@@ -1,10 +1,10 @@
 package com.itcen.emergencyroad.pregnant.controller;
 
 import com.itcen.emergencyroad.findpath.service.KakaoLocalApiClient;
-import com.itcen.emergencyroad.pediatric.dto.PediatricHospitalDetailDto;
 import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalDetailDto;
 import com.itcen.emergencyroad.pregnant.dto.PregnantHospitalListDto;
 import com.itcen.emergencyroad.pregnant.service.PregnantViewService;
+import com.itcen.emergencyroad.recommend.entity.HospitalSortType;
 import com.itcen.emergencyroad.recommend.service.HospitalRecommendationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +20,23 @@ import java.util.List;
 public class PregnantController {
 
     private final PregnantViewService pregnantViewService;
-
-    private final HospitalRecommendationService hospitalRecommendationService;
+    
     private final KakaoLocalApiClient kakaoLocalApiClient;
 
     // 전체 병원 목록 출력
     @GetMapping("/hospitals")
     public String hospitalList(@RequestParam(required = false) Double lat,
                                @RequestParam(required = false) Double lon,
+                               @RequestParam(required = false, defaultValue = "SCORE") String sort,
                                Model model) {
 
         double baseLat = (lat != null && lat != 0.0) ? lat : 37.5665;
         double baseLon = (lon != null && lon != 0.0) ? lon : 126.9780;
 
+        HospitalSortType sortType = HospitalSortType.from(sort);
+
         List<PregnantHospitalListDto> list =
-                pregnantViewService.getPregnantHospitalList(baseLat, baseLon);
+                pregnantViewService.getPregnantHospitalList(baseLat, baseLon, sortType);
 
         String displayLocation = kakaoLocalApiClient.getDisplayLocation(baseLat, baseLon);
 
@@ -43,6 +45,7 @@ public class PregnantController {
         model.addAttribute("displayLocation", displayLocation);
         model.addAttribute("userLat", baseLat);
         model.addAttribute("userLon", baseLon);
+        model.addAttribute("sort", sortType.name());
 
         return "pregnant/hospitals";
     }

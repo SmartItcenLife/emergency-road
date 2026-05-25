@@ -49,6 +49,31 @@
             margin: 18px 0 10px;
         }
 
+        .sort-form {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin: 0 0 12px;
+        }
+
+        .sort-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #6b7280;
+        }
+
+        .sort-select {
+            height: 32px;
+            padding: 0 28px 0 10px;
+            border: 1px solid #f9a8d4;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
         .hospital-list {
             display: flex;
             flex-direction: column;
@@ -414,6 +439,18 @@
     <section>
         <h2 class="section-title">전체 병원 목록</h2>
 
+        <form class="sort-form" th:action="@{/pregnant/hospitals}" method="get">
+            <input type="hidden" name="lat" th:value="${userLat}">
+            <input type="hidden" name="lon" th:value="${userLon}">
+
+            <label class="sort-label" for="sort">정렬</label>
+            <select id="sort" name="sort" class="sort-select" onchange="this.form.submit()">
+                <option value="SCORE" th:selected="${sort == 'SCORE'}">점수순</option>
+                <option value="DISTANCE" th:selected="${sort == 'DISTANCE'}">거리순</option>
+                <option value="BED" th:selected="${sort == 'BED'}">병상여유순</option>
+            </select>
+        </form>
+
         <div class="empty" th:if="${#lists.isEmpty(hospitals)}">
             표시할 병원 정보가 없습니다.
         </div>
@@ -509,8 +546,9 @@
             function(position) {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
+                const currentSort = [[${sort}]];
 
-                window.location.href = `/pregnant/hospitals?lat=${lat}&lon=${lon}`;
+                window.location.href = `/pregnant/hospitals?lat=${lat}&lon=${lon}&sort=${currentSort}`;
             },
             function() {
                 console.log("위치 정보 제공이 거부되었습니다.");
