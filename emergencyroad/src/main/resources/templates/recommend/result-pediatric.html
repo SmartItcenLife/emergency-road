@@ -19,6 +19,10 @@
             font-style: normal;
         }
 
+        /* 전체 기본 세팅 */
+
+        /* 페이지 전체 기본 스타일 */
+
         body {
             margin: 0;
             background: #ffffff;
@@ -26,6 +30,7 @@
             color: #111827;
         }
 
+        /* 전체 컨테이너 (모바일 기준 화면) */
         .page {
             width: 100%;
             min-height: 100vh;
@@ -34,12 +39,15 @@
             box-sizing: border-box;
         }
 
+        /* 데스크탑일 때 중앙 정렬 + 최대 너비 제한 */
         @media (min-width: 768px) {
             .page {
                 max-width: 430px;
                 margin: 0 auto;
             }
         }
+
+        /*  헤더 영역 */
 
         .header {
             margin-bottom: 16px;
@@ -56,18 +64,22 @@
             color: #2563eb;
         }
 
+        /*  섹션 제목 / 리스트 */
         .section-title {
             font-size: 15px;
             font-weight: 700;
             margin: 18px 0 10px;
         }
-
+        /* 병원 카드 리스트 세로 정렬 */
         .hospital-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
+        /*  병원 카드 UI */
+
+        /* 개별 병원 카드 */
         .hospital-card {
             display: flex;
             justify-content: space-between;
@@ -79,12 +91,12 @@
             border: 1px solid blue;
             transition: transform 0.2s;
         }
-        /* TOP 1 카드 강조 (배경색 추가) */
+        /* TOP 1 강조 스타일 */
         .hospital-card.top1 {
             background: #f8fafc;
             border: 1px solid #dbeafe;
         }
-
+        /* 왼쪽 정보 영역 */
         .hospital-left {
             display: flex;
             align-items: center;
@@ -92,7 +104,7 @@
             min-width: 0;
             flex: 1;
         }
-
+        /* 병원 아이콘 (P 표시) */
         .hospital-icon {
             width: 30px;
             height: 30px;
@@ -106,28 +118,28 @@
             font-size: 16px;
             flex: 0 0 auto;
         }
-
+        /* 병원 정보 텍스트 */
         .hospital-info {
             font-size: 14px;
             color: #64748b;
             /*display: flex;*/
             gap: 8px;
         }
-
+        /* 병원 이름 */
         .hospital-name {
             font-size: 17px;
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 8px;
         }
-
+        /* 거리 / 시간 / 상태 메타 정보 */
         .hospital-meta {
             margin-top: 5px;
             font-size: 13px;
             color: #6b7280;
-            display: block; /* 나란히 배치되지 않도록 block으로 변경 */
+            display: block;
         }
-
+        /* 상태 배지 (분만 가능 등) */
         .badge {
             padding: 4px 7px;
             border-radius: 999px;
@@ -154,7 +166,7 @@
             background: #e5e7eb;
             color: #6b7280;
         }
-
+        /* 오른쪽 영역 (차트 + 버튼) */
         .hospital-right {
             display: flex;
             align-items: center;
@@ -162,84 +174,7 @@
             flex: 0 0 auto;
         }
 
-        .call-button,
-        .route-button,
-        .community-button {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: #f1f5f9;      /* 기본 배경: 회색 */
-            color: #94a3b8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            border: 1px solid #e2e8f0; /* 기본 테두리: 회색 */
-            flex: 0 0 auto;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .call-button:hover,
-        .route-button:hover,
-        .community-button:hover{
-            background: #eff6ff; /* 연한 파란색 배경 */
-            border-color: #bfdbfe; /* 파란 테두리 */
-            color: #2563eb;       /* 파란 아이콘 색상 */
-        }
-
-        .call-icon-img,
-        .finder-icon-img,
-        .community-icon-img {
-            width: 14px;
-            height: 14px;
-        }
-
-        .detail-toggle {
-            width: 20px;
-            height: 70px;
-            border: none;
-            background: transparent;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            padding: 0;
-            flex: 0 0 auto;
-        }
-
-        .detail-toggle-icon {
-            width: 8px;
-            height: 14px;
-            display: block;
-            opacity: 0.55;
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-
-        .detail-toggle:hover .detail-toggle-icon {
-            opacity: 1;
-        }
-
-        .call-button-disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-
-        .hospital-actions {
-            display: flex;
-            flex-direction: row;
-            gap: 5px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .hospital-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
+        /* 도넛 그래프 (Chart.js)*/
         .donut {
             --rate: 0;
             --donut-color: #9ca3af;
@@ -269,7 +204,7 @@
         .donut-unknown {
             --donut-color: #9ca3af;
         }
-
+        /* 도넛 가운데 흰 원 */
         .donut::before {
             content: "";
             position: absolute;
@@ -285,23 +220,85 @@
             font-weight: 800;
             color: var(--donut-color);
         }
-
+        /* 소아 병상수 텍스트 */
         .bed-text {
             font-size: 10px;
             color: #6b7280;
             text-align: center;
             white-space: nowrap;
         }
-
-        .detail-toggle-open .detail-toggle-icon {
-            transform: rotate(90deg);
-            opacity: 1;
+        /* 원형 버튼 공통 스타일 */
+        .call-button,
+        .route-button,
+        .community-button {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f1f5f9;      /* 기본 배경: 회색 */
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: 1px solid #e2e8f0; /* 기본 테두리: 회색 */
+            flex: 0 0 auto;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        /* hover 효과 */
+        .call-button:hover,
+        .route-button:hover,
+        .community-button:hover{
+            background: #eff6ff; /* 연한 파란색 배경 */
+            border-color: #bfdbfe; /* 파란 테두리 */
+            color: #2563eb;       /* 파란 아이콘 색상 */
         }
 
+        .call-icon-img,
+        .finder-icon-img,
+        .community-icon-img {
+            width: 14px;
+            height: 14px;
+        }
+        /* 전화 불가능 상태 */
+        .call-button-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /*  상세보기 토글 버튼*/
+        .detail-toggle {
+            width: 25px;          /* 20px -> 40px로 확대 (클릭 영역 확보) */
+            height: 25px;         /* 70px -> 40px로 축소 (비율 조정) */
+            border: 1px solid #e5e7eb; /* 테두리를 추가해 영역을 명확히 함 */
+            background: #f8fafc;  /* 배경색 추가 */
+            border-radius: 10px;  /* 둥근 모서리 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            flex: 0 0 auto;
+            transition: background 0.2s;
+        }
+
+        .detail-toggle:hover {
+            background: #f1f5f9; /* 마우스 오버 시 효과 */
+        }
+
+        .detail-toggle-icon {
+            width: 12px;          /* 아이콘도 조금 더 키움 */
+            height: 20px;         /* 비율 유지 */
+            opacity: 0.6;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        /*  상세 정보 패널 */
         .hospital-detail-wrapper {
             margin-top: -4px;
             margin-bottom: 10px;
         }
+
 
         .hospital-detail-panel {
             padding: 12px;
@@ -346,34 +343,47 @@
             word-break: keep-all;
         }
 
-        .detail-loading,
-        .detail-error {
-            padding: 12px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #6b7280;
+
+
+        .hospital-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
         }
 
-        .detail-error {
-            color: #dc2626;
-            background: #fef2f2;
-            border-color: #fecaca;
+
+        .detail-toggle-open .detail-toggle-icon {
+            transform: rotate(90deg);
+            opacity: 1;
         }
 
-        .empty {
-            padding: 24px;
-            text-align: center;
-            color: #6b7280;
-            background: #ffffff;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-        }
-        .detail-resource-grid {
+
+
+
+
+
+        /*  자원 카드  */
+        .core-resource-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
+        }
+        /* 소아 중증 수용 가능: 2열 정렬 */
+        .capability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+
+        .detail-capability {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
         }
 
         .detail-resource {
@@ -381,6 +391,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             background: #f9fafb;
+            text-align: center;
         }
 
         .detail-resource-name {
@@ -396,20 +407,26 @@
             color: #111827;
         }
 
-        .detail-capability-list {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
+        /* 장비 가능 여부 및 수용 가능 */
+        .capability-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2열 배치 */
+            gap: 12px; /* 항목 간 간격 */
+            margin-top: 10px;
         }
 
         .detail-capability {
+            background: #f8fafc;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
             font-size: 12px;
         }
 
+        /* 가능/불가 배지 */
         .capability-badge {
             padding: 3px 7px;
             border-radius: 999px;
@@ -437,9 +454,10 @@
             font-size: 11px;
             color: #6b7280;
         }
+
+        /* 태그 영역*/
         .tag-wrapper {
             margin-top: 8px;
-
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
@@ -448,10 +466,38 @@
         .tag-badge {
             background: #eff6ff; /* 더 진한 파란색 톤 */
             color: #1e40af;
+            border: 1px solid #1e40af;
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 8px; /* 둥근 사각형 */
         }
+
+        /*로딩 / empty 상태 */
+        .detail-loading,
+        .detail-error {
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .detail-error {
+            color: #dc2626;
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            color: #6b7280;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -680,8 +726,8 @@
 
                 <div class="detail-section">
                     <h3 class="detail-title">소아 핵심 자원</h3>
-                    <div class="detail-resource-grid">
-                        ${createResourceItem("소아 ICU", detail.pediatricIcuCount, detail.pediatricIcuStandard)}
+                    <div class="core-resource-grid">
+                        ${createResourceItem("소아 중환자실", detail.pediatricIcuCount, detail.pediatricIcuStandard)}
                         ${createResourceItem("응급 소아 ICU", detail.pediatricEmergencyIcuCount, detail.pediatricEmergencyIcuStandard)}
                         ${createResourceItem("응급 소아 입원", detail.pediatricEmergencyAdmissionCount, detail.pediatricEmergencyAdmissionStandard)}
                         ${createResourceItem("소아 음압격리", detail.pediatricNegativeIsolationCount, detail.pediatricNegativeIsolationStandard)}
@@ -691,7 +737,7 @@
 
                 <div class="detail-section">
                     <h3 class="detail-title">장비 가능 여부</h3>
-                    <div class="detail-capability-list">
+                    <div class="capability-grid">
                         ${createCapabilityItem("소아 인공호흡기", detail.pediatricVentiAvailable)}
                         ${createCapabilityItem("조산아 인공호흡기", detail.preemieVentiAvailable)}
                         ${createCapabilityItem("인큐베이터", detail.incubatorAvailable)}
@@ -701,7 +747,7 @@
 
                 <div class="detail-section">
                     <h3 class="detail-title">소아 중증 수용 가능</h3>
-                    <div class="detail-capability-list">
+                    <div class="capability-grid">
                         ${createCapabilityItem("장중첩/폐색 영유아", detail.pediatricBowelObstructionAvailable, detail.pediatricBowelObstructionMessage)}
                         ${createCapabilityItem("응급내시경 위장관", detail.pediatricEmergencyEndoscopyGastroAvailable, detail.pediatricEmergencyEndoscopyGastroMessage)}
                         ${createCapabilityItem("응급내시경 기관지", detail.pediatricEmergencyEndoscopyBronchialAvailable, detail.pediatricEmergencyEndoscopyBronchialMessage)}
