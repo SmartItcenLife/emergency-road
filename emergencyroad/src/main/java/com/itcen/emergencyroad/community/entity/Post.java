@@ -12,14 +12,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posts")
 @Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
@@ -42,21 +44,12 @@ public class Post extends BaseEntity {
     @Column(name = "content",nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Builder.Default
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;
 
     public void delete(){
-        this.isDeleted = true; // Soft Delete
-    }
-
-    public static Post create(User user, Hospital hospital, String title, String content){
-        Post post = new Post();
-        post.user = user;
-        post.hospital = hospital;
-        post.title = title;
-        post.content = content;
-
-        return post;
+        this.isDeleted = true;
     }
 
     public void update(String title, String content){

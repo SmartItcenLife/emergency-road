@@ -29,61 +29,67 @@ public class PostImageService {
   );
 
   @Transactional
-  public void uploadImages(Post post, List<MultipartFile> images){
-    if(images == null || images.isEmpty()) return;
+  public void uploadImages(Post post, List<MultipartFile> images) {
+    if (images == null || images.isEmpty()) {
+      return;
+    }
 
     List<MultipartFile> validImages = images.stream()
         .filter(image -> !image.isEmpty())
         .toList();
 
-    if(validImages.isEmpty()) return;
+    if (validImages.isEmpty()) {
+      return;
+    }
 
-    if(validImages.size() > MAX_IMAGE_COUNT) {
+    if (validImages.size() > MAX_IMAGE_COUNT) {
       throw new CustomException(ExceptionStatus.IMAGE_LIMIT_EXCEEDED);
     }
 
-    for(MultipartFile image : validImages){
-      log.info("contentType: {}", image.getContentType());
-      if(!ALLOWED_TYPES.contains(image.getContentType())){
+    for (MultipartFile image : validImages) {
+      if (!ALLOWED_TYPES.contains(image.getContentType())) {
         throw new CustomException(ExceptionStatus.UNSUPPORTED_MEDIA_TYPE);
       }
 
       String imageUrl = saveFile(image);
-      PostImage postImage = PostImage.create(post, imageUrl);
+      PostImage postImage = PostImage
+          .builder()
+          .post(post)
+          .imageUrl(imageUrl)
+          .build();
       postImageRepository.save(postImage);
     }
 
   }
 
   @Transactional
-  public void deleteImages(Long postId){
+  public void deleteImages(Long postId) {
     postImageRepository.deleteByPost_Id(postId);
   }
 
   @Transactional(readOnly = true)
-  public List<String> getImageUrls(Long postId){
+  public List<String> getImageUrls(Long postId) {
     return postImageRepository.findByPost_IdOrderByCreatedAtAsc(postId)
         .stream()
         .map(PostImage::getImageUrl)
         .toList();
   }
 
-  private String saveFile(MultipartFile file){
-    try{
+  private String saveFile(MultipartFile file) {
+    try {
       String absoluteUploadDir = System.getProperty("user.dir") + File.separator + UPLOAD_DIR;
       File uploadDir = new File(absoluteUploadDir);
-      log.info("uploadDir 절대경로: {}", uploadDir.getAbsolutePath());  // 추가
-      log.info("exists: {}", uploadDir.exists());                        // 추가
-      log.info("mkdirs 결과: {}", uploadDir.mkdirs());
 
-      if(!uploadDir.exists()) uploadDir.mkdirs();
+      if (!uploadDir.exists()) {
+        uploadDir.mkdirs();
+      }
 
       String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
       File dest = new File(absoluteUploadDir + fileName);
       file.transferTo(dest);
 
       return "/" + UPLOAD_DIR + fileName;
-    } catch (IOException e){
+    } catch (IOException e) {
       log.error("파일 저장 실패: {}", e.getMessage());
       throw new CustomException(ExceptionStatus.FILE_UPLOAD_FAILED);
     }

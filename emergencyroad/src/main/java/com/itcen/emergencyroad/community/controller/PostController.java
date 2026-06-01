@@ -4,13 +4,13 @@ import com.itcen.emergencyroad.community.dto.comment.CommentRequestDto;
 import com.itcen.emergencyroad.community.dto.comment.CommentResponseDto;
 import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
-import com.itcen.emergencyroad.community.entity.Comment;
 import com.itcen.emergencyroad.community.enums.ReportTargetType;
 import com.itcen.emergencyroad.community.service.CommentService;
 import com.itcen.emergencyroad.community.service.LikeService;
 import com.itcen.emergencyroad.community.service.PostService;
 import com.itcen.emergencyroad.community.service.ReportService;
 import com.itcen.emergencyroad.global.exception.CustomException;
+import com.itcen.emergencyroad.global.exception.ExceptionStatus;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -34,7 +34,6 @@ public class PostController {
 
   private final PostService postService;
   private final CommentService commentService;
-  private final LikeService likeService;
   private final ReportService reportService;
 
   @GetMapping
@@ -57,28 +56,26 @@ public class PostController {
       @PathVariable Long postId,
       Model model,
       HttpSession session) {
-    PostResponseDto post = postService.getPost(postId);
+
+    Long loginUserId = (Long) session.getAttribute("loginUser");
+    PostResponseDto post = postService.getPost(postId, loginUserId);
 
     // 관리자 하이패스 & 일반 유저 차단
     String loginRole = (String) session.getAttribute("loginRole");
 
     // 만약 게시글이 삭제 상태(isDeleted)인데, 로그인한 사람이 관리자(ADMIN)가 아니라면 접근 차단
     if (post.isDeleted() && !"ADMIN".equals(loginRole)) {
-      throw new IllegalArgumentException("삭제된 게시글입니다."); // 또는 에러 페이지로 리다이렉트
+      // 작성자 : 세빈(게시글이 삭제된 상태인 걸 가정하고 작성하셔서 POST_NOT_FOUND Custom 예외로 변경했습니다.)
+      throw new CustomException(ExceptionStatus.POST_NOT_FOUND); // 또는 에러 페이지로 리다이렉트
     }
 
-    Long loginUserId = (Long) session.getAttribute("loginUser");
     List<CommentResponseDto> comments = commentService.getComments(postId, loginUserId);
-
-    long likeCount = likeService.getPostLikeCount(postId);
-    boolean isLiked = session.getAttribute("loginUser") != null &&
-        likeService.isPostLiked(postId, loginUserId);
 
     model.addAttribute("post", post);
     model.addAttribute("comments", comments);
     model.addAttribute("commentRequestDto", new CommentRequestDto());
-    model.addAttribute("likeCount", likeCount);
-    model.addAttribute("isLiked", isLiked);
+    model.addAttribute("likeCount", post.getRecommendCount());
+    model.addAttribute("isLiked", post.isLiked());
     model.addAttribute("hpid", hpid);
     return "community/post-detail";
   }
@@ -95,13 +92,18 @@ public class PostController {
       @Valid @ModelAttribute PostRequestDto dto, BindingResult bindingResult,
       @RequestParam(required = false) List<MultipartFile> images,
       HttpSession session, Model model) {
+    Long userId = (Long) session.getAttribute("loginUser");
+    if(userId == null){
+      session.setAttribute("redirectUrl", "/hospitals/" + hpid + "/posts/new");
+      return "redirect:/login";
+    }
+
     if (bindingResult.hasErrors()) {
       model.addAttribute("hpid", hpid);
       return "community/post-form";
     }
 
     try {
-      Long userId = (Long) session.getAttribute("loginUser");
       postService.createPost(hpid, dto, userId, images);
     } catch (CustomException e) {
       model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
@@ -115,7 +117,7 @@ public class PostController {
   public String updatePostForm(@PathVariable String hpid,
       @PathVariable Long postId,
       Model model) {
-    PostResponseDto post = postService.getPost(postId);
+    PostResponseDto post = postService.getPost(postId, null);
     model.addAttribute("post", post);
     model.addAttribute("postRequestDto", new PostRequestDto());
     model.addAttribute("hpid", hpid);
@@ -161,5 +163,4 @@ public class PostController {
 
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }
-
 }
