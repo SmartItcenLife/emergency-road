@@ -10,6 +10,7 @@ import com.itcen.emergencyroad.community.service.UserService;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @RequiredArgsConstructor
 public class UserController {
+
+  private static final List<String> EXCLUDED_REDIRECT_URLS = List.of("/mypage", "/login");
+
 
   private final UserService userService;
   private final KakaoService kakaoService;
@@ -56,7 +60,13 @@ public class UserController {
   }
 
   @GetMapping("/login")
-  public String loginForm(Model model){
+  public String loginForm(@RequestParam(required = false) String redirectUrl,
+      HttpSession session, Model model){
+
+    if (redirectUrl != null) {
+      session.setAttribute("redirectUrl", redirectUrl);
+    }
+
     model.addAttribute("loginRequestDto", new LoginRequestDto());
     model.addAttribute("kakaoLoginUrl", kakaoService.getKakaoLoginUrl());
 
@@ -79,13 +89,9 @@ public class UserController {
       return "auth/login";
     }
 
-//    // 추후에 게시판 개발완료 할 때  해당 url로 변경해야 함.
-//    return "redirect:/posts";
     String role = (String) session.getAttribute("loginRole");
-    if("ADMIN".equals(role)){
-      return "redirect:/admin";
-    }
-    return "redirect:/";
+    String defaultUrl = "ADMIN".equals(role) ? "/admin" : "/home";
+    return resolveRedirectUrl(session, defaultUrl);
   }
 
   @GetMapping("/login/kakao")
@@ -99,13 +105,13 @@ public class UserController {
       return "auth/login";
     }
 
-    return "redirect:/posts";
+    return resolveRedirectUrl(session, "/home");
   }
 
   @GetMapping("/logout")
   public String logout(HttpSession session){
     userService.logout(session);
-    return "redirect:/login";
+    return "redirect:/home";
   }
 
   @GetMapping("/mypage")
@@ -122,21 +128,31 @@ public class UserController {
   public String updateUser(HttpSession session, @Valid @ModelAttribute UpdateUserRequestDto dto,
       BindingResult bindingResult, @RequestParam(required = false) MultipartFile profileImage,
       Model model){
-    if(bindingResult.hasErrors()){
       Long userId = (Long) session.getAttribute("loginUser");
+
+    if(bindingResult.hasErrors()){
       model.addAttribute("user", userService.getUser(userId));
       return "auth/mypage";
     }
 
     try{
-      Long userId = (Long) session.getAttribute("loginUser");
       userService.updateUser(userId, dto, profileImage, session);
     }catch (CustomException e){
       model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
-      Long userId = (Long) session.getAttribute("loginUser");
       model.addAttribute("user", userService.getUser(userId));
       return "auth/mypage";
     }
-    return "redirect:/mypage";
+
+   return resolveRedirectUrl(session, "/mypage");
+  }
+
+  private String resolveRedirectUrl(HttpSession session, String defaultUrl) {
+    String redirectUrl = (String) session.getAttribute("redirectUrl");
+    session.removeAttribute("redirectUrl");
+    if (redirectUrl != null
+        && !EXCLUDED_REDIRECT_URLS.contains(redirectUrl)) {
+      return "redirect:" + redirectUrl;
+    }
+    return "redirect:" + defaultUrl;
   }
 }
