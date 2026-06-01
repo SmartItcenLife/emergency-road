@@ -6,7 +6,6 @@ import com.itcen.emergencyroad.community.dto.post.PostRequestDto;
 import com.itcen.emergencyroad.community.dto.post.PostResponseDto;
 import com.itcen.emergencyroad.community.enums.ReportTargetType;
 import com.itcen.emergencyroad.community.service.CommentService;
-import com.itcen.emergencyroad.community.service.LikeService;
 import com.itcen.emergencyroad.community.service.PostService;
 import com.itcen.emergencyroad.community.service.ReportService;
 import com.itcen.emergencyroad.global.exception.CustomException;
@@ -110,7 +109,7 @@ public class PostController {
       model.addAttribute("hpid", hpid);
       return "community/post-form";
     }
-    return "redirect:/hospitals/" + hpid + "/posts";
+    return postListRedirect(hpid);
   }
 
   @GetMapping("/{postId}/edit")
@@ -142,7 +141,7 @@ public class PostController {
       model.addAttribute("errorMessage", e.getExceptionStatus().getMessage());
       return "community/post-form";
     }
-    return "redirect:/hospitals/" + hpid + "/posts/" + postId;
+    return postDetailRedirect(hpid, postId);
   }
 
   @PostMapping("/{postId}/delete")
@@ -150,7 +149,7 @@ public class PostController {
     Long userId = (Long) session.getAttribute("loginUser");
     String role = (String) session.getAttribute("loginRole");
     postService.deletePost(postId, userId, role);
-    return "redirect:/hospitals/" + hpid + "/posts";
+    return postListRedirect(hpid);
   }
 
   @PostMapping("/{postId}/report")
@@ -161,6 +160,15 @@ public class PostController {
 
     reportService.createReport(reporterId, targetType, postId, reason, hpid);
 
+    return postDetailRedirect(hpid, postId);
+  }
+
+  private String postListRedirect(String hpid) {
+    return "redirect:/hospitals/" + hpid + "/posts";
+  }
+
+  private String postDetailRedirect(String hpid, Long postId) {
     return "redirect:/hospitals/" + hpid + "/posts/" + postId;
   }
+
 }
