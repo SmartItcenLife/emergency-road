@@ -11,13 +11,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Table(name = "comments")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Getter
+@Builder
 public class Comment extends BaseEntity {
 
   @Id
@@ -38,15 +42,6 @@ public class Comment extends BaseEntity {
 
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false;
-
-  public static Comment create(Post post, User user, String content){
-    Comment comment = new Comment();
-    comment.post = post;
-    comment.user = user;
-    comment.content = content;
-
-    return comment;
-  }
 
   public void update(String content){
     this.content = content;

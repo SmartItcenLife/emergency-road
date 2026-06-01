@@ -26,7 +26,7 @@ public class CommentController {
       @Valid @ModelAttribute CommentRequestDto dto,
       BindingResult bindingResult,
       HttpSession session, Model model){
-    if(bindingResult.hasErrors()) return "redirect:/hospitals/" + hpid + "/posts" + postId;
+    if(bindingResult.hasErrors()) return "redirect:/hospitals/" + hpid + "/posts/" + postId;
 
     try{
       Long userId  = (Long) session.getAttribute("loginUser");
