@@ -7,9 +7,15 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   <style>
-    body { background-color: #ffffff; color: #1f2937; }
+
+    * { font-family: 'Pretendard', sans-serif; }
+
+    body {
+      background-color: #ffffff;
+      color: #1f2937;
+    }
 
     .page-container {
       width: 100%;
@@ -31,7 +37,9 @@
       justify-content: space-between;
     }
 
-    .post-body { padding: 20px 16px; }
+    .post-body {
+      padding: 20px 16px;
+    }
 
     .post-topic {
       display: inline-flex;
@@ -74,18 +82,28 @@
       overflow: hidden;
     }
 
-    .author-name { font-weight: 700; font-size: 14px; }
-    .author-meta { font-size: 13px; color: #9ca3af; }
+    .author-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .author-meta {
+      font-size: 13px;
+      color: #9ca3af;
+    }
 
     .post-content-box {
-      background-color: #f9fafb;
-      border-radius: 16px;
-      padding: 16px;
       font-size: 15px;
       line-height: 1.75;
       color: #374151;
       margin-bottom: 16px;
     }
+
+    .post-image-section {
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
 
     .post-image {
       width: 100%;
@@ -117,7 +135,9 @@
       cursor: pointer;
     }
 
-    .action-bar-item.liked { color: #ef4444; }
+    .action-bar-item.liked {
+      color: #ef4444;
+    }
 
     .action-bar-divider {
       width: 1px;
@@ -125,7 +145,9 @@
       margin: 8px 0;
     }
 
-    .comment-section { padding: 0 16px; }
+    .comment-section {
+      padding: 0 16px;
+    }
 
     .comment-header {
       font-size: 18px;
@@ -133,7 +155,9 @@
       margin-bottom: 16px;
     }
 
-    .comment-count { color: #0d6efd; }
+    .comment-count {
+      color: #0d6efd;
+    }
 
     .comment-card {
       padding: 14px 0;
@@ -153,8 +177,15 @@
       overflow: hidden;
     }
 
-    .comment-name { font-weight: 700; font-size: 14px; }
-    .comment-time { font-size: 12px; color: #9ca3af; }
+    .comment-name {
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .comment-time {
+      font-size: 12px;
+      color: #9ca3af;
+    }
 
     .comment-content {
       font-size: 14px;
@@ -175,7 +206,9 @@
       gap: 4px;
     }
 
-    .comment-like-btn.liked { color: #ef4444; }
+    .comment-like-btn.liked {
+      color: #ef4444;
+    }
 
     .more-btn {
       background: none;
@@ -220,6 +253,47 @@
 </head>
 
 <body>
+<!-- 게시글 삭제 모달 -->
+<div class="modal fade" id="deletePostModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 300px; margin: auto;">
+    <div class="modal-content" style="border-radius: 16px; border: none;">
+      <div class="modal-body text-center" style="padding: 28px 24px 16px;">
+        <div style="font-size: 24px; margin-bottom: 12px;">🗑️</div>
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">게시글을 삭제할까요?</div>
+        <div style="font-size: 13px; color: #9ca3af;">삭제된 게시글은 복구할 수 없어요.</div>
+      </div>
+      <div class="modal-footer" style="border: none; padding: 8px 24px 24px; gap: 8px; justify-content: stretch;">
+        <button type="button" class="btn btn-light flex-fill" style="border-radius: 12px;"
+                data-bs-dismiss="modal">취소</button>
+        <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}"
+              method="post" style="flex: 1;">
+          <button type="submit" class="btn btn-primary w-100" style="border-radius: 12px;">삭제</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 댓글 삭제 모달 -->
+<div class="modal fade" id="deleteCommentModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 300px; margin: auto;">
+    <div class="modal-content" style="border-radius: 16px; border: none;">
+      <div class="modal-body text-center" style="padding: 28px 24px 16px;">
+        <div style="font-size: 24px; margin-bottom: 12px;">🗑️</div>
+        <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">댓글을 삭제할까요?</div>
+        <div style="font-size: 13px; color: #9ca3af;">삭제된 댓글은 복구할 수 없어요.</div>
+      </div>
+      <div class="modal-footer" style="border: none; padding: 8px 24px 24px; gap: 8px; justify-content: stretch;">
+        <button type="button" class="btn btn-light flex-fill" style="border-radius: 12px;"
+                data-bs-dismiss="modal">취소</button>
+        <form id="deleteCommentForm" method="post" style="flex: 1;">
+          <button type="submit" class="btn btn-primary w-100" style="border-radius: 12px;">삭제</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="page-container">
 
   <!-- 상단 헤더 -->
@@ -243,15 +317,16 @@
           <li th:if="${session.loginUser == post.userId}">
             <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}"
                   method="post">
-              <button type="submit" class="dropdown-item text-danger"
-                      onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+              <button type="button" class="dropdown-item text-danger"
+                      data-bs-toggle="modal" data-bs-target="#deletePostModal">삭제</button>
             </form>
           </li>
           <li th:if="${session.loginRole == 'ADMIN'}">
             <form th:action="@{/hospitals/{hpid}/posts/{postId}/delete(hpid=${hpid}, postId=${post.id})}"
                   method="post">
               <button type="submit" class="dropdown-item text-danger"
-                      onclick="return confirm('[관리자] 삭제하시겠습니까?')">관리자 삭제</button>
+                      onclick="return confirm('[관리자] 삭제하시겠습니까?')">관리자 삭제
+              </button>
             </form>
           </li>
         </ul>
@@ -285,30 +360,40 @@
       </div>
     </div>
 
-    <div class="post-content-box">
+      <div class="post-content-box">
       <!-- 내용 -->
-      <p th:text="${post.content}" style="white-space: pre-line; margin-bottom: 0;"></p>
-
+        <p th:text="${post.content}" style="white-space: pre-line; margin-bottom: 0;"></p>
+      </div>
+  </div>
       <!-- 이미지 -->
-      <div th:if="${post.imageUrls != null && !post.imageUrls.isEmpty()}" class="mt-3">
+    <div th:if="${post.imageUrls != null && !post.imageUrls.isEmpty()}" class="post-image-section">
         <img th:each="imageUrl : ${post.imageUrls}"
              th:src="${imageUrl}" class="post-image">
       </div>
-    </div>
-  </div>
 
   <!-- 공감/댓글 액션 바 -->
   <div class="action-bar">
     <form th:action="@{/hospitals/{hpid}/posts/{postId}/like(hpid=${hpid}, postId=${post.id})}"
           method="post" style="flex: 1;">
-      <button type="submit"
+      <!-- 로그인 상태 -->
+      <button th:if="${session.loginUser != null}"
+              type="submit"
               class="action-bar-item w-100"
               th:classappend="${isLiked} ? ' liked'"
               th:disabled="${session.loginUser == null}">
         <i th:class="${isLiked} ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
         <span>공감 <span th:text="${likeCount}"></span></span>
       </button>
+
+      <!-- 비로그인 -->
+      <a th:if = "${session.loginUser == null}"
+         th:href="${'/login?redirectUrl=/hospitals/' + hpid + '/posts/' + post.id}"
+         class="action-bar-item w-100 text-decoration-none">
+        <i class = "bi bi-heart"></i>
+        <span>공감<span th:text="${likeCount}"></span></span>
+      </a>
     </form>
+
     <div class="action-bar-divider"></div>
     <div class="action-bar-item">
       <i class="bi bi-chat"></i>
@@ -363,7 +448,8 @@
             </div>
 
             <!-- 수정/삭제/관리자 드롭다운 -->
-            <div th:if="${session.loginUser != null && (session.loginUser == comment.userId || session.loginRole == 'ADMIN')}">
+            <div
+                th:if="${session.loginUser != null && (session.loginUser == comment.userId || session.loginRole == 'ADMIN')}">
               <div class="dropdown">
                 <button class="more-btn" data-bs-toggle="dropdown">
                   <i class="bi bi-three-dots"></i>
@@ -371,20 +457,25 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                   <li th:if="${session.loginUser == comment.userId}">
                     <button class="dropdown-item" type="button"
-                            th:onclick="|toggleEditForm('edit-form-' + ${comment.id})|">수정</button>
+                            th:onclick="|toggleEditForm('edit-form-' + ${comment.id})|">수정
+                    </button>
                   </li>
                   <li th:if="${session.loginUser == comment.userId}">
-                    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
-                          method="post">
-                      <button type="submit" class="dropdown-item text-danger"
-                              onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+                    <form
+                        th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+                        method="post">
+                      <button type="button" class="dropdown-item text-danger"
+                              th:data-comment-id="${comment.id}"
+                              onclick="openDeleteCommentModal(this)">삭제</button>
                     </form>
                   </li>
                   <li th:if="${session.loginRole == 'ADMIN'}">
-                    <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
-                          method="post">
+                    <form
+                        th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/delete(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+                        method="post">
                       <button type="submit" class="dropdown-item text-danger"
-                              onclick="return confirm('[관리자] 삭제하시겠습니까?')">관리자 삭제</button>
+                              onclick="return confirm('[관리자] 삭제하시겠습니까?')">관리자 삭제
+                      </button>
                     </form>
                   </li>
                 </ul>
@@ -396,18 +487,25 @@
 
           <!-- 댓글 수정 폼 -->
           <div th:id="'edit-form-' + ${comment.id}" style="display: none;" class="mb-2">
-            <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/edit(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
-                  method="post" class="d-flex gap-2">
+            <form
+                th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/edit(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+                method="post" style="display: flex; gap: 8px; align-items: center;">
               <input type="text" name="content" th:value="${comment.content}"
-                     class="form-control form-control-sm" style="border-radius: 10px;">
-              <button type="submit" class="btn btn-primary btn-sm">저장</button>
+                     style="flex: 1; border: none; border-bottom: 1.5px solid #0d6efd;
+                      border-radius: 0; padding: 4px 8px 4px 0;
+                      font-size: 14px; outline: none; background: transparent;">
+              <button type="submit"  style="height: 36px; padding: 0 16px; border-radius: 20px;
+                   background-color: #0d6efd; color: white;
+                   border: none; font-size: 13px; font-weight: 600;
+                   white-space: nowrap; cursor: pointer;">저장</button>
             </form>
           </div>
 
           <!-- 댓글 좋아요 + 신고 -->
           <div class="d-flex align-items-center justify-content-between">
-            <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/like(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
-                  method="post">
+            <form
+                th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/like(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
+                method="post">
               <button type="submit"
                       class="comment-like-btn"
                       th:classappend="${comment.liked} ? ' liked'"
@@ -422,7 +520,8 @@
                   th:action="@{/hospitals/{hpid}/posts/{postId}/comments/{commentId}/report(hpid=${hpid}, postId=${post.id}, commentId=${comment.id})}"
                   method="post" class="d-flex gap-2">
               <input type="hidden" name="targetType" value="COMMENT">
-              <select name="reason" required class="form-select form-select-sm" style="border-radius: 10px; width: 130px; font-size: 12px;">
+              <select name="reason" required class="form-select form-select-sm"
+                      style="border-radius: 10px; width: 130px; font-size: 12px;">
                 <option value="">사유 선택</option>
                 <option value="스팸 홍보/도배">스팸 홍보/도배</option>
                 <option value="욕설/혐오/차별">욕설/혐오/차별</option>
@@ -441,7 +540,6 @@
   </div>
 
 </div>
-
 <!-- 하단 댓글 입력 -->
 <div th:if="${session.loginUser != null}" class="comment-input-bar">
   <form th:action="@{/hospitals/{hpid}/posts/{postId}/comments(hpid=${hpid}, postId=${post.id})}"
@@ -451,8 +549,10 @@
   </form>
 </div>
 
+<!--댓글 입력 버튼 -->
 <div th:if="${session.loginUser == null}" class="comment-input-bar">
-  <a th:href="@{/login}" class="btn btn-outline-primary w-100" style="border-radius: 20px;">
+  <a th:href="${'/login?redirectUrl=/hospitals/' + hpid + '/posts/' + post.id}"
+     class="btn btn-outline-primary w-100" style="border-radius: 20px;">
     로그인 후 댓글을 작성할 수 있습니다
   </a>
 </div>
@@ -463,6 +563,16 @@
     const form = document.getElementById(id);
     form.style.display = form.style.display === 'none' ? 'block' : 'none';
   }
+
+  function openDeleteCommentModal(btn) {
+    const commentId = btn.getAttribute('data-comment-id');
+    const hpid = /*[[${hpid}]]*/ '';
+    const postId = /*[[${post.id}]]*/ '';
+    const form = document.getElementById('deleteCommentForm');
+    form.action = `/hospitals/${hpid}/posts/${postId}/comments/${commentId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteCommentModal')).show();
+  }
+
 </script>
 </body>
 </html>
