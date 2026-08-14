@@ -13,10 +13,10 @@ import com.itcen.emergencyroad.community.repository.UserRepository;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import com.itcen.emergencyroad.global.exception.ExceptionStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Controller
+@Service
 @RequiredArgsConstructor
 public class LikeService {
 
@@ -44,16 +44,6 @@ public class LikeService {
     return true;
   }
 
-  @Transactional(readOnly = true)
-  public long getPostLikeCount(Long postId){
-    return postLikeRepository.countByPost_Id(postId);
-  }
-
-  @Transactional(readOnly = true)
-  public boolean isPostLiked(Long postId, Long userId){
-    return postLikeRepository.existsByPost_IdAndUser_Id(postId, userId);
-  }
-
   @Transactional
   public boolean toggleCommentLike(Long commentId, Long userId){
     Comment comment = commentRepository.findById(commentId)
@@ -70,15 +60,5 @@ public class LikeService {
     CommentLike commentLike = CommentLike.create(user, comment);
     commentLikeRepository.save(commentLike);
     return true;
-  }
-
-  @Transactional(readOnly = true)
-  public long getCommentLikeCount(Long commentId) {
-    return commentLikeRepository.countByComment_Id(commentId);
-  }
-
-  @Transactional(readOnly = true)
-  public boolean isCommentLiked(Long commentId, Long userId) {
-    return commentLikeRepository.existsByComment_IdAndUser_Id(commentId, userId);
   }
 }

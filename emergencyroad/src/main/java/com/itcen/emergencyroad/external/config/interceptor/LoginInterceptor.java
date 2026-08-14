@@ -12,7 +12,31 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     HttpSession session = request.getSession(false);
 
+    if ("GET".equalsIgnoreCase(request.getMethod())
+        && request.getRequestURI().equals("/mypage")) {
+      String referer = request.getHeader("Referer");
+      if (referer != null && !referer.contains("/mypage") && !referer.contains("/login")) {
+        request.getSession().setAttribute("redirectUrl", referer);
+      }
+    }
+
     if (session == null || session.getAttribute("loginUser") == null) {
+      String redirectUrl;
+
+      if ("POST".equalsIgnoreCase(request.getMethod())) {
+        redirectUrl = request.getHeader("Referer");
+        if (redirectUrl == null) {
+          redirectUrl = "/home";
+        }
+      } else {
+        redirectUrl = request.getRequestURI();
+        String queryString = request.getQueryString();
+        if (queryString != null) {
+          redirectUrl += "?" + queryString;
+        }
+      }
+
+      request.getSession().setAttribute("redirectUrl", redirectUrl);
       response.sendRedirect("/login");
       return false;
     }

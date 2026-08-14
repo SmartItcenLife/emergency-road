@@ -5,6 +5,8 @@ import com.itcen.emergencyroad.community.dto.SignupRequestDto;
 import com.itcen.emergencyroad.community.dto.UpdateUserRequestDto;
 import com.itcen.emergencyroad.community.dto.kakao.KakaoUserInfoDto;
 import com.itcen.emergencyroad.community.entity.User;
+import com.itcen.emergencyroad.community.enums.LoginType;
+import com.itcen.emergencyroad.community.enums.Role;
 import com.itcen.emergencyroad.community.repository.UserRepository;
 import com.itcen.emergencyroad.global.exception.CustomException;
 import com.itcen.emergencyroad.global.exception.ExceptionStatus;
@@ -43,13 +45,15 @@ public class UserService {
 
       String encodedPw = passwordEncoder.encode(dto.getPassword());
 
-    User user = User.createLocalUser(
-      dto.getUserName(),
-      encodedPw,
-      dto.getNickname(),
-      dto.getEmail(),
-      dto.getProfileImageUrl()
-    );
+      User user = User.builder()
+          .userName(dto.getUserName())
+          .role(Role.USER)
+          .password(encodedPw)
+          .nickname(dto.getNickname())
+          .email(dto.getEmail())
+          .profileImageUrl(dto.getProfileImageUrl())
+          .loginType(LoginType.LOCAL)
+          .build();
 
     userRepository.save(user);
   }
@@ -78,20 +82,33 @@ public class UserService {
     User user = userRepository.findByKakaoId(kakaoId)
         .orElseGet(() -> {
           String nickname = kakaoUserInfo.getNickname();
+
+          if (nickname == null || nickname.isBlank()) {
+            nickname = "kakao_" + kakaoId.substring(0, Math.min(kakaoId.length(), 8));
+          }
+
           if(userRepository.existsByNickname(nickname)){
             // 카카오 닉네임은 최대 20자여서 _(1자)와 UUID(9자)를 합치면 딱 30자가 맞춰집니다.
-              nickname = nickname + "_" + UUID.randomUUID().toString().substring(0,9);
+            nickname = nickname + "_" + UUID.randomUUID().toString().substring(0,9);
           }
-          User newUser = User.createKakaoUser(
-              kakaoId,
-              nickname,
-              kakaoUserInfo.getProfileImageUrl()
-          );
+
+          User newUser = User.builder()
+              .userName(nickname)
+              .nickname(nickname)
+              .kakaoId(kakaoId)
+              .role(Role.USER)
+              .loginType(LoginType.KAKAO)
+              .profileImageUrl(kakaoUserInfo.getProfileImageUrl())
+              .build();
+
           return userRepository.save(newUser);
 
         });
 
-    user.updateKakaoProfile(kakaoUserInfo.getNickname(), kakaoUserInfo.getProfileImageUrl());
+    String kakaoNickname = kakaoUserInfo.getNickname();
+    if (kakaoNickname != null && !kakaoNickname.isBlank()) {
+      user.updateKakaoProfile(kakaoNickname, kakaoUserInfo.getProfileImageUrl());
+    }
 
     setSession(session, user,accessToken);
   }

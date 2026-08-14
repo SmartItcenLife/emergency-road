@@ -22,6 +22,7 @@ public class PostResponseDto {
   private long recommendCount;
   private long commentCount;
   private String profileImageUrl;
+  private boolean isLiked;
 
   public static PostResponseDto from(Post post, List<String> imageUrls, long recommendCount, long commentCount){
     PostResponseDto dto = new PostResponseDto();
@@ -40,6 +41,12 @@ public class PostResponseDto {
     dto.commentCount = commentCount;
     dto.profileImageUrl = post.getUser().getProfileImageUrl();
 
+    return dto;
+  }
+
+  public static PostResponseDto from(Post post, List<String> imageUrls, long recommendCount, long commentCount, boolean isLiked){
+    PostResponseDto dto = from(post, imageUrls, recommendCount, commentCount);
+    dto.isLiked = isLiked;
     return dto;
   }
 }

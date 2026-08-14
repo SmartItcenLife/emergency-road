@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
-@Slf4j
 public class PostRequestDto {
 
   @NotBlank(message = "제목을 입력해주세요")
@@ -17,6 +16,4 @@ public class PostRequestDto {
 
   @NotBlank(message = "내용을 입력해주세요")
   private String content;
-
-  private String hospitalId;
 }
